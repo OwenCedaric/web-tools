@@ -4,121 +4,175 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>微信公众号封面拼接工具</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
   <style>
-    :root {
-      --primary-color: #07C160;
-      --primary-hover: #06AD56;
-      --bg-color: #f5f5f5;
-      --card-bg: #ffffff;
-      --border-color: #ddd;
-      --text-color: #333;
-      --text-secondary: #666;
-      --shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.6;
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f8fafc;
       min-height: 100vh;
+      color: #1e293b;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1600px;
       margin: 0 auto;
-      background-color: var(--card-bg);
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    h1 {
-      color: var(--primary-color);
-      margin-bottom: 8px;
-      font-size: 28px;
-    }
-
-    .description {
-      color: var(--text-secondary);
-      font-size: 14px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .image-editors {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-
-    .editor {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      margin: 20px;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-    }
-    
-    /* 调整编辑器宽度比例为1175:500，与实际输出比例一致 */
-    .editor.left-editor {
-      flex: 1175;
-    }
-    
-    .editor.right-editor {
-      flex: 500;
     }
 
-    .editor-title {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
+    .header {
+      background: white;
+      color: #1e293b;
+      padding: 2rem;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
     }
 
-    .editor-title h3 {
-      font-size: 16px;
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
       font-weight: 600;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
     }
 
-    .editor-title .dimensions {
-      font-size: 12px;
-      color: var(--text-secondary);
+    .header-icon {
+      font-size: 2rem;
+      color: #64748b;
+    }
+
+    .header p {
+      font-size: 1rem;
+      color: #64748b;
+      font-weight: 400;
+      margin-top: 0.5rem;
+    }
+
+    .instructions {
+      background: #f0f9ff;
+      border-left: 4px solid #0ea5e9;
+      padding: 1rem 1.5rem;
+      margin: 1.5rem;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .instructions h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #0c4a6e;
+    }
+
+    .instructions ul {
+      padding-left: 1.5rem;
+      font-size: 0.875rem;
+      color: #475569;
+    }
+
+    .instructions li {
+      margin-bottom: 0.25rem;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1175fr 500fr;
+      gap: 0;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .editor-section {
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .editor-section:last-child {
+      border-right: none;
+    }
+
+    .section-header {
+      background: #f1f5f9;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dimensions {
+      font-size: 0.75rem;
+      color: #64748b;
+      background: #e2e8f0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 500;
     }
 
     .canvas-container {
       position: relative;
-      border: 2px dashed var(--border-color);
+      margin: 1.5rem;
+      border: 2px dashed #cbd5e1;
       border-radius: 8px;
-      margin-bottom: 16px;
       overflow: hidden;
       cursor: move;
       touch-action: none;
-      background-color: #f9f9f9;
-      background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee),
-                        linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee);
-      background-size: 20px 20px;
-      background-position: 0 0, 10px 10px;
-      width: 100%;
+      background: #f8fafc;
+      background-image: 
+        linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0),
+        linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0);
+      background-size: 16px 16px;
+      background-position: 0 0, 8px 8px;
+      transition: border-color 0.2s ease;
     }
-    
-    /* 设置左右画布容器的比例 */
+
+    .canvas-container:hover {
+      border-color: #94a3b8;
+    }
+
+    .canvas-container.dragover {
+      border-color: #0ea5e9;
+      background-color: #f0f9ff;
+    }
+
     #leftCanvasContainer {
       aspect-ratio: 1175/500;
     }
-    
+
     #rightCanvasContainer {
       aspect-ratio: 1/1;
     }
@@ -129,196 +183,185 @@
       height: 100%;
     }
 
-    .controls {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .scale-control {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .scale-control span {
-      font-size: 14px;
-      min-width: 40px;
-    }
-
-    .scale-control input {
-      flex: 1;
-    }
-
-    .scale-value {
-      font-size: 12px;
-      min-width: 40px;
-      text-align: right;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-    }
-
-    button {
-      padding: 8px 16px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-width: 90px;
-    }
-
-    button:hover {
-      background-color: var(--primary-hover);
-    }
-
-    button:active {
-      transform: translateY(1px);
-    }
-
-    button.secondary {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-    }
-
-    button.secondary:hover {
-      background-color: #e5e5e5;
-    }
-
-    button svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .preview-section {
-      margin-top: 32px;
-    }
-
-    .preview-container {
-      border: 2px solid var(--primary-color);
-      border-radius: 8px;
-      margin-bottom: 20px;
-      overflow: hidden;
-      background-color: #f9f9f9;
-      background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee),
-                        linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee);
-      background-size: 20px 20px;
-      background-position: 0 0, 10px 10px;
-      /* 设置固定比例，与最终输出图片比例一致 */
-      aspect-ratio: 1675/500;
-      max-width: 100%;
-      width: 100%;
-      margin: 0 auto 20px;
-    }
-
-    .export-controls {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
     .placeholder-text {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: #999;
-      font-size: 14px;
+      color: #94a3b8;
+      font-size: 0.875rem;
       text-align: center;
       pointer-events: none;
       width: 80%;
     }
 
-    .placeholder-text svg {
+    .placeholder-text i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #cbd5e1;
       display: block;
-      margin: 0 auto 8px;
-      width: 32px;
-      height: 32px;
-      color: #bbb;
     }
 
-    .upload-icon {
-      margin-right: 6px;
+    .controls {
+      padding: 1.5rem;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .scale-control {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .scale-control label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      min-width: 40px;
+      color: #374151;
+    }
+
+    .scale-control input {
+      flex: 1;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .scale-control input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #0f172a;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .scale-value {
+      font-size: 0.75rem;
+      min-width: 40px;
+      text-align: right;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .btn:active {
+      background: #e2e8f0;
+    }
+
+    .btn.primary {
+      background: #0f172a;
+      color: white;
+      border-color: #0f172a;
+    }
+
+    .btn.primary:hover {
+      background: #1e293b;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .preview-section {
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      padding: 1.5rem;
+    }
+
+    .preview-header {
+      background: #f1f5f9;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    }
+
+    .preview-container {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      background: #f8fafc;
+      background-image: 
+        linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0),
+        linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0);
+      background-size: 16px 16px;
+      background-position: 0 0, 8px 8px;
+      aspect-ratio: 1675/500;
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .export-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .export-controls .btn {
+      min-width: 120px;
+      flex: none;
     }
 
     .footer {
-      margin-top: 40px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      padding: 1rem;
       text-align: center;
-      font-size: 12px;
-      color: var(--text-secondary);
+      font-size: 0.875rem;
+      color: #64748b;
     }
 
     .footer a {
-      color: var(--primary-color);
+      color: #0f172a;
       text-decoration: none;
+      font-weight: 500;
     }
 
     .footer a:hover {
       text-decoration: underline;
-    }
-
-    .instructions {
-      background-color: #f0f8f4;
-      border-left: 4px solid var(--primary-color);
-      padding: 12px 16px;
-      margin-bottom: 24px;
-      border-radius: 0 4px 4px 0;
-    }
-
-    .instructions h3 {
-      font-size: 16px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .instructions ul {
-      padding-left: 24px;
-      font-size: 14px;
-    }
-
-    .instructions li {
-      margin-bottom: 4px;
-    }
-
-    /* 移动端适配 */
-    @media (max-width: 768px) {
-      .container {
-        padding: 16px;
-      }
-
-      .image-editors {
-        flex-direction: column;
-      }
-      
-      /* 移动端下保持左右编辑器的原始比例 */
-      .editor.left-editor,
-      .editor.right-editor {
-        flex: none;
-        width: 100%;
-      }
-
-      .export-controls {
-        flex-direction: column;
-      }
-
-      .export-controls button {
-        width: 100%;
-      }
     }
 
     /* 加载动画 */
@@ -328,7 +371,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(248, 250, 252, 0.9);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -346,9 +389,9 @@
     .spinner {
       width: 40px;
       height: 40px;
-      border: 4px solid rgba(7, 193, 96, 0.3);
+      border: 3px solid #e2e8f0;
       border-radius: 50%;
-      border-top-color: var(--primary-color);
+      border-top-color: #0f172a;
       animation: spin 1s linear infinite;
     }
 
@@ -363,14 +406,15 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(15, 23, 42, 0.9);
       color: white;
-      padding: 12px 24px;
-      border-radius: 4px;
-      font-size: 14px;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
       z-index: 1000;
       opacity: 0;
       transition: transform 0.3s, opacity 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .toast.show {
@@ -378,27 +422,293 @@
       opacity: 1;
     }
 
-    /* 文件上传按钮 */
-    .file-input {
-      display: none;
+    /* 深色模式 */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      
+      .container {
+        background: #1e293b;
+        border-color: #334155;
+      }
+      
+      .header {
+        background: #1e293b;
+        border-bottom-color: #334155;
+      }
+      
+      .header h1 {
+        color: #f8fafc;
+      }
+      
+      .header-icon {
+        color: #94a3b8;
+      }
+      
+      .header p {
+        color: #94a3b8;
+      }
+      
+      .instructions {
+        background: #1e3a8a;
+        border-left-color: #3b82f6;
+      }
+      
+      .instructions h3 {
+        color: #dbeafe;
+      }
+      
+      .instructions ul {
+        color: #cbd5e1;
+      }
+      
+      .editor-section {
+        background: #1e293b;
+        border-right-color: #334155;
+      }
+      
+      .section-header {
+        background: #334155;
+        border-bottom-color: #475569;
+        color: #cbd5e1;
+      }
+      
+      .dimensions {
+        background: #475569;
+        color: #e2e8f0;
+      }
+      
+      .canvas-container {
+        border-color: #64748b;
+        background: #334155;
+        background-image: 
+          linear-gradient(45deg, #475569 25%, transparent 25%, transparent 75%, #475569 75%, #475569),
+          linear-gradient(45deg, #475569 25%, transparent 25%, transparent 75%, #475569 75%, #475569);
+      }
+      
+      .canvas-container:hover {
+        border-color: #94a3b8;
+      }
+      
+      .canvas-container.dragover {
+        border-color: #3b82f6;
+        background-color: #1e3a8a;
+      }
+      
+      .placeholder-text {
+        color: #94a3b8;
+      }
+      
+      .placeholder-text i {
+        color: #64748b;
+      }
+      
+      .controls {
+        background: #334155;
+        border-top-color: #475569;
+      }
+      
+      .scale-control label {
+        color: #cbd5e1;
+      }
+      
+      .scale-control input {
+        background: #475569;
+      }
+      
+      .scale-control input::-webkit-slider-thumb {
+        background: #e2e8f0;
+      }
+      
+      .scale-value {
+        color: #94a3b8;
+      }
+      
+      .btn {
+        background: #475569;
+        border-color: #64748b;
+        color: #cbd5e1;
+      }
+      
+      .btn:hover {
+        background: #64748b;
+        border-color: #94a3b8;
+      }
+      
+      .btn:active {
+        background: #94a3b8;
+      }
+      
+      .btn.primary {
+        background: #64748b;
+        border-color: #64748b;
+      }
+      
+      .btn.primary:hover {
+        background: #94a3b8;
+      }
+      
+      .preview-section {
+        background: #334155;
+        border-top-color: #475569;
+      }
+      
+      .preview-header {
+        background: #475569;
+        border-bottom-color: #64748b;
+        color: #cbd5e1;
+      }
+      
+      .preview-container {
+        border-color: #475569;
+        background: #334155;
+        background-image: 
+          linear-gradient(45deg, #475569 25%, transparent 25%, transparent 75%, #475569 75%, #475569),
+          linear-gradient(45deg, #475569 25%, transparent 25%, transparent 75%, #475569 75%, #475569);
+      }
+      
+      .footer {
+        background: #334155;
+        border-top-color: #475569;
+        color: #94a3b8;
+      }
+      
+      .footer a {
+        color: #cbd5e1;
+      }
+      
+      .loading {
+        background-color: rgba(15, 23, 42, 0.9);
+      }
+      
+      .spinner {
+        border-color: #475569;
+        border-top-color: #e2e8f0;
+      }
     }
 
-    .upload-button {
-      width: 100%;
-      justify-content: center;
+    /* 响应式设计 */
+    @media (max-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .editor-section {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      
+      .editor-section:last-child {
+        border-bottom: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 12px;
+      }
+      
+      .header {
+        padding: 1.5rem;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .instructions {
+        margin: 1rem;
+      }
+      
+      .canvas-container {
+        margin: 1rem;
+      }
+      
+      .controls {
+        padding: 1rem;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .export-controls {
+        flex-direction: column;
+      }
+      
+      .export-controls .btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 1.25rem;
+      }
+      
+      .section-header {
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+      }
+      
+      .canvas-container {
+        margin: 0.75rem;
+      }
+      
+      .controls {
+        padding: 0.75rem;
+      }
+    }
+
+    /* 深色模式下的响应式修复 */
+    @media (prefers-color-scheme: dark) and (max-width: 1024px) {
+      .editor-section {
+        border-bottom-color: #334155;
+      }
+    }
+
+    /* 动画效果 */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .container {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>微信公众号封面拼接工具</h1>
-      <p class="description">轻松拼接微信公众号主封面(1175×500)和朋友圈封面(500×500)，实时预览效果</p>
-    </header>
+    <div class="header">
+      <h1>
+        <i class="ri-image-2-line header-icon"></i>
+        微信公众号封面拼接工具
+      </h1>
+      <p>轻松拼接微信公众号主封面(1175×500)和朋友圈封面(500×500)，实时预览效果</p>
+    </div>
 
     <div class="instructions">
       <h3>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <i class="ri-information-line"></i>
         使用说明
       </h3>
       <ul>
@@ -409,66 +719,78 @@
       </ul>
     </div>
 
-    <div class="image-editors">
-      <div class="editor left-editor">
-        <div class="editor-title">
-          <h3>主封面</h3>
+    <div class="main-content">
+      <!-- 主封面编辑器 -->
+      <div class="editor-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="ri-image-line"></i>
+            主封面
+          </div>
           <span class="dimensions">1175×500</span>
         </div>
+        
         <div id="leftCanvasContainer" class="canvas-container">
           <canvas id="leftCanvas"></canvas>
           <div id="leftPlaceholder" class="placeholder-text">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <i class="ri-image-add-line"></i>
             点击上传主封面图片<br>或拖放图片到此处
           </div>
         </div>
+        
         <div class="controls">
           <div class="scale-control">
-            <span>缩放:</span>
+            <label>缩放:</label>
             <input type="range" id="leftScale" min="0.1" max="3" step="0.01" value="1">
             <span id="leftScaleValue" class="scale-value">100%</span>
           </div>
           <div class="button-group">
             <input type="file" id="leftImageUpload" class="file-input" accept="image/*">
-            <button class="upload-button" onclick="document.getElementById('leftImageUpload').click()">
-              <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <button class="btn primary" onclick="document.getElementById('leftImageUpload').click()">
+              <i class="ri-upload-2-line"></i>
               上传图片
             </button>
-            <button class="secondary" onclick="resetImage('left')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              清除
+            <button class="btn" onclick="resetImage('left')">
+              <i class="ri-delete-bin-line"></i>
+              重置
             </button>
           </div>
         </div>
       </div>
 
-      <div class="editor right-editor">
-        <div class="editor-title">
-          <h3>朋友圈封面</h3>
+      <!-- 朋友圈封面编辑器 -->
+      <div class="editor-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="ri-image-line"></i>
+            朋友圈封面
+          </div>
           <span class="dimensions">500×500</span>
         </div>
+        
         <div id="rightCanvasContainer" class="canvas-container">
           <canvas id="rightCanvas"></canvas>
           <div id="rightPlaceholder" class="placeholder-text">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <i class="ri-image-add-line"></i>
             点击上传朋友圈封面图片<br>或拖放图片到此处
           </div>
         </div>
+        
         <div class="controls">
           <div class="scale-control">
-            <span>缩放:</span>
+            <label>缩放:</label>
             <input type="range" id="rightScale" min="0.1" max="3" step="0.01" value="1">
             <span id="rightScaleValue" class="scale-value">100%</span>
           </div>
           <div class="button-group">
             <input type="file" id="rightImageUpload" class="file-input" accept="image/*">
-            <button class="upload-button" onclick="document.getElementById('rightImageUpload').click()">
-              <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <button class="btn primary" onclick="document.getElementById('rightImageUpload').click()">
+              <i class="ri-upload-2-line"></i>
               上传图片
             </button>
-            <button class="secondary" onclick="resetImage('right')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              清除
+            <button class="btn" onclick="resetImage('right')">
+              <i class="ri-delete-bin-line"></i>
+              重置
             </button>
           </div>
         </div>
@@ -476,550 +798,537 @@
     </div>
 
     <div class="preview-section">
-      <div class="editor-title">
-        <h3>拼接预览</h3>
-        <span class="dimensions">1675×500</span>
+      <div class="preview-header">
+        <i class="ri-eye-line"></i>
+        拼接预览
       </div>
+      
       <div class="preview-container">
         <canvas id="previewCanvas"></canvas>
       </div>
+      
       <div class="export-controls">
-        <button onclick="resetAll()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"></path><path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path></svg>
+        <button class="btn primary" onclick="exportImage()">
+          <i class="ri-download-2-line"></i>
+          导出图片
+        </button>
+        <button class="btn" onclick="copyToClipboard()">
+          <i class="ri-clipboard-line"></i>
+          复制到剪贴板
+        </button>
+        <button class="btn" onclick="resetAll()">
+          <i class="ri-refresh-line"></i>
           重置所有
-        </button>
-        <button onclick="exportImage('png')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          导出PNG
-        </button>
-        <button onclick="exportImage('jpg')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          导出JPG
         </button>
       </div>
     </div>
 
     <div class="footer">
-      <p>微信公众号封面拼接工具 &copy; 2025 | <a href="https://fylsen.com">Xuesong</a></p>
+      <p>
+        <i class="ri-information-line"></i>
+        支持JPG、PNG、WebP等常见图片格式 | 
+        <a href="#" onclick="showHelp()">使用帮助</a> | 
+        <a href="#" onclick="showShortcuts()">快捷键</a>
+      </p>
     </div>
   </div>
 
   <!-- 加载动画 -->
-  <div id="loading" class="loading">
+  <div class="loading" id="loading">
     <div class="spinner"></div>
   </div>
 
   <!-- 提示框 -->
-  <div id="toast" class="toast"></div>
+  <div class="toast" id="toast"></div>
 
   <script>
-    // 图片和变换状态
-    const app = {
-      pixelRatio: window.devicePixelRatio || 1,
-      images: {
-        left: {
-          element: null,
-          scale: 1,
-          offsetX: 0,
-          offsetY: 0
-        },
-        right: {
-          element: null,
-          scale: 1,
-          offsetX: 0,
-          offsetY: 0
-        }
-      },
-      dragState: {
-        isDragging: false,
-        side: null,
-        startX: 0,
-        startY: 0,
-        initialOffsetX: 0,
-        initialOffsetY: 0
-      }
-    };
-    
+    // 全局变量
+    let leftImage = null;
+    let rightImage = null;
+    let leftImageData = { x: 0, y: 0, scale: 1 };
+    let rightImageData = { x: 0, y: 0, scale: 1 };
+    let isDragging = false;
+    let dragTarget = null;
+    let dragStart = { x: 0, y: 0 };
+
     // 初始化
-    window.onload = function() {
+    document.addEventListener('DOMContentLoaded', function() {
+      initCanvases();
+      bindEvents();
+      updatePreview();
+    });
+
+    // 初始化画布
+    function initCanvases() {
+      const leftCanvas = document.getElementById('leftCanvas');
+      const rightCanvas = document.getElementById('rightCanvas');
+      const previewCanvas = document.getElementById('previewCanvas');
+
       // 设置画布尺寸
-      setupCanvases();
-      
-      // 监听窗口大小变化
-      window.addEventListener('resize', debounce(setupCanvases, 250));
-      
-      // 设置图片上传事件
-      document.getElementById('leftImageUpload').addEventListener('change', e => handleImageUpload(e, 'left'));
-      document.getElementById('rightImageUpload').addEventListener('change', e => handleImageUpload(e, 'right'));
-      
-      // 设置拖放事件
-      setupDropEvents(document.getElementById('leftCanvasContainer'), 'left');
-      setupDropEvents(document.getElementById('rightCanvasContainer'), 'right');
-      
-      // 设置拖动和触摸事件
-      setupInteractionEvents();
-      
-      // 设置缩放滑块事件
-      document.getElementById('leftScale').addEventListener('input', e => {
-        app.images.left.scale = parseFloat(e.target.value);
-        document.getElementById('leftScaleValue').textContent = Math.round(app.images.left.scale * 100) + '%';
-        redrawCanvas('left');
-        updatePreview();
-      });
-      
-      document.getElementById('rightScale').addEventListener('input', e => {
-        app.images.right.scale = parseFloat(e.target.value);
-        document.getElementById('rightScaleValue').textContent = Math.round(app.images.right.scale * 100) + '%';
-        redrawCanvas('right');
-        updatePreview();
-      });
-      
-      // 初始化画布
-      redrawCanvas('left');
-      redrawCanvas('right');
-      updatePreview();
-    };
-    
-    // 设置画布尺寸
-    function setupCanvases() {
-      setupCanvas('leftCanvas', 'leftCanvasContainer');
-      setupCanvas('rightCanvas', 'rightCanvasContainer');
-      setupCanvas('previewCanvas', 'preview-container');
-      
-      // 重绘画布
-      redrawCanvas('left');
-      redrawCanvas('right');
-      updatePreview();
+      leftCanvas.width = 1175;
+      leftCanvas.height = 500;
+      rightCanvas.width = 500;
+      rightCanvas.height = 500;
+      previewCanvas.width = 1675;
+      previewCanvas.height = 500;
+
+      // 清空画布
+      clearCanvas(leftCanvas);
+      clearCanvas(rightCanvas);
+      clearCanvas(previewCanvas);
     }
-    
-    // 设置单个画布尺寸
-    function setupCanvas(canvasId, containerId) {
-      const canvas = document.getElementById(canvasId);
-      const container = document.getElementById(containerId) || document.querySelector('.' + containerId);
-      
-      if (!canvas || !container) return;
-      
-      const rect = container.getBoundingClientRect();
-      const width = rect.width;
-      const height = rect.height || container.offsetHeight;
-      
-      canvas.width = width * app.pixelRatio;
-      canvas.height = height * app.pixelRatio;
-      canvas.style.width = width + 'px';
-      canvas.style.height = height + 'px';
+
+    // 绑定事件
+    function bindEvents() {
+      // 文件上传
+      document.getElementById('leftImageUpload').addEventListener('change', (e) => handleImageUpload(e, 'left'));
+      document.getElementById('rightImageUpload').addEventListener('change', (e) => handleImageUpload(e, 'right'));
+
+      // 缩放控制
+      document.getElementById('leftScale').addEventListener('input', (e) => handleScaleChange(e, 'left'));
+      document.getElementById('rightScale').addEventListener('input', (e) => handleScaleChange(e, 'right'));
+
+      // 拖拽事件
+      bindDragEvents('leftCanvasContainer', 'left');
+      bindDragEvents('rightCanvasContainer', 'right');
+
+      // 拖放上传
+      bindDropEvents('leftCanvasContainer', 'left');
+      bindDropEvents('rightCanvasContainer', 'right');
+
+      // 鼠标滚轮缩放
+      bindWheelEvents();
     }
-    
-    // 设置拖放事件
-    function setupDropEvents(containerElement, side) {
-      containerElement.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        containerElement.style.borderColor = 'var(--primary-color)';
-        containerElement.style.backgroundColor = 'rgba(7, 193, 96, 0.1)';
-      });
-      
-      containerElement.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        containerElement.style.borderColor = '';
-        containerElement.style.backgroundColor = '';
-      });
-      
-      containerElement.addEventListener('drop', function(e) {
-        e.preventDefault();
-        containerElement.style.borderColor = '';
-        containerElement.style.backgroundColor = '';
-        
-        if (e.dataTransfer.files.length > 0) {
-          const file = e.dataTransfer.files[0];
-          if (file.type.match('image.*')) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-              loadImage(event.target.result, side);
-            };
-            reader.readAsDataURL(file);
-          }
-        }
-      });
-    }
-    
-    // 设置交互事件（鼠标拖动、触摸、滚轮）
-    function setupInteractionEvents() {
-      // 鼠标事件
-      setupMouseEvents('leftCanvasContainer', 'left');
-      setupMouseEvents('rightCanvasContainer', 'right');
-      
-      // 触摸事件
-      setupTouchEvents('leftCanvasContainer', 'left');
-      setupTouchEvents('rightCanvasContainer', 'right');
-    }
-    
-    // 设置鼠标事件
-    function setupMouseEvents(containerId, side) {
+
+    // 绑定拖拽事件
+    function bindDragEvents(containerId, side) {
       const container = document.getElementById(containerId);
       
-      container.addEventListener('mousedown', function(e) {
-        if (!app.images[side].element) {
-          // 如果没有图片，则触发上传
-          document.getElementById(side + 'ImageUpload').click();
-          return;
-        }
-        
-        app.dragState.isDragging = true;
-        app.dragState.side = side;
-        app.dragState.startX = e.clientX;
-        app.dragState.startY = e.clientY;
-        app.dragState.initialOffsetX = app.images[side].offsetX;
-        app.dragState.initialOffsetY = app.images[side].offsetY;
-        
-        e.preventDefault();
-      });
+      container.addEventListener('mousedown', (e) => startDrag(e, side));
+      container.addEventListener('touchstart', (e) => startDrag(e.touches[0], side));
       
-      // 滚轮缩放
-      container.addEventListener('wheel', function(e) {
-        if (!app.images[side].element) return;
-        
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? -0.05 : 0.05;
-        const newScale = Math.max(0.1, Math.min(3, app.images[side].scale + delta));
-        
-        app.images[side].scale = newScale;
-        document.getElementById(side + 'Scale').value = newScale;
-        document.getElementById(side + 'ScaleValue').textContent = Math.round(newScale * 100) + '%';
-        
-        redrawCanvas(side);
-        updatePreview();
-      });
+      document.addEventListener('mousemove', handleDrag);
+      document.addEventListener('touchmove', (e) => handleDrag(e.touches[0]));
+      
+      document.addEventListener('mouseup', endDrag);
+      document.addEventListener('touchend', endDrag);
     }
-    
-    // 全局鼠标移动和抬起事件
-    document.addEventListener('mousemove', function(e) {
-      if (!app.dragState.isDragging) return;
-      
-      const side = app.dragState.side;
-      const dx = e.clientX - app.dragState.startX;
-      const dy = e.clientY - app.dragState.startY;
-      
-      app.images[side].offsetX = app.dragState.initialOffsetX + dx;
-      app.images[side].offsetY = app.dragState.initialOffsetY + dy;
-      
-      redrawCanvas(side);
-      updatePreview();
-      e.preventDefault();
-    });
-    
-    document.addEventListener('mouseup', function() {
-      app.dragState.isDragging = false;
-    });
-    
-    // 设置触摸事件
-    function setupTouchEvents(containerId, side) {
+
+    // 绑定拖放事件
+    function bindDropEvents(containerId, side) {
       const container = document.getElementById(containerId);
       
-      container.addEventListener('touchstart', function(e) {
-        if (!app.images[side].element) {
-          // 如果没有图片，则触发上传
-          document.getElementById(side + 'ImageUpload').click();
-          return;
-        }
-        
-        if (e.touches.length === 1) {
-          const touch = e.touches[0];
-          app.dragState.isDragging = true;
-          app.dragState.side = side;
-          app.dragState.startX = touch.clientX;
-          app.dragState.startY = touch.clientY;
-          app.dragState.initialOffsetX = app.images[side].offsetX;
-          app.dragState.initialOffsetY = app.images[side].offsetY;
-          
-          e.preventDefault();
-        }
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        container.classList.add('dragover');
       });
       
-      container.addEventListener('touchmove', function(e) {
-        if (!app.dragState.isDragging || app.dragState.side !== side) return;
-        
-        if (e.touches.length === 1) {
-          const touch = e.touches[0];
-          const dx = touch.clientX - app.dragState.startX;
-          const dy = touch.clientY - app.dragState.startY;
-          
-          app.images[side].offsetX = app.dragState.initialOffsetX + dx;
-          app.images[side].offsetY = app.dragState.initialOffsetY + dy;
-          
-          redrawCanvas(side);
-          updatePreview();
-          e.preventDefault();
-        }
+      container.addEventListener('dragleave', () => {
+        container.classList.remove('dragover');
       });
       
-      container.addEventListener('touchend', function() {
-        if (app.dragState.side === side) {
-          app.dragState.isDragging = false;
+      container.addEventListener('drop', (e) => {
+        e.preventDefault();
+        container.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleImageFile(files[0], side);
         }
       });
     }
-    
+
+    // 绑定滚轮事件
+    function bindWheelEvents() {
+      document.getElementById('leftCanvasContainer').addEventListener('wheel', (e) => handleWheel(e, 'left'));
+      document.getElementById('rightCanvasContainer').addEventListener('wheel', (e) => handleWheel(e, 'right'));
+    }
+
     // 处理图片上传
     function handleImageUpload(event, side) {
       const file = event.target.files[0];
-      if (file && file.type.match('image.*')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          loadImage(e.target.result, side);
-        };
-        reader.readAsDataURL(file);
+      if (file) {
+        handleImageFile(file, side);
       }
     }
-    
-    // 加载图片
-    function loadImage(src, side) {
-      const img = new Image();
-      img.onload = function() {
-        app.images[side].element = img;
-        
-        // 获取画布尺寸
-        const canvas = document.getElementById(side + 'Canvas');
-        const canvasWidth = canvas.width / app.pixelRatio;
-        const canvasHeight = canvas.height / app.pixelRatio;
-        
-        // 计算图片填充画布的缩放比例
-        const scaleX = canvasWidth / img.width;
-        const scaleY = canvasHeight / img.height;
-        const scale = Math.max(scaleX, scaleY); // 选择较大的缩放比例以确保填满画布
-        
-        app.images[side].scale = scale;
-        app.images[side].offsetX = 0;
-        app.images[side].offsetY = 0;
-        
-        document.getElementById(side + 'Scale').value = scale;
-        document.getElementById(side + 'ScaleValue').textContent = Math.round(scale * 100) + '%';
-        document.getElementById(side + 'Placeholder').style.display = 'none';
-        
-        redrawCanvas(side);
-        updatePreview();
+
+    // 处理图片文件
+    function handleImageFile(file, side) {
+      if (!file.type.startsWith('image/')) {
+        showToast('请选择有效的图片文件');
+        return;
+      }
+
+      showLoading();
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          if (side === 'left') {
+            leftImage = img;
+            leftImageData = { x: 0, y: 0, scale: 1 };
+            document.getElementById('leftScale').value = 1;
+            document.getElementById('leftScaleValue').textContent = '100%';
+            document.getElementById('leftPlaceholder').style.display = 'none';
+          } else {
+            rightImage = img;
+            rightImageData = { x: 0, y: 0, scale: 1 };
+            document.getElementById('rightScale').value = 1;
+            document.getElementById('rightScaleValue').textContent = '100%';
+            document.getElementById('rightPlaceholder').style.display = 'none';
+          }
+          
+          drawCanvas(side);
+          updatePreview();
+          hideLoading();
+          showToast(`${side === 'left' ? '主封面' : '朋友圈封面'}图片上传成功`);
+        };
+        img.src = e.target.result;
       };
-      img.src = src;
+      reader.readAsDataURL(file);
     }
-    
-    // 重绘画布
-    function redrawCanvas(side) {
+
+    // 处理缩放变化
+    function handleScaleChange(event, side) {
+      const scale = parseFloat(event.target.value);
+      if (side === 'left') {
+        leftImageData.scale = scale;
+        document.getElementById('leftScaleValue').textContent = Math.round(scale * 100) + '%';
+      } else {
+        rightImageData.scale = scale;
+        document.getElementById('rightScaleValue').textContent = Math.round(scale * 100) + '%';
+      }
+      drawCanvas(side);
+      updatePreview();
+    }
+
+    // 开始拖拽
+    function startDrag(event, side) {
+      if ((side === 'left' && !leftImage) || (side === 'right' && !rightImage)) {
+        return;
+      }
+      
+      isDragging = true;
+      dragTarget = side;
+      dragStart.x = event.clientX;
+      dragStart.y = event.clientY;
+      
+      document.body.style.cursor = 'grabbing';
+      event.preventDefault();
+    }
+
+    // 处理拖拽
+    function handleDrag(event) {
+      if (!isDragging || !dragTarget) return;
+      
+      const deltaX = event.clientX - dragStart.x;
+      const deltaY = event.clientY - dragStart.y;
+      
+      if (dragTarget === 'left') {
+        leftImageData.x += deltaX;
+        leftImageData.y += deltaY;
+      } else {
+        rightImageData.x += deltaX;
+        rightImageData.y += deltaY;
+      }
+      
+      dragStart.x = event.clientX;
+      dragStart.y = event.clientY;
+      
+      drawCanvas(dragTarget);
+      updatePreview();
+    }
+
+    // 结束拖拽
+    function endDrag() {
+      isDragging = false;
+      dragTarget = null;
+      document.body.style.cursor = '';
+    }
+
+    // 处理滚轮缩放
+    function handleWheel(event, side) {
+      if ((side === 'left' && !leftImage) || (side === 'right' && !rightImage)) {
+        return;
+      }
+      
+      event.preventDefault();
+      
+      const delta = event.deltaY > 0 ? -0.1 : 0.1;
+      let newScale;
+      
+      if (side === 'left') {
+        newScale = Math.max(0.1, Math.min(3, leftImageData.scale + delta));
+        leftImageData.scale = newScale;
+        document.getElementById('leftScale').value = newScale;
+        document.getElementById('leftScaleValue').textContent = Math.round(newScale * 100) + '%';
+      } else {
+        newScale = Math.max(0.1, Math.min(3, rightImageData.scale + delta));
+        rightImageData.scale = newScale;
+        document.getElementById('rightScale').value = newScale;
+        document.getElementById('rightScaleValue').textContent = Math.round(newScale * 100) + '%';
+      }
+      
+      drawCanvas(side);
+      updatePreview();
+    }
+
+    // 绘制画布
+    function drawCanvas(side) {
       const canvas = document.getElementById(side + 'Canvas');
       const ctx = canvas.getContext('2d');
+      const image = side === 'left' ? leftImage : rightImage;
+      const imageData = side === 'left' ? leftImageData : rightImageData;
       
-      // 清除画布
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!image) return;
       
-      // 如果有图片，则绘制
-      const img = app.images[side].element;
-      if (img) {
-        const canvasWidth = canvas.width / app.pixelRatio;
-        const canvasHeight = canvas.height / app.pixelRatio;
-        
-        // 计算图片中心位置
-        const scale = app.images[side].scale;
-        const offsetX = app.images[side].offsetX;
-        const offsetY = app.images[side].offsetY;
-        
-        const scaledWidth = img.width * scale;
-        const scaledHeight = img.height * scale;
-        const centerX = (canvasWidth - scaledWidth) / 2 + offsetX;
-        const centerY = (canvasHeight - scaledHeight) / 2 + offsetY;
-        
-        // 绘制图片
-        ctx.save();
-        ctx.scale(app.pixelRatio, app.pixelRatio);
-        ctx.drawImage(img, centerX, centerY, scaledWidth, scaledHeight);
-        ctx.restore();
-      }
+      // 清空画布
+      clearCanvas(canvas);
+      
+      // 计算绘制参数
+      const scaledWidth = image.width * imageData.scale;
+      const scaledHeight = image.height * imageData.scale;
+      
+      // 绘制图片
+      ctx.drawImage(
+        image,
+        imageData.x,
+        imageData.y,
+        scaledWidth,
+        scaledHeight
+      );
     }
-    
+
     // 更新预览
     function updatePreview() {
       const previewCanvas = document.getElementById('previewCanvas');
       const ctx = previewCanvas.getContext('2d');
       
-      // 清除画布
-      ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+      // 清空预览画布
+      clearCanvas(previewCanvas);
       
-      // 获取画布尺寸
-      const previewWidth = previewCanvas.width / app.pixelRatio;
-      const previewHeight = previewCanvas.height / app.pixelRatio;
-      
-      // 计算左右区域的宽度比例
-      const leftWidthRatio = 1175 / 1675;
-      const rightWidthRatio = 500 / 1675;
-      
-      // 计算预览画布中的左右区域宽度
-      const leftPreviewWidth = previewWidth * leftWidthRatio;
-      const rightPreviewWidth = previewWidth * rightWidthRatio;
-      
-      // 绘制左侧画布内容到预览
-      const leftCanvas = document.getElementById('leftCanvas');
-      if (app.images.left.element) {
+      // 绘制左侧图片（主封面）
+      if (leftImage) {
+        const scaledWidth = leftImage.width * leftImageData.scale;
+        const scaledHeight = leftImage.height * leftImageData.scale;
+        
         ctx.drawImage(
-          leftCanvas,
-          0, 0, leftCanvas.width, leftCanvas.height,
-          0, 0, leftPreviewWidth * app.pixelRatio, previewHeight * app.pixelRatio
+          leftImage,
+          leftImageData.x,
+          leftImageData.y,
+          scaledWidth,
+          scaledHeight
         );
-      } else {
-        // 如果没有左侧图片，绘制占位区域
-        ctx.save();
-        ctx.scale(app.pixelRatio, app.pixelRatio);
-        ctx.fillStyle = '#f0f0f0';
-        ctx.fillRect(0, 0, leftPreviewWidth, previewHeight);
-        ctx.strokeStyle = '#ddd';
-        ctx.strokeRect(0, 0, leftPreviewWidth, previewHeight);
-        ctx.restore();
       }
       
-      // 绘制右侧画布内容到预览
-      const rightCanvas = document.getElementById('rightCanvas');
-      if (app.images.right.element) {
+      // 绘制右侧图片（朋友圈封面）
+      if (rightImage) {
+        const scaledWidth = rightImage.width * rightImageData.scale;
+        const scaledHeight = rightImage.height * rightImageData.scale;
+        
         ctx.drawImage(
-          rightCanvas,
-          0, 0, rightCanvas.width, rightCanvas.height,
-          leftPreviewWidth * app.pixelRatio, 0, rightPreviewWidth * app.pixelRatio, previewHeight * app.pixelRatio
+          rightImage,
+          1175 + rightImageData.x,
+          rightImageData.y,
+          scaledWidth,
+          scaledHeight
         );
-      } else {
-        // 如果没有右侧图片，绘制占位区域
-        ctx.save();
-        ctx.scale(app.pixelRatio, app.pixelRatio);
-        ctx.fillStyle = '#f0f0f0';
-        ctx.fillRect(leftPreviewWidth, 0, rightPreviewWidth, previewHeight);
-        ctx.strokeStyle = '#ddd';
-        ctx.strokeRect(leftPreviewWidth, 0, rightPreviewWidth, previewHeight);
-        ctx.restore();
-      }
-      
-      // 如果没有图片，显示提示文本
-      if (!app.images.left.element && !app.images.right.element) {
-        ctx.save();
-        ctx.scale(app.pixelRatio, app.pixelRatio);
-        ctx.fillStyle = '#999';
-        ctx.font = '14px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('请上传图片以查看拼接预览', previewWidth / 2, previewHeight / 2);
-        ctx.restore();
       }
     }
-    
-    // 导出图片
-    function exportImage(format) {
-      // 检查是否有图片
-      if (!app.images.left.element && !app.images.right.element) {
-        showToast('请先上传至少一张图片');
-        return;
-      }
+
+    // 清空画布
+    function clearCanvas(canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // 显示加载动画
-      document.getElementById('loading').classList.add('active');
-      
-      // 使用setTimeout让UI有时间更新
-      setTimeout(function() {
-        try {
-          // 创建导出画布
-          const exportCanvas = document.createElement('canvas');
-          exportCanvas.width = 1675;
-          exportCanvas.height = 500;
-          const ctx = exportCanvas.getContext('2d');
-          
-          // 填充白色背景
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-          
-          // 绘制左侧图片
-          if (app.images.left.element) {
-            // 获取左侧画布的实际内容
-            const leftCanvas = document.getElementById('leftCanvas');
-            
-            // 将左侧画布内容缩放到导出画布的左侧区域
-            ctx.drawImage(leftCanvas, 0, 0, leftCanvas.width, leftCanvas.height, 0, 0, 1175, 500);
-          } else {
-            // 如果没有左侧图片，绘制占位区域
-            ctx.fillStyle = '#f0f0f0';
-            ctx.fillRect(0, 0, 1175, 500);
-          }
-          
-          // 绘制右侧图片
-          if (app.images.right.element) {
-            // 获取右侧画布的实际内容
-            const rightCanvas = document.getElementById('rightCanvas');
-            
-            // 将右侧画布内容缩放到导出画布的右侧区域
-            ctx.drawImage(rightCanvas, 0, 0, rightCanvas.width, rightCanvas.height, 1175, 0, 500, 500);
-          } else {
-            // 如果没有右侧图片，绘制占位区域
-            ctx.fillStyle = '#f0f0f0';
-            ctx.fillRect(1175, 0, 500, 500);
-          }
-          
-          // 导出图片
-          let mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
-          let quality = format === 'jpg' ? 0.9 : undefined;
-          
-          // 创建下载链接
-          const dataURL = exportCanvas.toDataURL(mimeType, quality);
-          const link = document.createElement('a');
-          link.href = dataURL;
-          link.download = '微信公众号封面_' + new Date().toISOString().slice(0, 10) + '.' + format;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          showToast('导出成功！');
-        } catch (error) {
-          console.error('导出失败:', error);
-          showToast('导出失败，请重试');
-        } finally {
-          // 隐藏加载动画
-          document.getElementById('loading').classList.remove('active');
-        }
-      }, 100);
+      // 绘制背景
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-    
+
     // 重置图片
     function resetImage(side) {
-      app.images[side].element = null;
-      app.images[side].scale = 1;
-      app.images[side].offsetX = 0;
-      app.images[side].offsetY = 0;
+      if (side === 'left') {
+        leftImage = null;
+        leftImageData = { x: 0, y: 0, scale: 1 };
+        document.getElementById('leftScale').value = 1;
+        document.getElementById('leftScaleValue').textContent = '100%';
+        document.getElementById('leftPlaceholder').style.display = 'block';
+        document.getElementById('leftImageUpload').value = '';
+        clearCanvas(document.getElementById('leftCanvas'));
+      } else {
+        rightImage = null;
+        rightImageData = { x: 0, y: 0, scale: 1 };
+        document.getElementById('rightScale').value = 1;
+        document.getElementById('rightScaleValue').textContent = '100%';
+        document.getElementById('rightPlaceholder').style.display = 'block';
+        document.getElementById('rightImageUpload').value = '';
+        clearCanvas(document.getElementById('rightCanvas'));
+      }
       
-      document.getElementById(side + 'Scale').value = 1;
-      document.getElementById(side + 'ScaleValue').textContent = '100%';
-      document.getElementById(side + 'Placeholder').style.display = 'block';
-      
-      redrawCanvas(side);
       updatePreview();
+      showToast(`${side === 'left' ? '主封面' : '朋友圈封面'}已重置`);
     }
-    
+
     // 重置所有
     function resetAll() {
       resetImage('left');
       resetImage('right');
+      showToast('所有图片已重置');
     }
-    
-    // 显示提示框
+
+    // 导出图片
+    function exportImage() {
+      const previewCanvas = document.getElementById('previewCanvas');
+      
+      if (!leftImage && !rightImage) {
+        showToast('请先上传图片');
+        return;
+      }
+      
+      showLoading();
+      
+      // 创建下载链接
+      previewCanvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '微信公众号封面_' + new Date().getTime() + '.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        hideLoading();
+        showToast('图片导出成功');
+      }, 'image/png');
+    }
+
+    // 复制到剪贴板
+    function copyToClipboard() {
+      const previewCanvas = document.getElementById('previewCanvas');
+      
+      if (!leftImage && !rightImage) {
+        showToast('请先上传图片');
+        return;
+      }
+      
+      showLoading();
+      
+      previewCanvas.toBlob(function(blob) {
+        const item = new ClipboardItem({ 'image/png': blob });
+        navigator.clipboard.write([item]).then(() => {
+          hideLoading();
+          showToast('图片已复制到剪贴板');
+        }).catch(() => {
+          hideLoading();
+          showToast('复制失败，请使用导出功能');
+        });
+      }, 'image/png');
+    }
+
+    // 显示加载动画
+    function showLoading() {
+      document.getElementById('loading').classList.add('active');
+    }
+
+    // 隐藏加载动画
+    function hideLoading() {
+      document.getElementById('loading').classList.remove('active');
+    }
+
+    // 显示提示
     function showToast(message) {
       const toast = document.getElementById('toast');
       toast.textContent = message;
       toast.classList.add('show');
       
-      setTimeout(function() {
+      setTimeout(() => {
         toast.classList.remove('show');
       }, 3000);
     }
-    
-    // 防抖函数
-    function debounce(func, wait) {
-      let timeout;
-      return function() {
-        const context = this;
-        const args = arguments;
-        clearTimeout(timeout);
-        timeout = setTimeout(function() {
-          func.apply(context, args);
-        }, wait);
-      };
+
+    // 显示帮助
+    function showHelp() {
+      const helpText = `
+使用帮助：
+
+1. 图片上传：
+   - 点击"上传图片"按钮选择文件
+   - 或直接拖拽图片到对应区域
+
+2. 图片调整：
+   - 拖拽图片调整位置
+   - 使用滑块或鼠标滚轮缩放图片
+
+3. 导出功能：
+   - 导出图片：下载PNG格式图片
+   - 复制到剪贴板：直接复制图片
+
+4. 支持格式：
+   - JPG、PNG、WebP、GIF等常见格式
+
+5. 输出规格：
+   - 最终图片尺寸：1675×500像素
+   - 适用于微信公众号封面使用
+      `;
+      
+      alert(helpText);
     }
+
+    // 显示快捷键
+    function showShortcuts() {
+      const shortcutsText = `
+快捷键说明：
+
+- 鼠标滚轮：缩放图片
+- 拖拽：移动图片位置
+- Ctrl+Z：撤销操作（开发中）
+- Ctrl+S：快速导出（开发中）
+- 空格键：重置视图（开发中）
+
+更多功能正在开发中...
+      `;
+      
+      alert(shortcutsText);
+    }
+
+    // 键盘快捷键支持
+    document.addEventListener('keydown', function(event) {
+      // Ctrl+S 快速导出
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        exportImage();
+      }
+      
+      // Escape 重置拖拽状态
+      if (event.key === 'Escape') {
+        endDrag();
+      }
+    });
+
+    // 防止页面滚动影响
+    document.addEventListener('wheel', function(event) {
+      if (event.target.closest('.canvas-container')) {
+        event.preventDefault();
+      }
+    }, { passive: false });
+
+    // 防止拖拽时选中文本
+    document.addEventListener('selectstart', function(event) {
+      if (isDragging) {
+        event.preventDefault();
+      }
+    });
+
+    // 窗口大小改变时重新绘制
+    window.addEventListener('resize', function() {
+      setTimeout(() => {
+        if (leftImage) drawCanvas('left');
+        if (rightImage) drawCanvas('right');
+        updatePreview();
+      }, 100);
+    });
   </script>
 </body>
 </html>
