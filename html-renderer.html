@@ -1,518 +1,872 @@
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>HTML Renderer</title>
-      <style>
-          * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-          }
-          
-          body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-              color: #ffffff;
-              height: 100vh;
-              display: flex;
-              flex-direction: column;
-              overflow: hidden;
-              transition: all 0.3s ease;
-          }
-          
-          /* Light Mode */
-          @media (prefers-color-scheme: light) {
-              body {
-                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                  color: #ffffff;
-              }
-              
-              body::before {
-                  content: '';
-                  position: fixed;
-                  top: 0;
-                  left: 0;
-                  width: 100%;
-                  height: 100%;
-                  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain-light" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.15"/><circle cx="20" cy="80" r="0.5" fill="white" opacity="0.15"/><circle cx="80" cy="30" r="0.5" fill="white" opacity="0.15"/></pattern></defs><rect width="100" height="100" fill="url(%23grain-light)"/></svg>');
-                  pointer-events: none;
-                  z-index: -1;
-              }
-              
-              .header {
-                  background: rgba(255, 255, 255, 0.1);
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-              }
-              
-              .header h1 {
-                  color: #ffffff;
-                  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-              }
-              
-              .panel {
-                  background: rgba(255, 255, 255, 0.1);
-                  border: 1px solid rgba(255, 255, 255, 0.2);
-                  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-              }
-              
-              .panel:hover {
-                  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-              }
-              
-              .panel-header {
-                  background: rgba(255, 255, 255, 0.1);
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-                  color: rgba(255, 255, 255, 0.9);
-              }
-              
-              #htmlEditor {
-                  background: rgba(255, 255, 255, 0.05);
-                  color: #ffffff;
-              }
-              
-              #htmlEditor::placeholder {
-                  color: rgba(255, 255, 255, 0.5);
-              }
-              
-              #htmlEditor:focus {
-                  background: rgba(255, 255, 255, 0.08);
-              }
-              
-              #htmlEditor::-webkit-scrollbar-track {
-                  background: rgba(255, 255, 255, 0.1);
-              }
-              
-              #htmlEditor::-webkit-scrollbar-thumb {
-                  background: rgba(255, 255, 255, 0.3);
-              }
-              
-              #htmlEditor::-webkit-scrollbar-thumb:hover {
-                  background: rgba(255, 255, 255, 0.5);
-              }
-              
-              .empty-state {
-                  color: rgba(255, 255, 255, 0.6);
-              }
-              
-              .footer {
-                  background: rgba(255, 255, 255, 0.08);
-                  border-top: 1px solid rgba(255, 255, 255, 0.15);
-                  color: rgba(255, 255, 255, 0.7);
-              }
-          }
-          
-          /* Dark Mode */
-          @media (prefers-color-scheme: dark) {
-              body {
-                  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                  color: #e2e8f0;
-              }
-              
-              body::before {
-                  content: '';
-                  position: fixed;
-                  top: 0;
-                  left: 0;
-                  width: 100%;
-                  height: 100%;
-                  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain-dark" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.05"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.05"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.08"/><circle cx="20" cy="80" r="0.5" fill="white" opacity="0.08"/><circle cx="80" cy="30" r="0.5" fill="white" opacity="0.08"/></pattern></defs><rect width="100" height="100" fill="url(%23grain-dark)"/></svg>');
-                  pointer-events: none;
-                  z-index: -1;
-              }
-              
-              .header {
-                  background: rgba(30, 41, 59, 0.3);
-                  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
-              }
-              
-              .header h1 {
-                  color: #e2e8f0;
-                  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-              }
-              
-              .panel {
-                  background: rgba(30, 41, 59, 0.2);
-                  border: 1px solid rgba(100, 116, 139, 0.2);
-                  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-              }
-              
-              .panel:hover {
-                  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-              }
-              
-              .panel-header {
-                  background: rgba(51, 65, 85, 0.3);
-                  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
-                  color: rgba(226, 232, 240, 0.8);
-              }
-              
-              #htmlEditor {
-                  background: rgba(15, 23, 42, 0.3);
-                  color: #e2e8f0;
-              }
-              
-              #htmlEditor::placeholder {
-                  color: rgba(148, 163, 184, 0.6);
-              }
-              
-              #htmlEditor:focus {
-                  background: rgba(15, 23, 42, 0.5);
-              }
-              
-              #htmlEditor::-webkit-scrollbar-track {
-                  background: rgba(51, 65, 85, 0.3);
-              }
-              
-              #htmlEditor::-webkit-scrollbar-thumb {
-                  background: rgba(100, 116, 139, 0.5);
-              }
-              
-              #htmlEditor::-webkit-scrollbar-thumb:hover {
-                  background: rgba(148, 163, 184, 0.7);
-              }
-              
-              .empty-state {
-                  color: rgba(148, 163, 184, 0.7);
-              }
-              
-              .footer {
-                  background: rgba(30, 41, 59, 0.2);
-                  border-top: 1px solid rgba(100, 116, 139, 0.15);
-                  color: rgba(148, 163, 184, 0.7);
-              }
-          }
-          
-          .header {
-              backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
-              padding: 1.5rem;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-          }
-          
-          .header h1 {
-              font-size: 1.5rem;
-              font-weight: 300;
-              letter-spacing: 0.5px;
-          }
-          
-          .main-container {
-              flex: 1;
-              display: flex;
-              min-height: 0;
-              gap: 1.5rem;
-              padding: 1.5rem;
-          }
-          
-          .panel {
-              display: flex;
-              flex-direction: column;
-              backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
-              border-radius: 1rem;
-              overflow: hidden;
-              flex: 1;
-              transition: all 0.3s ease;
-          }
-          
-          .panel:hover {
-              transform: translateY(-2px);
-          }
-          
-          .panel-header {
-              backdrop-filter: blur(10px);
-              -webkit-backdrop-filter: blur(10px);
-              padding: 1rem 1.5rem;
-              font-size: 0.9rem;
-              font-weight: 500;
-              text-align: center;
-              letter-spacing: 0.5px;
-          }
-          
-          .panel-content {
-              flex: 1;
-              position: relative;
-              min-height: 0;
-          }
-          
-          #htmlEditor {
-              width: 100%;
-              height: 100%;
-              border: none;
-              font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-              font-size: 14px;
-              line-height: 1.6;
-              padding: 1.5rem;
-              resize: none;
-              outline: none;
-              tab-size: 2;
-              backdrop-filter: blur(10px);
-              -webkit-backdrop-filter: blur(10px);
-              transition: all 0.3s ease;
-          }
-          
-          #previewFrame {
-              width: 100%;
-              height: 100%;
-              border: none;
-              background: transparent;
-              border-radius: 0;
-              display: block;
-          }
-          
-          .empty-state {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              height: 100%;
-              text-align: center;
-              font-size: 0.9rem;
-              backdrop-filter: blur(10px);
-              -webkit-backdrop-filter: blur(10px);
-          }
-          
-          .empty-state-content {
-              padding: 2rem;
-          }
-          
-          .empty-state-icon {
-              font-size: 3rem;
-              margin-bottom: 1rem;
-              opacity: 0.7;
-          }
-          
-          .footer {
-              backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
-              padding: 0.75rem 1.5rem;
-              text-align: center;
-              font-size: 0.8rem;
-              font-weight: 400;
-              letter-spacing: 0.3px;
-              box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
-          }
-          
-          .footer a {
-              color: inherit;
-              text-decoration: none;
-              opacity: 0.8;
-              transition: opacity 0.3s ease;
-          }
-          
-          .footer a:hover {
-              opacity: 1;
-          }
-          
-          /* Scrollbar Styles */
-          #htmlEditor::-webkit-scrollbar {
-              width: 8px;
-          }
-          
-          #htmlEditor::-webkit-scrollbar-track {
-              border-radius: 4px;
-          }
-          
-          #htmlEditor::-webkit-scrollbar-thumb {
-              border-radius: 4px;
-              transition: all 0.3s ease;
-          }
-          
-          /* Mobile Responsive */
-          @media (max-width: 768px) {
-              .main-container {
-                  flex-direction: column;
-                  padding: 1rem;
-                  gap: 1rem;
-              }
-              
-              .panel {
-                  min-height: 40vh;
-                  border-radius: 0.75rem;
-              }
-              
-              .header {
-                  padding: 1rem;
-              }
-              
-              .header h1 {
-                  font-size: 1.25rem;
-              }
-              
-              #htmlEditor {
-                  padding: 1rem;
-                  font-size: 13px;
-              }
-              
-              .panel-header {
-                  padding: 0.75rem 1rem;
-                  font-size: 0.85rem;
-              }
-              
-              .footer {
-                  padding: 0.5rem 1rem;
-                  font-size: 0.75rem;
-              }
-          }
-          
-          /* Small Screen Optimization */
-          @media (max-width: 480px) {
-              .main-container {
-                  padding: 0.75rem;
-                  gap: 0.75rem;
-              }
-              
-              .header {
-                  padding: 0.75rem;
-              }
-              
-              .header h1 {
-                  font-size: 1.125rem;
-              }
-              
-              #htmlEditor {
-                  padding: 0.75rem;
-                  font-size: 12px;
-              }
-              
-              .footer {
-                  padding: 0.4rem 0.75rem;
-                  font-size: 0.7rem;
-              }
-          }
-          
-          /* Animation Effects */
-          @keyframes fadeIn {
-              from {
-                  opacity: 0;
-                  transform: translateY(20px);
-              }
-              to {
-                  opacity: 1;
-                  transform: translateY(0);
-              }
-          }
-          
-          .panel {
-              animation: fadeIn 0.6s ease-out;
-          }
-          
-          .panel:nth-child(2) {
-              animation-delay: 0.1s;
-          }
-          
-          .footer {
-              animation: fadeIn 0.8s ease-out;
-              animation-delay: 0.2s;
-          }
-      </style>
-  </head>
-  <body>
-      <div class="header">
-          <h1>HTML Renderer</h1>
-      </div>
-      
-      <div class="main-container">
-          <div class="panel">
-              <div class="panel-header">
-                  Editor
-              </div>
-              <div class="panel-content">
-                  <textarea id="htmlEditor" placeholder="Type or paste your HTML code here...
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodePreview - HTML实时预览工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  Example:
-  <!DOCTYPE html>
-  <html>
-  <head>
-      <title>My Page</title>
-      <style>
-          body { 
-              font-family: sans-serif;
-              padding: 20px;
-              background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-          }
-          h1 { color: #333; }
-      </style>
-  </head>
-  <body>
-      <h1>Hello World!</h1>
-      <p>This is a sample page.</p>
-  </body>
-  </html>"></textarea>
-              </div>
-          </div>
-          
-          <div class="panel">
-              <div class="panel-header">
-                  Preview
-              </div>
-              <div class="panel-content">
-                  <iframe id="previewFrame"></iframe>
-              </div>
-          </div>
-      </div>
-      
-      <div class="footer">
-           &copy; 2025 HTML Renderer • <a href="https://fylsen.com/">Xuesong</a>
-      </div>
-      
-      <script>
-          const htmlEditor = document.getElementById('htmlEditor');
-          const previewFrame = document.getElementById('previewFrame');
-          
-          let updateTimeout;
-          
-          // Initialize
-          document.addEventListener('DOMContentLoaded', function() {
-              updatePreview();
-              detectColorScheme();
-          });
-          
-          // Listen for system theme changes
-          function detectColorScheme() {
-              const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-              
-              // Listen for theme changes
-              darkModeQuery.addEventListener('change', function(e) {
-                  // Add transition effect when theme switches
-                  document.body.style.transition = 'all 0.3s ease';
-                  setTimeout(() => {
-                      document.body.style.transition = '';
-                  }, 300);
-              });
-          }
-          
-          // Editor input event
-          htmlEditor.addEventListener('input', function() {
-              clearTimeout(updateTimeout);
-              updateTimeout = setTimeout(updatePreview, 300);
-          });
-          
-          // Update preview
-          function updatePreview() {
-              const htmlContent = htmlEditor.value;
-              
-              if (!htmlContent.trim()) {
-                  // Adjust empty state style based on current theme
-                  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  const bgColor = isDark ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)';
-                  const textColor = isDark ? '#94a3b8' : '#666';
-                  
-                  previewFrame.srcdoc = `
-                      <div style="display:flex;align-items:center;justify-content:center;height:100vh;color:${textColor};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-align:center;background:${bgColor};margin:0;padding:0;">
-                          <div>
-                              <div style="font-size:3rem;margin-bottom:1rem;opacity:0.7;">📝</div>
-                              <div style="font-size:1.1rem;">Enter HTML code on the left to start previewing</div>
-                          </div>
-                      </div>
-                  `;
-                  return;
-              }
-              
-              previewFrame.srcdoc = htmlContent;
-          }
-      </script>
-  </body>
-  </html>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #1e293b;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            color: #1e293b;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .header-icon {
+            font-size: 2rem;
+            color: #64748b;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 400;
+            margin-top: 0.5rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .editor-section {
+            background: #fafafa;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-section {
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            background: #f1f5f9;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .editor-section .section-header {
+            background: #f8fafc;
+        }
+
+        .section-content {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+
+        #htmlEditor {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            color: #1e293b;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 1.5rem;
+            resize: none;
+            outline: none;
+            tab-size: 2;
+            transition: all 0.2s ease;
+        }
+
+        #htmlEditor::placeholder {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        #htmlEditor:focus {
+            box-shadow: inset 0 0 0 2px #e2e8f0;
+        }
+
+        #previewFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            display: block;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: #64748b;
+            background: #f8fafc;
+        }
+
+        .empty-state-content {
+            padding: 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        .empty-state p {
+            font-size: 0.875rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .toolbar {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toolbar-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .toolbar-btn:active {
+            background: #e2e8f0;
+        }
+
+        .toolbar-btn.active {
+            background: #0f172a;
+            color: white;
+            border-color: #0f172a;
+        }
+
+        .status-bar {
+            background: #f1f5f9;
+            border-top: 1px solid #e2e8f0;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .footer {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .footer a {
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 滚动条样式 */
+        #htmlEditor::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #htmlEditor::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        #htmlEditor::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        #htmlEditor::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* 深色模式 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f172a;
+                color: #e2e8f0;
+            }
+            
+            .container {
+                background: #1e293b;
+                border-color: #334155;
+            }
+            
+            .header {
+                background: #1e293b;
+                border-bottom-color: #334155;
+            }
+            
+            .header h1 {
+                color: #f8fafc;
+            }
+            
+            .header-icon {
+                color: #94a3b8;
+            }
+            
+            .header p {
+                color: #94a3b8;
+            }
+            
+            .editor-section {
+                background: #1e293b;
+                border-right-color: #334155;
+            }
+            
+            .preview-section {
+                background: #1e293b;
+            }
+            
+            .section-header {
+                background: #334155;
+                border-bottom-color: #475569;
+                color: #cbd5e1;
+            }
+            
+            .editor-section .section-header {
+                background: #334155;
+            }
+            
+            #htmlEditor {
+                background: #334155;
+                color: #f1f5f9;
+            }
+            
+            #htmlEditor::placeholder {
+                color: #64748b;
+            }
+            
+            #htmlEditor:focus {
+                box-shadow: inset 0 0 0 2px #475569;
+            }
+            
+            #previewFrame {
+                background: #334155;
+            }
+            
+            .empty-state {
+                background: #334155;
+                color: #94a3b8;
+            }
+            
+            .empty-state-icon {
+                color: #64748b;
+            }
+            
+            .empty-state h3 {
+                color: #cbd5e1;
+            }
+            
+            .empty-state p {
+                color: #94a3b8;
+            }
+            
+            .toolbar {
+                background: #334155;
+                border-bottom-color: #475569;
+            }
+            
+            .toolbar-btn {
+                background: #475569;
+                border-color: #64748b;
+                color: #cbd5e1;
+            }
+            
+            .toolbar-btn:hover {
+                background: #64748b;
+                border-color: #94a3b8;
+            }
+            
+            .toolbar-btn:active {
+                background: #94a3b8;
+            }
+            
+            .toolbar-btn.active {
+                background: #64748b;
+                border-color: #64748b;
+            }
+            
+            .status-bar {
+                background: #334155;
+                border-top-color: #475569;
+                color: #94a3b8;
+            }
+            
+            .footer {
+                background: #334155;
+                border-top-color: #475569;
+                color: #94a3b8;
+            }
+            
+            .footer a {
+                color: #cbd5e1;
+            }
+            
+            #htmlEditor::-webkit-scrollbar-track {
+                background: #475569;
+            }
+            
+            #htmlEditor::-webkit-scrollbar-thumb {
+                background: #64748b;
+            }
+            
+            #htmlEditor::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 12px;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .editor-section {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color, #e2e8f0);
+                min-height: 50vh;
+            }
+            
+            .preview-section {
+                min-height: 50vh;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .toolbar {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .toolbar-btn {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.25rem;
+            }
+            
+            #htmlEditor {
+                padding: 1rem;
+                font-size: 13px;
+            }
+            
+            .section-header {
+                padding: 0.75rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .toolbar {
+                padding: 0.5rem 1rem;
+            }
+            
+            .status-bar {
+                padding: 0.4rem 1rem;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* 深色模式下的响应式修复 */
+        @media (prefers-color-scheme: dark) and (max-width: 768px) {
+            .editor-section {
+                border-bottom-color: #334155;
+            }
+        }
+
+        /* CSS变量用于动态边框颜色 */
+        :root {
+            --border-color: #e2e8f0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --border-color: #334155;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .toolbar-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #previewFrame {
+            transition: opacity 0.3s ease;
+        }
+
+        .loading #previewFrame {
+            opacity: 0.7;
+        }
+
+        /* 加载状态 */
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #64748b;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .loading .loading-indicator {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="ri-code-s-slash-line header-icon"></i>
+                CodePreview
+            </h1>
+            <p>实时HTML代码编辑器与预览工具</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 编辑器区域 -->
+            <div class="editor-section">
+                <div class="section-header">
+                    <i class="ri-code-line"></i>
+                    HTML编辑器
+                </div>
+                
+                <div class="toolbar">
+                    <button class="toolbar-btn" onclick="formatCode()">
+                        <i class="ri-magic-line"></i>
+                        格式化代码
+                    </button>
+                    <button class="toolbar-btn" onclick="clearEditor()">
+                        <i class="ri-delete-bin-line"></i>
+                        清空
+                    </button>
+                    <button class="toolbar-btn active" id="autoRefreshBtn" onclick="toggleAutoRefresh()">
+                        <i class="ri-refresh-line"></i>
+                        自动刷新
+                    </button>
+                </div>
+                
+                <div class="section-content">
+                    <textarea id="htmlEditor" placeholder="在此输入或粘贴您的HTML代码...
+
+快速开始示例：
+<!DOCTYPE html>
+<html>
+<head>
+    <title>我的页面</title>
+</head>
+<body>
+    <h1>Hello World</h1>
+</body>
+</html>"></textarea>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="status-info">
+                        <div class="status-item">
+                            <i class="ri-file-text-line"></i>
+                            <span id="lineCount">行数: 1</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="ri-text"></i>
+                            <span id="charCount">字符: 0</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <i class="ri-time-line"></i>
+                        <span id="lastUpdate">未更新</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 预览区域 -->
+            <div class="preview-section">
+                <div class="section-header">
+                    <i class="ri-eye-line"></i>
+                    实时预览
+                </div>
+                
+                <div class="section-content">
+                    <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                    <div class="loading-indicator">
+                        <i class="ri-loader-4-line"></i> 加载中...
+                    </div>
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-state-content">
+                            <div class="empty-state-icon">
+                                <i class="ri-code-s-slash-line"></i>
+                            </div>
+                            <h3>开始编写代码</h3>
+                            <p>在左侧编辑器中输入HTML代码<br>预览将实时显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                <i class="ri-information-line"></i>
+                支持完整的HTML、CSS和JavaScript代码 | 
+                <a href="#" onclick="showShortcuts()">查看快捷键</a> | 
+                <a href="#" onclick="showHelp()">使用帮助</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let autoRefresh = true;
+        let updateTimeout;
+        let currentBlobUrl = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const editor = document.getElementById('htmlEditor');
+            const previewFrame = document.getElementById('previewFrame');
+            const emptyState = document.getElementById('emptyState');
+            
+            // 编辑器事件监听
+            editor.addEventListener('input', function() {
+                updateStats();
+                if (autoRefresh) {
+                    clearTimeout(updateTimeout);
+                    updateTimeout = setTimeout(updatePreview, 500);
+                }
+            });
+
+            // 键盘快捷键
+            editor.addEventListener('keydown', function(e) {
+                // Ctrl+Enter 或 Cmd+Enter 刷新预览
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    updatePreview();
+                }
+                
+                // Tab键缩进
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 2;
+                }
+            });
+
+            // iframe加载事件
+            previewFrame.addEventListener('load', function() {
+                document.querySelector('.preview-section').classList.remove('loading');
+            });
+
+            // 初始化统计
+            updateStats();
+        });
+
+        // 更新预览
+        function updatePreview() {
+            const editor = document.getElementById('htmlEditor');
+            const previewFrame = document.getElementById('previewFrame');
+            const emptyState = document.getElementById('emptyState');
+            const previewSection = document.querySelector('.preview-section');
+            const htmlContent = editor.value.trim();
+
+            if (htmlContent) {
+                try {
+                    emptyState.style.display = 'none';
+                    previewFrame.style.display = 'block';
+                    previewSection.classList.add('loading');
+                    
+                    // 清理旧的blob URL
+                    if (currentBlobUrl) {
+                        URL.revokeObjectURL(currentBlobUrl);
+                    }
+                    
+                    // 创建新的blob URL
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    currentBlobUrl = URL.createObjectURL(blob);
+                    previewFrame.src = currentBlobUrl;
+                    
+                    updateLastUpdateTime();
+                } catch (error) {
+                    console.error('预览更新失败:', error);
+                    previewSection.classList.remove('loading');
+                }
+            } else {
+                emptyState.style.display = 'flex';
+                previewFrame.style.display = 'none';
+                previewSection.classList.remove('loading');
+            }
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const editor = document.getElementById('htmlEditor');
+            const content = editor.value;
+            const lines = content ? content.split('\n').length : 1;
+            const chars = content.length;
+
+            document.getElementById('lineCount').textContent = `行数: ${lines}`;
+            document.getElementById('charCount').textContent = `字符: ${chars}`;
+        }
+
+        // 更新最后更新时间
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('lastUpdate').textContent = `更新于: ${timeStr}`;
+        }
+
+        // 格式化代码
+        function formatCode() {
+            const editor = document.getElementById('htmlEditor');
+            let code = editor.value.trim();
+            
+            if (!code) {
+                alert('请先输入一些代码');
+                return;
+            }
+            
+            try {
+                // 简单的HTML格式化
+                code = code.replace(/></g, '>\n<');
+                code = code.replace(/^\s+|\s+$/gm, '');
+                
+                const lines = code.split('\n');
+                let indentLevel = 0;
+                const formattedLines = [];
+                
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line) {
+                        if (line.startsWith('</')) {
+                            indentLevel = Math.max(0, indentLevel - 1);
+                        }
+                        
+                        formattedLines.push('  '.repeat(indentLevel) + line);
+                        
+                        if (line.startsWith('<') && !line.startsWith('</') && !line.endsWith('/>')) {
+                            const tagName = line.match(/<(\w+)/);
+                            if (tagName && !['img', 'br', 'hr', 'input', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'].includes(tagName[1].toLowerCase())) {
+                                indentLevel++;
+                            }
+                        }
+                    }
+                });
+                
+                editor.value = formattedLines.join('\n');
+                updateStats();
+                if (autoRefresh) {
+                    updatePreview();
+                }
+            } catch (error) {
+                console.error('格式化失败:', error);
+                alert('代码格式化失败，请检查代码语法');
+            }
+        }
+
+        // 清空编辑器
+        function clearEditor() {
+            if (confirm('确定要清空编辑器内容吗？')) {
+                document.getElementById('htmlEditor').value = '';
+                document.getElementById('emptyState').style.display = 'flex';
+                document.getElementById('previewFrame').style.display = 'none';
+                document.querySelector('.preview-section').classList.remove('loading');
+                updateStats();
+                
+                // 清理blob URL
+                if (currentBlobUrl) {
+                    URL.revokeObjectURL(currentBlobUrl);
+                    currentBlobUrl = null;
+                }
+            }
+        }
+
+        // 切换自动刷新
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            const btn = document.getElementById('autoRefreshBtn');
+            
+            if (autoRefresh) {
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="ri-refresh-line"></i> 自动刷新';
+                // 如果有内容，立即更新预览
+                if (document.getElementById('htmlEditor').value.trim()) {
+                    updatePreview();
+                }
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="ri-pause-line"></i> 手动刷新';
+            }
+        }
+
+        // 显示快捷键
+        function showShortcuts() {
+            alert(`快捷键说明：
+            
+Ctrl/Cmd + Enter: 刷新预览
+Tab: 插入缩进
+Ctrl/Cmd + A: 全选
+Ctrl/Cmd + Z: 撤销
+Ctrl/Cmd + Y: 重做
+
+提示：编辑器支持实时预览和代码格式化`);
+        }
+
+        // 显示帮助
+        function showHelp() {
+            alert(`使用帮助：
+
+1. 在左侧编辑器中输入HTML代码
+2. 预览会实时显示在右侧
+3. 支持完整的HTML、CSS和JavaScript
+4. 使用工具栏按钮快速操作
+5. 可以关闭自动刷新，手动控制更新
+
+注意：预览在安全沙箱中运行，某些功能可能受限`);
+        }
+
+        // 页面卸载时清理资源
+        window.addEventListener('beforeunload', function() {
+            if (currentBlobUrl) {
+                URL.revokeObjectURL(currentBlobUrl);
+            }
+        });
+    </script>
+</body>
+</html>

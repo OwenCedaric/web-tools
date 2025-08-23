@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图像矢量化工具 - ImageTracer.js</title>
+    <title>TraceIt - 图像矢量化工具</title>
     <script src="https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,57 +14,80 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
-            padding: 20px;
+            color: #1e293b;
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin: 20px;
         }
 
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 30px;
+            background: white;
+            color: #1e293b;
+            padding: 3rem 2rem 2rem;
             text-align: center;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .header-icon {
+            font-size: 2.5rem;
+            color: #64748b;
         }
 
         .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
+            font-size: 1.1rem;
+            color: #64748b;
+            font-weight: 400;
         }
 
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding: 30px;
+            gap: 0;
+            min-height: 600px;
         }
 
         .upload-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
-            border: 2px dashed #dee2e6;
-            transition: all 0.3s ease;
+            background: #fafafa;
+            padding: 2rem;
+            border-right: 1px solid #e2e8f0;
         }
 
-        .upload-section:hover {
-            border-color: #4facfe;
-            background: #f0f8ff;
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            background: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover {
+            border-color: #64748b;
+            background: #f8fafc;
         }
 
         .file-input-wrapper {
@@ -82,245 +106,464 @@
         }
 
         .file-input-button {
-            display: block;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: #0f172a;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             width: 100%;
         }
 
         .file-input-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            background: #334155;
         }
 
         .canvas-container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         .canvas-wrapper {
             background: white;
             border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 1.25rem;
+            border: 1px solid #e2e8f0;
             text-align: center;
         }
 
         .canvas-wrapper h3 {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 1.2em;
+            margin-bottom: 1rem;
+            color: #0f172a;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         canvas {
             max-width: 100%;
             height: auto;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
         }
 
         .controls-panel {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
+            background: white;
+            padding: 2rem;
+            overflow-y: auto;
+            max-height: 800px;
+        }
+
+        .controls-title {
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .preset-buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
         }
 
         .preset-btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .preset-btn.fast {
-            background: #28a745;
-            color: white;
-        }
-
-        .preset-btn.balanced {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .preset-btn.high {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .preset-btn.photo {
-            background: #dc3545;
-            color: white;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            background: white;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .preset-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .preset-btn:active {
+            background: #f1f5f9;
         }
 
         .control-group {
-            background: white;
+            background: #fafafa;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid #f1f5f9;
         }
 
         .control-group h4 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            border-bottom: 2px solid #4facfe;
-            padding-bottom: 8px;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .control-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .control-item:last-child {
+            margin-bottom: 0;
         }
 
         .control-item label {
             font-weight: 500;
-            color: #555;
+            color: #374151;
             flex: 1;
+            font-size: 13px;
         }
 
         .control-item input[type="range"] {
             flex: 2;
-            margin: 0 15px;
+            margin: 0 1rem;
+            accent-color: #0f172a;
         }
 
         .control-item select {
             flex: 1;
-            padding: 5px 10px;
-            border: 1px solid #ddd;
+            padding: 0.375rem 0.625rem;
+            border: 1px solid #d1d5db;
             border-radius: 4px;
+            font-size: 13px;
+            background: white;
+            color: #374151;
         }
 
         .value-display {
-            background: #4facfe;
+            background: #0f172a;
             color: white;
-            padding: 4px 8px;
+            padding: 0.25rem 0.5rem;
             border-radius: 4px;
-            font-weight: 600;
+            font-weight: 500;
             min-width: 50px;
             text-align: center;
+            font-size: 12px;
         }
 
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .checkbox-item:last-child {
+            margin-bottom: 0;
         }
 
         .checkbox-item input[type="checkbox"] {
-            transform: scale(1.2);
+            transform: scale(1.1);
+            accent-color: #0f172a;
+        }
+
+        .checkbox-item label {
+            font-size: 13px;
+            color: #374151;
+            font-weight: 500;
         }
 
         .action-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 25px;
+            gap: 0.75rem;
+            margin-top: 2rem;
         }
 
         .action-btn {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 0.875rem 1.25rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            background: white;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .convert-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f172a;
             color: white;
+            border-color: #0f172a;
+        }
+
+        .convert-btn:hover {
+            background: #334155;
         }
 
         .download-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #059669;
             color: white;
+            border-color: #059669;
         }
 
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        .download-btn:hover {
+            background: #047857;
         }
 
         .action-btn:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
+            background: #f1f5f9;
+            color: #9ca3af;
+            border-color: #e5e7eb;
+        }
+
+        .action-btn:disabled:hover {
+            background: #f1f5f9;
         }
 
         .info-panel {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 0 8px 8px 0;
+            background: #f0f9ff;
+            border: 1px solid #e0f2fe;
+            border-left: 4px solid #0284c7;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 0 6px 6px 0;
         }
 
         .info-panel h4 {
-            color: #1976d2;
-            margin-bottom: 10px;
+            color: #0c4a6e;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .info-panel p {
-            color: #555;
+            color: #475569;
             line-height: 1.5;
+            font-size: 13px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 3px;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
             overflow: hidden;
-            margin: 20px 0;
+            margin: 1.25rem 0;
             display: none;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            background: #0f172a;
             width: 0%;
             transition: width 0.3s ease;
         }
 
+        .svg-preview {
+            max-width: 100%;
+            max-height: 400px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f172a;
+                color: #e2e8f0;
+            }
+            
+            .container {
+                background: #1e293b;
+                border-color: #334155;
+            }
+            
+            .header {
+                background: #1e293b;
+                border-bottom-color: #334155;
+            }
+            
+            .header h1 {
+                color: #f8fafc;
+            }
+            
+            .header-icon {
+                color: #94a3b8;
+            }
+            
+            .header p {
+                color: #94a3b8;
+            }
+            
+            .upload-section {
+                background: #1e293b;
+                border-right-color: #334155;
+            }
+            
+            .upload-area {
+                background: #334155;
+                border-color: #475569;
+            }
+            
+            .upload-area:hover {
+                border-color: #64748b;
+                background: #475569;
+            }
+            
+            .canvas-wrapper {
+                background: #334155;
+                border-color: #475569;
+            }
+            
+            .canvas-wrapper h3 {
+                color: #f8fafc;
+            }
+            
+            .controls-panel {
+                background: #1e293b;
+            }
+            
+            .controls-title {
+                color: #f8fafc;
+            }
+            
+            .preset-btn {
+                background: #334155;
+                border-color: #475569;
+                color: #cbd5e1;
+            }
+            
+            .preset-btn:hover {
+                background: #475569;
+                border-color: #64748b;
+            }
+            
+            .control-group {
+                background: #334155;
+                border-color: #475569;
+            }
+            
+            .control-group h4 {
+                color: #f8fafc;
+            }
+            
+            .control-item {
+                background: #475569;
+                border-color: #64748b;
+            }
+            
+            .control-item label {
+                color: #cbd5e1;
+            }
+            
+            .control-item select {
+                background: #475569;
+                border-color: #64748b;
+                color: #cbd5e1;
+            }
+            
+            .checkbox-item {
+                background: #475569;
+                border-color: #64748b;
+            }
+            
+            .checkbox-item label {
+                color: #cbd5e1;
+            }
+            
+            .action-btn {
+                background: #334155;
+                border-color: #475569;
+                color: #cbd5e1;
+            }
+            
+            .convert-btn {
+                background: #64748b;
+                border-color: #64748b;
+            }
+            
+            .convert-btn:hover {
+                background: #94a3b8;
+            }
+            
+            .download-btn {
+                background: #059669;
+                border-color: #059669;
+            }
+            
+            .download-btn:hover {
+                background: #047857;
+            }
+            
+            .info-panel {
+                background: #1e293b;
+                border-color: #334155;
+                border-left-color: #0284c7;
+            }
+            
+            .info-panel h4 {
+                color: #0ea5e9;
+            }
+            
+            .info-panel p {
+                color: #94a3b8;
+            }
+        }
+
         @media (max-width: 768px) {
+            .container {
+                margin: 12px;
+            }
+            
             .main-content {
                 grid-template-columns: 1fr;
+            }
+            
+            .upload-section {
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
             }
             
             .preset-buttons {
@@ -330,41 +573,67 @@
             .action-buttons {
                 grid-template-columns: 1fr;
             }
+
+            .controls-panel {
+                max-height: none;
+            }
         }
 
-        .svg-preview {
-            max-width: 100%;
-            max-height: 400px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        @media (max-width: 480px) {
+            .header {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .upload-section,
+            .controls-panel {
+                padding: 1.25rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎨 图像矢量化工具</h1>
-            <p>基于ImageTracer.js的专业级位图转矢量图工具，支持高级参数优化</p>
+            <h1>
+                <i class="ri-image-line header-icon"></i>
+                TraceIt
+            </h1>
+            <p>专业级图像矢量化工具，将位图转换为高质量SVG矢量图</p>
         </div>
 
         <div class="main-content">
             <!-- 左侧：图像上传和预览 -->
             <div class="upload-section">
-                <div class="file-input-wrapper">
-                    <input type="file" id="fileInput" class="file-input" accept="image/*">
-                    <div class="file-input-button">
-                        📁 选择图像文件 (支持 JPG, PNG, GIF, BMP)
+                <div class="upload-area">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="fileInput" class="file-input" accept="image/*">
+                        <div class="file-input-button">
+                            <i class="ri-folder-open-line"></i>
+                            选择图像文件 (支持 JPG, PNG, GIF, BMP)
+                        </div>
                     </div>
                 </div>
 
                 <div class="canvas-container">
                     <div class="canvas-wrapper">
-                        <h3>🖼️ 原始图像</h3>
+                        <h3>
+                            <i class="ri-image-2-line"></i>
+                            原始图像
+                        </h3>
                         <canvas id="originalCanvas"></canvas>
                     </div>
                     
                     <div class="canvas-wrapper">
-                        <h3>🎯 矢量化预览</h3>
+                        <h3>
+                            <i class="ri-focus-3-line"></i>
+                            矢量化预览
+                        </h3>
                         <div id="svgPreview"></div>
                     </div>
                 </div>
@@ -375,37 +644,49 @@
 
                 <div class="action-buttons">
                     <button class="action-btn convert-btn" id="convertBtn" onclick="convertToSVG()">
-                        🔄 开始转换
+                        <i class="ri-refresh-line"></i>
+                        开始转换
                     </button>
                     <button class="action-btn download-btn" id="downloadBtn" onclick="downloadSVG()" disabled>
-                        💾 下载SVG
+                        <i class="ri-download-line"></i>
+                        下载SVG
                     </button>
                 </div>
             </div>
 
             <!-- 右侧：参数控制面板 -->
             <div class="controls-panel">
-                <h3 style="margin-bottom: 20px; color: #333;">⚙️ 高级参数设置</h3>
+                <h3 class="controls-title">
+                    <i class="ri-settings-3-line"></i>
+                    高级参数设置
+                </h3>
                 
                 <!-- 预设配置按钮 -->
                 <div class="preset-buttons">
-                    <button class="preset-btn fast" onclick="applyPreset('fast')">
-                        ⚡ 快速处理
+                    <button class="preset-btn" onclick="applyPreset('fast')">
+                        <i class="ri-flashlight-line"></i>
+                        快速处理
                     </button>
-                    <button class="preset-btn balanced" onclick="applyPreset('balanced')">
-                        ⚖️ 平衡模式
+                    <button class="preset-btn" onclick="applyPreset('balanced')">
+                        <i class="ri-scales-3-line"></i>
+                        平衡模式
                     </button>
-                    <button class="preset-btn high" onclick="applyPreset('high')">
-                        💎 高质量
+                    <button class="preset-btn" onclick="applyPreset('high')">
+                        <i class="ri-gem-line"></i>
+                        高质量
                     </button>
-                    <button class="preset-btn photo" onclick="applyPreset('photo')">
-                        📸 照片级
+                    <button class="preset-btn" onclick="applyPreset('photo')">
+                        <i class="ri-camera-line"></i>
+                        照片级
                     </button>
                 </div>
 
                 <!-- 颜色处理控制 -->
                 <div class="control-group">
-                    <h4>🎨 颜色处理</h4>
+                    <h4>
+                        <i class="ri-palette-line"></i>
+                        颜色处理
+                    </h4>
                     
                     <div class="control-item">
                         <label>颜色数量:</label>
@@ -437,7 +718,10 @@
 
                 <!-- 路径优化控制 -->
                 <div class="control-group">
-                    <h4>🛤️ 路径优化</h4>
+                    <h4>
+                        <i class="ri-route-line"></i>
+                        路径优化
+                    </h4>
                     
                     <div class="control-item">
                         <label>路径省略:</label>
@@ -470,7 +754,10 @@
 
                 <!-- 输出设置控制 -->
                 <div class="control-group">
-                    <h4>📤 输出设置</h4>
+                    <h4>
+                        <i class="ri-export-line"></i>
+                        输出设置
+                    </h4>
                     
                     <div class="control-item">
                         <label>坐标精度:</label>
@@ -502,7 +789,10 @@
 
                 <!-- 高级设置 -->
                 <div class="control-group">
-                    <h4>🔧 高级设置</h4>
+                    <h4>
+                        <i class="ri-tools-line"></i>
+                        高级设置
+                    </h4>
                     
                     <div class="control-item">
                         <label>角度阈值:</label>
@@ -526,18 +816,24 @@
                 </div>
 
                 <div class="info-panel">
-                    <h4>💡 使用提示</h4>
-                    <p>• <strong>快速处理</strong>：适合简单图标和线条图<br>
-                    • <strong>平衡模式</strong>：通用设置，适合大多数图像<br>
-                    • <strong>高质量</strong>：适合复杂图像，处理时间较长<br>
-                    • <strong>照片级</strong>：适合照片转换，文件较大但质量最佳</p>
+                    <h4>
+                        <i class="ri-lightbulb-line"></i>
+                        使用提示
+                    </h4>
+                    <p><strong>快速处理</strong>：适合简单图标和线条图<br>
+                    <strong>平衡模式</strong>：通用设置，适合大多数图像<br>
+                    <strong>高质量</strong>：适合复杂图像，处理时间较长<br>
+                    <strong>照片级</strong>：适合照片转换，文件较大但质量最佳</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 预设配置 [[0]](#__0)
+        let currentImage = null;
+        let svgString = '';
+
+        // 预设配置
         const presetConfigs = {
             fast: {
                 numberofcolors: 8,
@@ -605,41 +901,47 @@
                 alphamax: 0.8,
                 opttolerance: 0.1,
                 roundcoords: 3,
-                strokewidth: 0.2,
+                strokewidth: 0.3,
                 linefilter: true,
                 viewbox: true,
-                desc: false,
+                desc: true,
                 layering: 1
             }
         };
 
-        let currentSVG = '';
-        let originalImage = null;
-
-        // 文件上传处理
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        originalImage = img;
-                        displayOriginalImage(img);
-                        document.getElementById('convertBtn').disabled = false;
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // 初始化所有数值显示
+            updateAllValues();
         });
 
-        // 显示原始图像 [[0]](#__0)
+        // 处理文件选择
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    currentImage = img;
+                    displayOriginalImage(img);
+                    document.getElementById('convertBtn').disabled = false;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 显示原始图像
         function displayOriginalImage(img) {
             const canvas = document.getElementById('originalCanvas');
             const ctx = canvas.getContext('2d');
             
-            // 计算合适的显示尺寸
+            // 计算适合的尺寸
             const maxWidth = 400;
             const maxHeight = 300;
             let { width, height } = img;
@@ -660,7 +962,6 @@
             const config = presetConfigs[presetName];
             if (!config) return;
 
-            // 更新所有控件的值
             Object.keys(config).forEach(key => {
                 const element = document.getElementById(key);
                 if (element) {
@@ -669,6 +970,7 @@
                     } else {
                         element.value = config[key];
                     }
+                    
                     // 更新显示值
                     if (element.type === 'range') {
                         updateValue(key);
@@ -676,32 +978,30 @@
                 }
             });
 
-            // 如果有图像，自动转换预览
-            if (originalImage) {
+            // 如果已有图像，自动更新预览
+            if (currentImage) {
                 setTimeout(convertToSVG, 100);
             }
         }
 
         // 更新数值显示
-        function updateValue(controlId) {
-            const element = document.getElementById(controlId);
-            const valueDisplay = document.getElementById(controlId + '-value');
-            if (element && valueDisplay) {
-                let value = element.value;
-                if (controlId === 'mincolorratio') {
-                    value = parseFloat(value).toFixed(3);
-                } else if (controlId.includes('res') || controlId === 'strokewidth' || controlId === 'alphamax' || controlId === 'opttolerance') {
-                    value = parseFloat(value).toFixed(1);
-                }
-                valueDisplay.textContent = value;
+        function updateValue(id) {
+            const input = document.getElementById(id);
+            const display = document.getElementById(id + '-value');
+            if (input && display) {
+                display.textContent = input.value;
             }
-            
-            // 实时预览更新（防抖）
-            clearTimeout(window.previewTimeout);
-            window.previewTimeout = setTimeout(updatePreview, 500);
         }
 
-        // 获取当前配置
+        // 更新所有数值显示
+        function updateAllValues() {
+            const rangeInputs = document.querySelectorAll('input[type="range"]');
+            rangeInputs.forEach(input => {
+                updateValue(input.id);
+            });
+        }
+
+        // 获取当前参数配置
         function getCurrentOptions() {
             return {
                 numberofcolors: parseInt(document.getElementById('numberofcolors').value),
@@ -719,601 +1019,140 @@
                 linefilter: document.getElementById('linefilter').checked,
                 viewbox: document.getElementById('viewbox').checked,
                 desc: document.getElementById('desc').checked,
-                layering: parseInt(document.getElementById('layering').value),
-                scale: 1
+                layering: parseInt(document.getElementById('layering').value)
             };
         }
 
-        // 转换为SVG [[0]](#__0)
+        // 转换为SVG
         function convertToSVG() {
-            if (!originalImage) {
-                alert('请先选择一张图像！');
+            if (!currentImage) {
+                alert('请先选择一张图片');
                 return;
             }
 
-            // 显示进度条
             const progressBar = document.getElementById('progressBar');
             const progressFill = document.getElementById('progressFill');
+            const convertBtn = document.getElementById('convertBtn');
+            
+            // 显示进度条
             progressBar.style.display = 'block';
             progressFill.style.width = '0%';
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="ri-loader-4-line"></i> 处理中...';
 
-            // 禁用转换按钮
-            document.getElementById('convertBtn').disabled = true;
-            document.getElementById('convertBtn').textContent = '🔄 转换中...';
-
-            // 模拟进度
+            // 模拟进度更新
             let progress = 0;
             const progressInterval = setInterval(() => {
                 progress += Math.random() * 15;
                 if (progress > 90) progress = 90;
                 progressFill.style.width = progress + '%';
-            }, 100);
+            }, 200);
 
-            // 获取当前配置
+            // 获取当前参数
             const options = getCurrentOptions();
 
-            // 创建临时canvas进行转换
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = originalImage.width;
-            tempCanvas.height = originalImage.height;
-            tempCtx.drawImage(originalImage, 0, 0);
-
             try {
-                // 执行矢量化转换 [[0]](#__0)
-                setTimeout(() => {
-                    try {
-                        currentSVG = ImageTracer.imagedataToSVG(
-                            tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height),
-                            options
-                        );
-
-                        // 显示SVG预览
-                        const previewDiv = document.getElementById('svgPreview');
-                        previewDiv.innerHTML = currentSVG;
-
-                        // 完成进度
+                // 使用ImageTracer转换
+                ImageTracer.imageToSVG(
+                    currentImage.src,
+                    function(svgstr) {
+                        // 转换完成
                         clearInterval(progressInterval);
                         progressFill.style.width = '100%';
                         
                         setTimeout(() => {
                             progressBar.style.display = 'none';
-                            document.getElementById('convertBtn').disabled = false;
-                            document.getElementById('convertBtn').textContent = '🔄 重新转换';
+                            svgString = svgstr;
+                            displaySVGPreview(svgstr);
+                            
+                            // 恢复按钮状态
+                            convertBtn.disabled = false;
+                            convertBtn.innerHTML = '<i class="ri-refresh-line"></i> 开始转换';
                             document.getElementById('downloadBtn').disabled = false;
                         }, 500);
-
-                    } catch (error) {
-                        console.error('转换失败:', error);
-                        alert('转换失败，请尝试调整参数或选择其他图像。');
-                        
-                        clearInterval(progressInterval);
-                        progressBar.style.display = 'none';
-                        document.getElementById('convertBtn').disabled = false;
-                        document.getElementById('convertBtn').textContent = '🔄 开始转换';
-                    }
-                }, 100);
-
+                    },
+                    options
+                );
             } catch (error) {
-                console.error('转换错误:', error);
-                alert('转换过程中出现错误，请检查图像格式或参数设置。');
-                
                 clearInterval(progressInterval);
                 progressBar.style.display = 'none';
-                document.getElementById('convertBtn').disabled = false;
-                document.getElementById('convertBtn').textContent = '🔄 开始转换';
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="ri-refresh-line"></i> 开始转换';
+                alert('转换失败: ' + error.message);
             }
         }
 
-        // 实时预览更新（轻量级）
-        function updatePreview() {
-            if (originalImage && currentSVG) {
-                // 使用防抖避免频繁更新
-                clearTimeout(window.updateTimeout);
-                window.updateTimeout = setTimeout(() => {
-                    convertToSVG();
-                }, 1000);
+        // 显示SVG预览
+        function displaySVGPreview(svgStr) {
+            const previewContainer = document.getElementById('svgPreview');
+            previewContainer.innerHTML = svgStr;
+            
+            // 调整SVG尺寸以适应容器
+            const svg = previewContainer.querySelector('svg');
+            if (svg) {
+                svg.style.maxWidth = '100%';
+                svg.style.height = 'auto';
+                svg.classList.add('svg-preview');
             }
         }
 
-        // 下载SVG文件 
+        // 下载SVG文件
         function downloadSVG() {
-            if (!currentSVG) {
-                alert('请先转换图像！');
+            if (!svgString) {
+                alert('请先转换图片');
                 return;
             }
 
-            // 创建下载链接
-            const blob = new Blob([currentSVG], { type: 'image/svg+xml' });
+            const blob = new Blob([svgString], { type: 'image/svg+xml' });
             const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'vectorized_image_' + new Date().getTime() + '.svg';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'traced-image.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
 
-        // 拖拽上传功能 
-        const uploadSection = document.querySelector('.upload-section');
+        // 实时预览更新（防抖）
+        let updateTimeout;
+        function updatePreview() {
+            if (!currentImage) return;
+            
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+                convertToSVG();
+            }, 1000);
+        }
+
+        // 拖拽上传功能
+        const uploadArea = document.querySelector('.upload-area');
         
-        uploadSection.addEventListener('dragover', function(e) {
+        uploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();
-            uploadSection.style.borderColor = '#4facfe';
-            uploadSection.style.background = '#f0f8ff';
+            uploadArea.style.borderColor = '#64748b';
+            uploadArea.style.background = '#f8fafc';
         });
 
-        uploadSection.addEventListener('dragleave', function(e) {
+        uploadArea.addEventListener('dragleave', function(e) {
             e.preventDefault();
-            uploadSection.style.borderColor = '#dee2e6';
-            uploadSection.style.background = '#f8f9fa';
+            uploadArea.style.borderColor = '#cbd5e1';
+            uploadArea.style.background = 'white';
         });
 
-        uploadSection.addEventListener('drop', function(e) {
+        uploadArea.addEventListener('drop', function(e) {
             e.preventDefault();
-            uploadSection.style.borderColor = '#dee2e6';
-            uploadSection.style.background = '#f8f9fa';
+            uploadArea.style.borderColor = '#cbd5e1';
+            uploadArea.style.background = 'white';
             
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 const file = files[0];
                 if (file.type.startsWith('image/')) {
-                    // 模拟文件输入
-                    const fileInput = document.getElementById('fileInput');
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    fileInput.files = dataTransfer.files;
-                    
-                    // 触发change事件
-                    const event = new Event('change', { bubbles: true });
-                    fileInput.dispatchEvent(event);
-                } else {
-                    alert('请选择有效的图像文件！');
+                    document.getElementById('fileInput').files = files;
+                    handleFileSelect({ target: { files: [file] } });
                 }
             }
-        });
-
-        // 键盘快捷键支持 
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case 'o':
-                        e.preventDefault();
-                        document.getElementById('fileInput').click();
-                        break;
-                    case 's':
-                        e.preventDefault();
-                        if (currentSVG) downloadSVG();
-                        break;
-                    case 'Enter':
-                        e.preventDefault();
-                        if (originalImage) convertToSVG();
-                        break;
-                }
-            }
-            
-            // 数字键快速选择预设
-            if (e.key >= '1' && e.key <= '4') {
-                const presets = ['fast', 'balanced', 'high', 'photo'];
-                applyPreset(presets[parseInt(e.key) - 1]);
-            }
-        });
-
-        // 批量处理功能
-        function setupBatchProcessing() {
-            const batchInput = document.createElement('input');
-            batchInput.type = 'file';
-            batchInput.multiple = true;
-            batchInput.accept = 'image/*';
-            batchInput.style.display = 'none';
-            document.body.appendChild(batchInput);
-
-            batchInput.addEventListener('change', function(e) {
-                const files = Array.from(e.target.files);
-                processBatch(files);
-            });
-
-            return batchInput;
-        }
-
-        // 批量处理图像 
-        async function processBatch(files) {
-            const results = [];
-            const options = getCurrentOptions();
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                try {
-                    const svg = await processImageFile(file, options);
-                    results.push({
-                        name: file.name,
-                        svg: svg,
-                        success: true
-                    });
-                } catch (error) {
-                    results.push({
-                        name: file.name,
-                        error: error.message,
-                        success: false
-                    });
-                }
-                
-                // 更新进度
-                const progress = ((i + 1) / files.length) * 100;
-                document.getElementById('progressFill').style.width = progress + '%';
-            }
-            
-            // 下载批量结果
-            downloadBatchResults(results);
-        }
-
-        // 处理单个图像文件
-        function processImageFile(file, options) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        try {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            canvas.width = img.width;
-                            canvas.height = img.height;
-                            ctx.drawImage(img, 0, 0);
-                            
-                            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                            const svg = ImageTracer.imagedataToSVG(imageData, options);
-                            resolve(svg);
-                        } catch (error) {
-                            reject(error);
-                        }
-                    };
-                    img.onerror = () => reject(new Error('图像加载失败'));
-                    img.src = event.target.result;
-                };
-                reader.onerror = () => reject(new Error('文件读取失败'));
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // 下载批量处理结果
-        function downloadBatchResults(results) {
-            const zip = new JSZip();
-            
-            results.forEach((result, index) => {
-                if (result.success) {
-                    const fileName = result.name.replace(/\.[^/.]+$/, '') + '.svg';
-                    zip.file(fileName, result.svg);
-                }
-            });
-            
-            zip.generateAsync({ type: 'blob' }).then(function(content) {
-                const url = URL.createObjectURL(content);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'batch_vectorized_' + new Date().getTime() + '.zip';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            });
-        }
-
-        // 添加更多导出格式支持 
-        function addExportOptions() {
-            const exportButtons = document.createElement('div');
-            exportButtons.className = 'export-options';
-            exportButtons.innerHTML = `
-                <h4 style="margin: 20px 0 10px 0; color: #333;">📤 导出选项</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button class="action-btn" onclick="exportAsPNG()" style="background: #28a745;">
-                        🖼️ 导出PNG
-                    </button>
-                    <button class="action-btn" onclick="exportAsJPG()" style="background: #17a2b8;">
-                        📷 导出JPG
-                    </button>
-                    <button class="action-btn" onclick="copyToClipboard()" style="background: #ffc107; color: #212529;">
-                        📋 复制SVG
-                    </button>
-                    <button class="action-btn" onclick="showSVGCode()" style="background: #6f42c1;">
-                        💻 查看代码
-                    </button>
-                </div>
-            `;
-            
-            document.querySelector('.controls-panel').appendChild(exportButtons);
-        }
-
-        // 导出为PNG
-        function exportAsPNG() {
-            if (!currentSVG) {
-                alert('请先转换图像！');
-                return;
-            }
-            
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                
-                canvas.toBlob(function(blob) {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = 'vectorized_image_' + new Date().getTime() + '.png';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }, 'image/png');
-            };
-            
-            const svgBlob = new Blob([currentSVG], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(svgBlob);
-            img.src = url;
-        }
-
-        // 导出为JPG
-        function exportAsJPG() {
-            if (!currentSVG) {
-                alert('请先转换图像！');
-                return;
-            }
-            
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-                
-                canvas.toBlob(function(blob) {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = 'vectorized_image_' + new Date().getTime() + '.jpg';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }, 'image/jpeg', 0.9);
-            };
-            
-            const svgBlob = new Blob([currentSVG], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(svgBlob);
-            img.src = url;
-        }
-
-        // 复制SVG到剪贴板 
-        function copyToClipboard() {
-            if (!currentSVG) {
-                alert('请先转换图像！');
-                return;
-            }
-            
-            navigator.clipboard.writeText(currentSVG).then(function() {
-                // 显示成功提示
-                const toast = document.createElement('div');
-                toast.textContent = '✅ SVG代码已复制到剪贴板！';
-                toast.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: #28a745;
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                    z-index: 1000;
-                    font-weight: 600;
-                `;
-                document.body.appendChild(toast);
-                
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 3000);
-            }).catch(function() {
-                alert('复制失败，请手动复制SVG代码。');
-            });
-        }
-
-        // 显示SVG代码
-        function showSVGCode() {
-            if (!currentSVG) {
-                alert('请先转换图像！');
-                return;
-            }
-            
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.8);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 1000;
-            `;
-            
-            const content = document.createElement('div');
-            content.style.cssText = `
-                background: white;
-                padding: 30px;
-                border-radius: 15px;
-                max-width: 80%;
-                max-height: 80%;
-                overflow: auto;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            `;
-            
-            content.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="color: #333;">💻 SVG源代码</h3>
-                    <button onclick="this.closest('.modal').remove()" style="
-                        background: #dc3545;
-                        color: white;
-                        border: none;
-                        padding: 8px 15px;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-weight: 600;
-                    ">✕ 关闭</button>
-                </div>
-                <textarea readonly style="
-                    width: 100%;
-                    height: 400px;
-                    font-family: 'Courier New', monospace;
-                    font-size: 12px;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                    padding: 15px;
-                    resize: vertical;
-                ">${currentSVG}</textarea>
-                <div style="margin-top: 15px; text-align: right;">
-                    <button onclick="copyToClipboard()" style="
-                        background: #007bff;
-                        color: white;
-                        border: none;
-                        padding: 10px 20px;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-weight: 600;
-                    ">📋 复制代码</button>
-                </div>
-            `;
-            
-            modal.className = 'modal';
-            modal.appendChild(content);
-            document.body.appendChild(modal);
-            
-            // 点击背景关闭
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    modal.remove();
-                }
-            });
-        }
-
-        // 初始化所有功能
-        function initializeApp() {
-            // 设置默认预设
-            applyPreset('balanced');
-            
-            // 添加导出选项
-            addExportOptions();
-            
-            // 设置批量处理
-            const batchInput = setupBatchProcessing();
-            
-            // 添加批量处理按钮
-            const batchButton = document.createElement('button');
-            batchButton.className = 'action-btn';
-            batchButton.style.cssText = `
-                background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-                color: #333;
-                margin-top: 10px;
-                width: 100%;
-            `;
-            batchButton.textContent = '📁 批量处理';
-            batchButton.onclick = () => batchInput.click();
-            
-            document.querySelector('.action-buttons').appendChild(batchButton);
-            
-            // 显示快捷键提示
-            const shortcutInfo = document.createElement('div');
-            shortcutInfo.className = 'info-panel';
-            shortcutInfo.style.marginTop = '20px';
-            shortcutInfo.innerHTML = `
-                <h4>⌨️ 快捷键</h4>
-                <p>• <strong>Ctrl+O</strong>：打开文件<br>
-                • <strong>Ctrl+S</strong>：下载SVG<br>
-                • <strong>Ctrl+Enter</strong>：开始转换<br>
-                • <strong>1-4</strong>：快速选择预设配置</p>
-            `;
-            
-            document.querySelector('.controls-panel').appendChild(shortcutInfo);
-        }
-
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', initializeApp);
-
-        // 性能监控和优化 
-        function optimizePerformance() {
-            // 图像尺寸优化
-            function optimizeImageSize(img, maxSize = 1024) {
-                if (img.width <= maxSize && img.height <= maxSize) {
-                    return img;
-                }
-                
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                const ratio = Math.min(maxSize / img.width, maxSize / img.height);
-                canvas.width = img.width * ratio;
-                canvas.height = img.height * ratio;
-                
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                return new Promise(resolve => {
-                    canvas.toBlob(blob => {
-                        const optimizedImg = new Image();
-                        optimizedImg.onload = () => resolve(optimizedImg);
-                        optimizedImg.src = URL.createObjectURL(blob);
-                    });
-                });
-            }
-            
-            // 内存清理
-            function cleanupMemory() {
-                if (window.gc) {
-                    window.gc();
-                }
-            }
-            
-            // 定期清理
-            setInterval(cleanupMemory, 30000);
-        }
-
-        // 启用性能优化
-        optimizePerformance();
-
-        // 错误处理和用户反馈 
-        window.addEventListener('error', function(e) {
-            console.error('应用错误:', e.error);
-            
-            const errorToast = document.createElement('div');
-            errorToast.textContent = '⚠️ 发生错误，请刷新页面重试';
-            errorToast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #dc3545;
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                z-index: 1000;
-                font-weight: 600;
-            `;
-            document.body.appendChild(errorToast);
-            
-            setTimeout(() => {
-                if (document.body.contains(errorToast)) {
-                    document.body.removeChild(errorToast);
-                }
-            }, 5000);
         });
     </script>
 </body>
