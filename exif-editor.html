@@ -2,105 +2,74 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EXIF Editor Pro - 图片元数据编辑器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EXIF Editor Pro</title>
     
-    <!-- 外部依赖 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.8.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <style>
-        /* ==================== 现代配色系统 ==================== */
         :root {
-            /* 主色调 - 深邃黑 */
             --primary: #18181b;
             --primary-light: #27272a;
-            --primary-hover: #3f3f46;
-            
-            /* 强调色 - 活力橙 */
-            --accent: #f97316;
-            --accent-light: #fb923c;
-            --accent-dark: #ea580c;
-            
-            /* 功能色 */
             --success: #22c55e;
             --warning: #eab308;
             --error: #ef4444;
-            
-            /* 中性色 */
             --bg-primary: #ffffff;
             --bg-secondary: #fafafa;
             --bg-tertiary: #f5f5f5;
-            --bg-hover: #f0f0f0;
-            --bg-active: #e5e5e5;
-            
             --text-primary: #09090b;
             --text-secondary: #71717a;
             --text-tertiary: #a1a1aa;
             --text-inverse: #ffffff;
-            
             --border-light: #f4f4f5;
             --border: #e4e4e7;
             --border-dark: #d4d4d8;
-            
-            /* 阴影 */
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            
-            /* 圆角 */
-            --radius-sm: 8px;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
             --radius: 12px;
             --radius-lg: 16px;
             --radius-xl: 20px;
             --radius-full: 9999px;
-            
-            /* 尺寸 */
             --header-height: 64px;
             --footer-height: 84px;
         }
 
-        /* ==================== 基础重置 ==================== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
             background: var(--bg-secondary);
             color: var(--text-primary);
             line-height: 1.6;
-            overflow-x: hidden;
         }
 
-        /* ==================== 应用布局 ==================== */
         .app {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* 顶部导航 */
         .header {
             position: sticky;
             top: 0;
             z-index: 100;
             height: var(--header-height);
-            background: var(--bg-primary);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
             padding: 0 20px;
-            backdrop-filter: blur(12px);
-            background: rgba(255, 255, 255, 0.8);
         }
 
         .header-content {
@@ -118,7 +87,6 @@
             gap: 12px;
             font-size: 18px;
             font-weight: 700;
-            color: var(--text-primary);
         }
 
         .logo-icon {
@@ -133,12 +101,26 @@
             font-size: 22px;
         }
 
-        .header-actions {
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
             display: flex;
-            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 20px;
+            transition: all 0.2s;
         }
 
-        /* 主内容区 */
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
         .main {
             flex: 1;
             display: flex;
@@ -150,14 +132,11 @@
             padding-bottom: calc(var(--footer-height) + 20px);
         }
 
-        /* ==================== 上传区域 ==================== */
         .upload-section {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 500px;
-            padding: 40px 20px;
         }
 
         .upload-area {
@@ -169,7 +148,7 @@
             border-radius: var(--radius-xl);
             text-align: center;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s;
         }
 
         .upload-area:hover {
@@ -179,13 +158,9 @@
             box-shadow: var(--shadow-md);
         }
 
-        .upload-area:active {
-            transform: translateY(0);
-        }
-
         .upload-area.dragover {
-            border-color: var(--accent);
-            background: #fff7ed;
+            border-color: var(--success);
+            background: #f0fdf4;
             border-style: solid;
         }
 
@@ -213,23 +188,19 @@
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 12px;
-            color: var(--text-primary);
         }
 
         .upload-desc {
             color: var(--text-secondary);
             font-size: 15px;
-            line-height: 1.6;
         }
 
         .upload-input {
             display: none;
         }
 
-        /* ==================== 工作区 ==================== */
         .workspace {
             display: none;
-            flex: 1;
         }
 
         .workspace.active {
@@ -237,7 +208,6 @@
             flex-direction: column;
         }
 
-        /* 图片列表 */
         .images-section {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
@@ -259,7 +229,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: var(--text-primary);
         }
 
         .images-count {
@@ -274,32 +243,6 @@
         .images-actions {
             display: flex;
             gap: 8px;
-        }
-
-        .icon-btn {
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: var(--bg-secondary);
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 20px;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-
-        .icon-btn:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border-color: var(--border);
-        }
-
-        .icon-btn:active {
-            transform: scale(0.95);
         }
 
         .images-grid {
@@ -324,13 +267,8 @@
             box-shadow: var(--shadow-md);
         }
 
-        .image-item:active {
-            transform: scale(0.98);
-        }
-
         .image-item.selected {
             border-color: var(--primary);
-            box-shadow: 0 0 0 1px var(--primary);
         }
 
         .image-item img {
@@ -350,37 +288,11 @@
             accent-color: var(--primary);
         }
 
-        .image-status {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            width: 24px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            box-shadow: var(--shadow);
-        }
-
-        .image-status.pending {
-            color: var(--warning);
-        }
-
-        .image-status.processed {
-            color: var(--success);
-        }
-
-        /* 编辑区域 */
         .editor-section {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
             padding: 24px;
             border: 1px solid var(--border-light);
-            flex: 1;
-            overflow-y: auto;
         }
 
         .editor-header {
@@ -400,19 +312,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-primary);
             font-size: 24px;
-        }
-
-        .editor-title {
-            flex: 1;
         }
 
         .editor-title h3 {
             font-size: 18px;
             font-weight: 700;
             margin-bottom: 4px;
-            color: var(--text-primary);
         }
 
         .editor-title p {
@@ -420,13 +326,8 @@
             color: var(--text-secondary);
         }
 
-        /* 表单 */
         .form-section {
             margin-bottom: 32px;
-        }
-
-        .form-section:last-child {
-            margin-bottom: 0;
         }
 
         .section-title {
@@ -441,10 +342,6 @@
             gap: 8px;
         }
 
-        .section-title i {
-            font-size: 16px;
-        }
-
         .form-group {
             margin-bottom: 20px;
         }
@@ -454,7 +351,6 @@
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 8px;
-            color: var(--text-primary);
         }
 
         .form-control {
@@ -465,7 +361,6 @@
             font-size: 15px;
             font-family: inherit;
             background: var(--bg-primary);
-            color: var(--text-primary);
             transition: all 0.2s;
         }
 
@@ -485,22 +380,12 @@
             cursor: not-allowed;
         }
 
-        select.form-control {
-            cursor: pointer;
-        }
-
-        textarea.form-control {
-            min-height: 100px;
-            resize: vertical;
-        }
-
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
-        /* 地图 */
         .map-container {
             height: 280px;
             border-radius: var(--radius);
@@ -527,12 +412,6 @@
             border-radius: var(--radius);
             font-size: 14px;
             box-shadow: var(--shadow-lg);
-            background: white;
-        }
-
-        .map-search-input:focus {
-            outline: none;
-            box-shadow: var(--shadow-xl);
         }
 
         .map-search-btn {
@@ -555,10 +434,6 @@
             background: var(--primary-light);
         }
 
-        .map-search-btn:active {
-            transform: scale(0.95);
-        }
-
         .map-controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -566,31 +441,27 @@
             margin-top: 12px;
         }
 
-        /* 底部操作栏 */
         .footer {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             height: var(--footer-height);
-            background: var(--bg-primary);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
             border-top: 1px solid var(--border-light);
             padding: 20px;
             box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.05);
             z-index: 100;
-            backdrop-filter: blur(12px);
-            background: rgba(255, 255, 255, 0.9);
         }
 
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
-            display: flex;
-            gap: 12px;
         }
 
         .btn {
-            flex: 1;
+            width: 100%;
             height: 52px;
             border: none;
             border-radius: var(--radius);
@@ -603,7 +474,6 @@
             justify-content: center;
             gap: 10px;
             transition: all 0.2s;
-            letter-spacing: 0.3px;
         }
 
         .btn:active {
@@ -615,10 +485,6 @@
             cursor: not-allowed;
         }
 
-        .btn i {
-            font-size: 22px;
-        }
-
         .btn-primary {
             background: var(--primary);
             color: var(--text-inverse);
@@ -627,18 +493,6 @@
 
         .btn-primary:hover:not(:disabled) {
             background: var(--primary-light);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-accent {
-            background: var(--accent);
-            color: var(--text-inverse);
-            box-shadow: var(--shadow);
-        }
-
-        .btn-accent:hover:not(:disabled) {
-            background: var(--accent-light);
-            box-shadow: var(--shadow-md);
         }
 
         .btn-secondary {
@@ -649,10 +503,8 @@
 
         .btn-secondary:hover {
             background: var(--bg-tertiary);
-            border-color: var(--border-dark);
         }
 
-        /* 进度条 */
         .progress-overlay {
             position: fixed;
             top: 0;
@@ -685,7 +537,6 @@
             font-weight: 700;
             margin-bottom: 20px;
             text-align: center;
-            color: var(--text-primary);
         }
 
         .progress-bar {
@@ -699,7 +550,7 @@
         .progress-fill {
             height: 100%;
             background: var(--primary);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.3s;
             border-radius: var(--radius-full);
         }
 
@@ -710,7 +561,6 @@
             color: var(--text-secondary);
         }
 
-        /* Toast */
         .toast-container {
             position: fixed;
             bottom: calc(var(--footer-height) + 24px);
@@ -731,7 +581,7 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideUp 0.3s;
             pointer-events: auto;
             border: 1px solid var(--border);
         }
@@ -757,7 +607,6 @@
             font-weight: 700;
             font-size: 14px;
             margin-bottom: 2px;
-            color: var(--text-primary);
         }
 
         .toast-message {
@@ -776,7 +625,6 @@
             }
         }
 
-        /* 加载动画 */
         .spinner {
             width: 20px;
             height: 20px;
@@ -790,90 +638,51 @@
             to { transform: rotate(360deg); }
         }
 
-        /* ==================== 响应式 ==================== */
+        .hidden { display: none !important; }
+
         @media (min-width: 768px) {
-            .main {
-                padding: 28px;
-            }
-
-            .images-section {
-                padding: 24px;
-            }
-
             .images-grid {
                 grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
                 gap: 16px;
             }
-
-            .editor-section {
-                padding: 28px;
-            }
-
-            .map-container {
-                height: 380px;
-            }
-
-            .footer {
-                padding: 24px 28px;
-            }
-
-            .footer-content {
-                max-width: 800px;
-            }
-
-            .btn {
-                height: 56px;
-                font-size: 16px;
-            }
-
+            .map-container { height: 380px; }
             .toast-container {
                 left: auto;
                 right: 28px;
                 max-width: 420px;
-                bottom: 28px;
             }
         }
-
-        /* ==================== 工具类 ==================== */
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- 顶部导航 -->
         <header class="header">
             <div class="header-content">
                 <div class="logo">
                     <div class="logo-icon">
                         <i class="ri-image-edit-fill"></i>
                     </div>
-                    <span>EXIF Editor</span>
+                    <span>EXIF Editor Pro</span>
                 </div>
-                <div class="header-actions">
-                    <button class="icon-btn hidden" id="resetBtn" title="重新开始">
-                        <i class="ri-refresh-line"></i>
-                    </button>
-                </div>
+                <button class="icon-btn hidden" id="resetBtn" title="重新开始">
+                    <i class="ri-refresh-line"></i>
+                </button>
             </div>
         </header>
 
-        <!-- 主内容 -->
         <main class="main">
-            <!-- 上传区域 -->
             <div class="upload-section" id="uploadSection">
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">
                         <i class="ri-upload-cloud-2-line"></i>
                     </div>
                     <h2 class="upload-title">上传图片</h2>
-                    <p class="upload-desc">点击或拖拽图片到这里<br>支持 JPG、PNG 格式，最大 50MB</p>
+                    <p class="upload-desc">点击或拖拽图片到这里<br>支持 JPG、PNG 格式（PNG 将自动转换为 JPG）</p>
                     <input type="file" class="upload-input" id="fileInput" accept="image/jpeg,image/jpg,image/png" multiple>
                 </div>
             </div>
 
-            <!-- 工作区 -->
             <div class="workspace" id="workspace">
-                <!-- 图片列表 -->
                 <div class="images-section">
                     <div class="images-header">
                         <div class="images-title">
@@ -892,7 +701,6 @@
                     <div class="images-grid" id="imagesGrid"></div>
                 </div>
 
-                <!-- 编辑区域 -->
                 <div class="editor-section">
                     <div class="editor-header">
                         <div class="editor-icon">
@@ -904,7 +712,6 @@
                         </div>
                     </div>
 
-                    <!-- 相机信息 -->
                     <div class="form-section">
                         <div class="section-title">
                             <i class="ri-camera-fill"></i>
@@ -914,14 +721,11 @@
                             <label class="form-label">相机品牌</label>
                             <select class="form-control" id="cameraBrand">
                                 <option value="">选择品牌</option>
-                                <option value="Canon">Canon 佳能</option>
-                                <option value="Nikon">Nikon 尼康</option>
-                                <option value="Sony">Sony 索尼</option>
-                                <option value="Fujifilm">Fujifilm 富士</option>
-                                <option value="Leica">Leica 徕卡</option>
-                                <option value="Panasonic">Panasonic 松下</option>
-                                <option value="Olympus">Olympus 奥林巴斯</option>
-                                <option value="Pentax">Pentax 宾得</option>
+                                <option value="Canon">Canon</option>
+                                <option value="Nikon">Nikon</option>
+                                <option value="Sony">Sony</option>
+                                <option value="Fujifilm">Fujifilm</option>
+                                <option value="Leica">Leica</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -930,13 +734,8 @@
                                 <option value="">先选择品牌</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">自定义品牌/型号（可选）</label>
-                            <input type="text" class="form-control" id="customCamera" placeholder="例如：Canon EOS R5">
-                        </div>
                     </div>
 
-                    <!-- 拍摄参数 -->
                     <div class="form-section">
                         <div class="section-title">
                             <i class="ri-settings-3-fill"></i>
@@ -947,13 +746,12 @@
                                 <label class="form-label">ISO</label>
                                 <select class="form-control" id="iso">
                                     <option value="">选择 ISO</option>
-                                    <option value="100">ISO 100</option>
-                                    <option value="200">ISO 200</option>
-                                    <option value="400">ISO 400</option>
-                                    <option value="800">ISO 800</option>
-                                    <option value="1600">ISO 1600</option>
-                                    <option value="3200">ISO 3200</option>
-                                    <option value="6400">ISO 6400</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                    <option value="400">400</option>
+                                    <option value="800">800</option>
+                                    <option value="1600">1600</option>
+                                    <option value="3200">3200</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -966,8 +764,6 @@
                                     <option value="4.0">f/4.0</option>
                                     <option value="5.6">f/5.6</option>
                                     <option value="8.0">f/8.0</option>
-                                    <option value="11.0">f/11</option>
-                                    <option value="16.0">f/16</option>
                                 </select>
                             </div>
                         </div>
@@ -982,8 +778,6 @@
                                     <option value="1/1000">1/1000s</option>
                                     <option value="1/500">1/500s</option>
                                     <option value="1/250">1/250s</option>
-                                    <option value="1/125">1/125s</option>
-                                    <option value="1/60">1/60s</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -995,14 +789,12 @@
                                     <option value="35">35mm</option>
                                     <option value="50">50mm</option>
                                     <option value="85">85mm</option>
-                                    <option value="100">100mm</option>
                                     <option value="200">200mm</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 位置信息 -->
                     <div class="form-section">
                         <div class="section-title">
                             <i class="ri-map-pin-fill"></i>
@@ -1012,12 +804,10 @@
                             <label class="form-label">常用地点</label>
                             <select class="form-control" id="locationPreset">
                                 <option value="">选择预设地点</option>
-                                <option value="39.9042,116.4074">北京 · 天安门</option>
-                                <option value="31.2304,121.4737">上海 · 外滩</option>
-                                <option value="22.5431,114.0579">深圳 · 市民中心</option>
-                                <option value="23.1291,113.2644">广州 · 广州塔</option>
-                                <option value="30.5728,104.0668">成都 · 天府广场</option>
-                                <option value="30.2741,120.1551">杭州 · 西湖</option>
+                                <option value="39.9042,116.4074">北京</option>
+                                <option value="31.2304,121.4737">上海</option>
+                                <option value="22.5431,114.0579">深圳</option>
+                                <option value="23.1291,113.2644">广州</option>
                             </select>
                         </div>
                         <div class="form-row">
@@ -1053,44 +843,22 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- 其他信息 -->
-                    <div class="form-section">
-                        <div class="section-title">
-                            <i class="ri-information-fill"></i>
-                            其他信息
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">作者/摄影师</label>
-                            <input type="text" class="form-control" id="artist" placeholder="输入摄影师姓名">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">图片描述</label>
-                            <textarea class="form-control" id="description" placeholder="输入图片描述..."></textarea>
-                        </div>
-                    </div>
                 </div>
             </div>
         </main>
 
-        <!-- 底部操作栏 -->
         <footer class="footer hidden" id="footer">
             <div class="footer-content">
                 <button class="btn btn-primary" id="applyBtn">
                     <i class="ri-save-fill"></i>
-                    <span>应用到选中</span>
-                </button>
-                <button class="btn btn-accent hidden" id="downloadBtn">
-                    <i class="ri-download-2-fill"></i>
-                    <span>打包下载</span>
+                    <span>应用并下载</span>
                 </button>
             </div>
         </footer>
 
-        <!-- 进度遮罩 -->
         <div class="progress-overlay" id="progressOverlay">
             <div class="progress-card">
-                <h3 class="progress-title">处理中...</h3>
+                <h3 class="progress-title" id="progressTitle">处理中...</h3>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill" style="width: 0%"></div>
                 </div>
@@ -1098,79 +866,25 @@
             </div>
         </div>
 
-        <!-- Toast 容器 -->
         <div class="toast-container" id="toastContainer"></div>
     </div>
 
     <script>
-        // ==================== 应用状态 ====================
-        class AppState {
-            constructor() {
-                this.images = [];
-                this.selectedIds = new Set();
-                this.processedIds = new Set();
-                this.map = null;
-                this.marker = null;
-            }
-
-            addImage(data) {
-                this.images.push(data);
-                this.selectedIds.add(data.id);
-                this.updateUI();
-            }
-
-            toggleSelection(id) {
-                if (this.selectedIds.has(id)) {
-                    this.selectedIds.delete(id);
-                } else {
-                    this.selectedIds.add(id);
-                }
-                this.updateUI();
-            }
-
-            selectAll() {
-                this.images.forEach(img => this.selectedIds.add(img.id));
-                this.updateUI();
-            }
-
-            markProcessed(id) {
-                this.processedIds.add(id);
-                this.updateUI();
-            }
-
-            getSelected() {
-                return this.images.filter(img => this.selectedIds.has(img.id));
-            }
-
-            getProcessed() {
-                return this.images.filter(img => this.processedIds.has(img.id) && img.blob);
-            }
-
-            updateUI() {
-                DOM.totalCount.textContent = this.images.length;
-                DOM.selectedCount.textContent = this.selectedIds.size;
-                
-                if (this.processedIds.size > 0) {
-                    DOM.downloadBtn.classList.remove('hidden');
-                }
-            }
-        }
-
-        const state = new AppState();
-
-        // ==================== 相机数据 ====================
         const CAMERAS = {
-            'Canon': ['EOS R5', 'EOS R6', 'EOS R3', 'EOS 5D Mark IV', 'EOS 90D'],
-            'Nikon': ['Z9', 'Z7 II', 'Z6 II', 'D850', 'D780'],
-            'Sony': ['α1', 'α7R V', 'α7 IV', 'α7 III', 'α6600'],
-            'Fujifilm': ['X-H2S', 'X-T5', 'X-T4', 'X-S10', 'X100V'],
-            'Leica': ['M11', 'M10-R', 'Q2', 'SL2', 'CL'],
-            'Panasonic': ['Lumix S5', 'Lumix S1R', 'Lumix GH6'],
-            'Olympus': ['OM-D E-M1 Mark III', 'OM-D E-M5 Mark III'],
-            'Pentax': ['K-1 Mark II', 'K-3 III', 'KP']
+            'Canon': ['EOS R5', 'EOS R6', 'EOS 5D Mark IV'],
+            'Nikon': ['Z9', 'Z7 II', 'D850'],
+            'Sony': ['A1', 'A7R V', 'A7 IV'],
+            'Fujifilm': ['X-H2S', 'X-T5', 'X-T4'],
+            'Leica': ['M11', 'Q2', 'SL2']
         };
 
-        // ==================== DOM 元素 ====================
+        const state = {
+            images: [],
+            selectedIds: new Set(),
+            map: null,
+            marker: null
+        };
+
         const DOM = {
             uploadSection: document.getElementById('uploadSection'),
             uploadArea: document.getElementById('uploadArea'),
@@ -1184,15 +898,13 @@
             resetBtn: document.getElementById('resetBtn'),
             footer: document.getElementById('footer'),
             applyBtn: document.getElementById('applyBtn'),
-            downloadBtn: document.getElementById('downloadBtn'),
             progressOverlay: document.getElementById('progressOverlay'),
+            progressTitle: document.getElementById('progressTitle'),
             progressFill: document.getElementById('progressFill'),
             progressText: document.getElementById('progressText'),
             toastContainer: document.getElementById('toastContainer'),
-            
             cameraBrand: document.getElementById('cameraBrand'),
             cameraModel: document.getElementById('cameraModel'),
-            customCamera: document.getElementById('customCamera'),
             iso: document.getElementById('iso'),
             aperture: document.getElementById('aperture'),
             shutter: document.getElementById('shutter'),
@@ -1203,187 +915,47 @@
             mapSearch: document.getElementById('mapSearch'),
             mapSearchBtn: document.getElementById('mapSearchBtn'),
             currentLocationBtn: document.getElementById('currentLocationBtn'),
-            clearLocationBtn: document.getElementById('clearLocationBtn'),
-            artist: document.getElementById('artist'),
-            description: document.getElementById('description')
+            clearLocationBtn: document.getElementById('clearLocationBtn')
         };
 
-        // ==================== 工具函数 ====================
-        const Utils = {
-            generateId: () => Date.now() + Math.random().toString(36).substr(2, 9),
+        function toast(title, message, type = 'success') {
+            const icons = {
+                success: 'ri-checkbox-circle-fill',
+                error: 'ri-error-warning-fill',
+                warning: 'ri-alert-fill'
+            };
             
-            formatSize: (bytes) => {
-                if (bytes < 1024) return bytes + ' B';
-                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-            },
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="toast-icon ${icons[type]}"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    ${message ? `<div class="toast-message">${message}</div>` : ''}
+                </div>
+            `;
             
-            degToDms: (deg) => {
-                const d = Math.floor(deg);
-                const m = Math.floor((deg - d) * 60);
-                const s = Math.round((deg - d - m / 60) * 3600 * 100);
-                return [[d, 1], [m, 1], [s, 100]];
-            },
-            
-            toast: (title, message, type = 'success') => {
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                
-                const icons = {
-                    success: 'ri-checkbox-circle-fill',
-                    error: 'ri-error-warning-fill',
-                    warning: 'ri-alert-fill'
-                };
-                
-                toast.innerHTML = `
-                    <i class="toast-icon ${icons[type]}"></i>
-                    <div class="toast-content">
-                        <div class="toast-title">${title}</div>
-                        ${message ? `<div class="toast-message">${message}</div>` : ''}
-                    </div>
-                `;
-                
-                DOM.toastContainer.appendChild(toast);
-                
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                    toast.style.transform = 'translateY(20px)';
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
-            }
-        };
+            DOM.toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
-        // ==================== 地图管理 ====================
-        const MapManager = {
-            init() {
-                state.map = L.map('map', {
-                    center: [35.8617, 104.1954],
-                    zoom: 4,
-                    zoomControl: true
-                });
+        function updateUI() {
+            DOM.totalCount.textContent = state.images.length;
+            DOM.selectedCount.textContent = state.selectedIds.size;
+        }
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap',
-                    maxZoom: 19
-                }).addTo(state.map);
-
-                state.map.on('click', (e) => {
-                    this.setLocation(e.latlng.lat, e.latlng.lng);
-                });
-            },
-
-            setLocation(lat, lng) {
-                DOM.latitude.value = lat.toFixed(6);
-                DOM.longitude.value = lng.toFixed(6);
-
-                if (state.marker) {
-                    state.map.removeLayer(state.marker);
-                }
-
-                state.marker = L.marker([lat, lng], { draggable: true }).addTo(state.map);
-                state.marker.on('dragend', (e) => {
-                    const pos = e.target.getLatLng();
-                    this.setLocation(pos.lat, pos.lng);
-                });
-
-                state.marker.bindPopup(`${lat.toFixed(6)}, ${lng.toFixed(6)}`).openPopup();
-                state.map.setView([lat, lng], 13);
-            },
-
-            async search(query) {
-                if (!query.trim()) return;
-
-                DOM.mapSearchBtn.disabled = true;
-                DOM.mapSearchBtn.innerHTML = '<span class="spinner"></span>';
-
-                try {
-                    const res = await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&accept-language=zh-CN`
-                    );
-                    const data = await res.json();
-
-                    if (data && data.length > 0) {
-                        this.setLocation(parseFloat(data[0].lat), parseFloat(data[0].lon));
-                        Utils.toast('搜索成功', data[0].display_name);
-                    } else {
-                        Utils.toast('未找到', '请尝试其他关键词', 'warning');
-                    }
-                } catch (error) {
-                    Utils.toast('搜索失败', '网络错误', 'error');
-                } finally {
-                    DOM.mapSearchBtn.disabled = false;
-                    DOM.mapSearchBtn.innerHTML = '<i class="ri-search-line"></i>';
-                }
-            },
-
-            getCurrentLocation() {
-                if (!navigator.geolocation) {
-                    Utils.toast('不支持定位', '浏览器不支持', 'error');
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (!file.type.match('image/(jpeg|jpg|png)')) {
+                    toast('格式错误', `${file.name} 不支持`, 'error');
                     return;
                 }
 
-                DOM.currentLocationBtn.disabled = true;
-                DOM.currentLocationBtn.innerHTML = '<span class="spinner"></span>定位中';
-
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        this.setLocation(pos.coords.latitude, pos.coords.longitude);
-                        DOM.currentLocationBtn.disabled = false;
-                        DOM.currentLocationBtn.innerHTML = '<i class="ri-crosshair-line"></i>当前位置';
-                    },
-                    () => {
-                        Utils.toast('定位失败', '无法获取位置', 'error');
-                        DOM.currentLocationBtn.disabled = false;
-                        DOM.currentLocationBtn.innerHTML = '<i class="ri-crosshair-line"></i>当前位置';
-                    }
-                );
-            },
-
-            clear() {
-                DOM.latitude.value = '';
-                DOM.longitude.value = '';
-                if (state.marker) {
-                    state.map.removeLayer(state.marker);
-                    state.marker = null;
-                }
-                state.map.setView([35.8617, 104.1954], 4);
-            }
-        };
-
-        // ==================== 文件处理 ====================
-        const FileHandler = {
-            handle(files) {
-                const valid = Array.from(files).filter(file => {
-                    if (!file.type.match('image/(jpeg|jpg|png)')) {
-                        Utils.toast('格式错误', `${file.name} 格式不支持`, 'error');
-                        return false;
-                    }
-                    if (file.size > 50 * 1024 * 1024) {
-                        Utils.toast('文件过大', `${file.name} 超过 50MB`, 'error');
-                        return false;
-                    }
-                    return true;
-                });
-
-                if (valid.length === 0) return;
-
-                valid.forEach(file => this.load(file));
-
-                DOM.uploadSection.classList.add('hidden');
-                DOM.workspace.classList.add('active');
-                DOM.footer.classList.remove('hidden');
-                DOM.resetBtn.classList.remove('hidden');
-
-                if (!state.map) {
-                    setTimeout(() => MapManager.init(), 100);
-                }
-
-                Utils.toast('上传成功', `已加载 ${valid.length} 张图片`);
-            },
-
-            load(file) {
                 const reader = new FileReader();
-                const id = Utils.generateId();
+                const id = Date.now() + Math.random();
 
                 reader.onload = (e) => {
                     const img = new Image();
@@ -1392,365 +964,361 @@
                             id,
                             file,
                             name: file.name,
-                            size: file.size,
-                            width: img.width,
-                            height: img.height,
                             dataUrl: e.target.result,
-                            blob: null
+                            isPng: file.type === 'image/png'
                         };
 
-                        state.addImage(data);
-                        this.render(data);
+                        state.images.push(data);
+                        state.selectedIds.add(id);
+
+                        const div = document.createElement('div');
+                        div.className = 'image-item selected';
+                        div.dataset.id = id;
+                        div.innerHTML = `
+                            <input type="checkbox" class="image-checkbox" checked data-id="${id}">
+                            <img src="${data.dataUrl}" alt="${data.name}">
+                        `;
+                        DOM.imagesGrid.appendChild(div);
+
+                        updateUI();
                     };
                     img.src = e.target.result;
                 };
 
                 reader.readAsDataURL(file);
-            },
+            });
 
-            render(data) {
-                const div = document.createElement('div');
-                div.className = 'image-item selected';
-                div.dataset.id = data.id;
-                
-                div.innerHTML = `
-                    <input type="checkbox" class="image-checkbox" checked data-id="${data.id}">
-                    <img src="${data.dataUrl}" alt="${data.name}">
-                    <div class="image-status pending">
-                        <i class="ri-time-line"></i>
-                    </div>
-                `;
+            DOM.uploadSection.classList.add('hidden');
+            DOM.workspace.classList.add('active');
+            DOM.footer.classList.remove('hidden');
+            DOM.resetBtn.classList.remove('hidden');
 
-                DOM.imagesGrid.appendChild(div);
-            },
-
-            updateStatus(id, processed) {
-                const item = document.querySelector(`.image-item[data-id="${id}"]`);
-                if (!item) return;
-
-                const status = item.querySelector('.image-status');
-                if (processed) {
-                    status.className = 'image-status processed';
-                    status.innerHTML = '<i class="ri-check-line"></i>';
-                } else {
-                    status.className = 'image-status pending';
-                    status.innerHTML = '<i class="ri-time-line"></i>';
-                }
+            if (!state.map) {
+                setTimeout(() => initMap(), 100);
             }
-        };
 
-        // ==================== EXIF 处理 ====================
-        const ExifHandler = {
-            collectData() {
-                const custom = DOM.customCamera.value.trim();
-                let make = '', model = '';
-                
-                if (custom) {
-                    const parts = custom.split(' ');
-                    make = parts[0];
-                    model = parts.slice(1).join(' ');
-                } else {
-                    make = DOM.cameraBrand.value;
-                    model = DOM.cameraModel.value;
-                }
+            toast('上传成功', `已加载 ${files.length} 张图片`);
+        }
 
-                return {
-                    make,
-                    model,
-                    iso: DOM.iso.value,
-                    aperture: DOM.aperture.value,
-                    shutter: DOM.shutter.value,
-                    focal: DOM.focal.value,
-                    latitude: DOM.latitude.value,
-                    longitude: DOM.longitude.value,
-                    artist: DOM.artist.value,
-                    description: DOM.description.value
-                };
-            },
+        function initMap() {
+            state.map = L.map('map').setView([35.8617, 104.1954], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(state.map);
 
-            buildExif(data) {
-                const exif = {
-                    "0th": {},
-                    "Exif": {},
-                    "GPS": {},
-                    "Interop": {},
-                    "1st": {}
-                };
+            state.map.on('click', (e) => {
+                setLocation(e.latlng.lat, e.latlng.lng);
+            });
+        }
 
-                if (data.make) exif["0th"][piexif.ImageIFD.Make] = data.make;
-                if (data.model) exif["0th"][piexif.ImageIFD.Model] = data.model;
-                if (data.artist) exif["0th"][piexif.ImageIFD.Artist] = data.artist;
-                if (data.description) exif["0th"][piexif.ImageIFD.ImageDescription] = data.description;
-                exif["0th"][piexif.ImageIFD.Software] = "EXIF Editor Pro";
+        function setLocation(lat, lng) {
+            DOM.latitude.value = lat.toFixed(6);
+            DOM.longitude.value = lng.toFixed(6);
 
-                if (data.iso) exif["Exif"][piexif.ExifIFD.ISOSpeedRatings] = parseInt(data.iso);
-                if (data.aperture) {
-                    exif["Exif"][piexif.ExifIFD.FNumber] = [Math.round(parseFloat(data.aperture) * 10), 10];
-                }
-                if (data.shutter) {
-                    const parts = data.shutter.split('/');
-                    exif["Exif"][piexif.ExifIFD.ExposureTime] = parts.length === 2 
-                        ? [parseInt(parts[0]), parseInt(parts[1])]
-                        : [parseInt(parts[0]), 1];
-                }
-                if (data.focal) {
-                    exif["Exif"][piexif.ExifIFD.FocalLength] = [parseInt(data.focal), 1];
-                }
+            if (state.marker) {
+                state.map.removeLayer(state.marker);
+            }
 
-                const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-                exif["0th"][piexif.ImageIFD.DateTime] = now;
-                exif["Exif"][piexif.ExifIFD.DateTimeOriginal] = now;
-                exif["Exif"][piexif.ExifIFD.DateTimeDigitized] = now;
+            state.marker = L.marker([lat, lng], { draggable: true }).addTo(state.map);
+            state.marker.on('dragend', (e) => {
+                const pos = e.target.getLatLng();
+                setLocation(pos.lat, pos.lng);
+            });
 
-                if (data.latitude && data.longitude) {
-                    const lat = parseFloat(data.latitude);
-                    const lon = parseFloat(data.longitude);
+            state.map.setView([lat, lng], 13);
+        }
+
+        async function processAndDownload() {
+            const selected = state.images.filter(img => state.selectedIds.has(img.id));
+            if (selected.length === 0) {
+                toast('未选择图片', '请至少选择一张', 'warning');
+                return;
+            }
+
+            const exifData = {
+                make: DOM.cameraBrand.value || '',
+                model: DOM.cameraModel.value || '',
+                iso: DOM.iso.value || '',
+                aperture: DOM.aperture.value || '',
+                shutter: DOM.shutter.value || '',
+                focal: DOM.focal.value || '',
+                latitude: DOM.latitude.value || '',
+                longitude: DOM.longitude.value || ''
+            };
+
+            DOM.applyBtn.disabled = true;
+            DOM.progressOverlay.classList.add('active');
+
+            const processedBlobs = [];
+            const baseTime = Date.now();
+
+            try {
+                for (let i = 0; i < selected.length; i++) {
+                    const imageData = selected[i];
+                    const timestamp = baseTime + (i * 1000);
                     
-                    exif["GPS"][piexif.GPSIFD.GPSLatitudeRef] = lat >= 0 ? "N" : "S";
-                    exif["GPS"][piexif.GPSIFD.GPSLatitude] = Utils.degToDms(Math.abs(lat));
-                    exif["GPS"][piexif.GPSIFD.GPSLongitudeRef] = lon >= 0 ? "E" : "W";
-                    exif["GPS"][piexif.GPSIFD.GPSLongitude] = Utils.degToDms(Math.abs(lon));
+                    // 🔥 关键：先转换为 JPEG，再写入 EXIF
+                    const jpegDataUrl = await convertToJpeg(imageData.dataUrl);
+                    const blob = await processImageWithExif(jpegDataUrl, exifData, timestamp);
+                    const filename = generateFilename(exifData.make, timestamp, i);
+                    
+                    processedBlobs.push({ name: filename, blob });
+                    
+                    const progress = ((i + 1) / selected.length) * 100;
+                    DOM.progressFill.style.width = `${progress}%`;
+                    DOM.progressText.textContent = `${i + 1} / ${selected.length}`;
                 }
 
-                return exif;
-            },
-
-            process(imageData, exifData) {
-                return new Promise((resolve, reject) => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const img = new Image();
-
-                    img.onload = () => {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.drawImage(img, 0, 0);
-
-                        const exif = this.buildExif(exifData);
-                        const exifBytes = piexif.dump(exif);
-
-                        canvas.toBlob((blob) => {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                try {
-                                    const inserted = piexif.insert(exifBytes, e.target.result);
-                                    const binary = atob(inserted.split(',')[1]);
-                                    const array = new Uint8Array(binary.length);
-                                    for (let i = 0; i < binary.length; i++) {
-                                        array[i] = binary.charCodeAt(i);
-                                    }
-                                    imageData.blob = new Blob([array], { type: 'image/jpeg' });
-                                    resolve(imageData);
-                                } catch (error) {
-                                    reject(error);
-                                }
-                            };
-                            reader.readAsDataURL(blob);
-                        }, 'image/jpeg', 1.0);
-                    };
-
-                    img.onerror = () => reject(new Error('加载失败'));
-                    img.src = imageData.dataUrl;
-                });
-            },
-
-            async batchProcess() {
-                const selected = state.getSelected();
+                await downloadFiles(processedBlobs);
+                toast('处理完成', `成功处理 ${selected.length} 张图片`);
                 
-                if (selected.length === 0) {
-                    Utils.toast('未选择图片', '请至少选择一张', 'warning');
-                    return;
-                }
-
-                const exifData = this.collectData();
-                
-                DOM.applyBtn.disabled = true;
-                DOM.progressOverlay.classList.add('active');
-                
-                let processed = 0;
-                const total = selected.length;
-
-                for (const img of selected) {
-                    try {
-                        await this.process(img, exifData);
-                        state.markProcessed(img.id);
-                        FileHandler.updateStatus(img.id, true);
-                        
-                        processed++;
-                        const progress = (processed / total) * 100;
-                        DOM.progressFill.style.width = `${progress}%`;
-                        DOM.progressText.textContent = `${processed} / ${total}`;
-                    } catch (error) {
-                        console.error('处理失败:', error);
-                    }
-                }
-
+            } catch (error) {
+                console.error('处理失败:', error);
+                toast('处理失败', error.message, 'error');
+            } finally {
                 DOM.applyBtn.disabled = false;
                 DOM.progressOverlay.classList.remove('active');
-                
-                Utils.toast('处理完成', `成功处理 ${processed} 张图片`);
-            },
-
-            async downloadAll() {
-                const processed = state.getProcessed();
-                
-                if (processed.length === 0) {
-                    Utils.toast('无可下载图片', '请先处理图片', 'warning');
-                    return;
-                }
-
-                DOM.downloadBtn.disabled = true;
-                DOM.downloadBtn.innerHTML = '<span class="spinner"></span>打包中';
-
-                try {
-                    const zip = new JSZip();
-                    const folder = zip.folder('exif_edited');
-
-                    processed.forEach((img) => {
-                        const name = img.name.replace(/\.[^/.]+$/, '') + '_edited.jpg';
-                        folder.file(name, img.blob);
-                    });
-
-                    const content = await zip.generateAsync({ 
-                        type: 'blob',
-                        compression: 'DEFLATE',
-                        compressionOptions: { level: 9 }
-                    });
-                    
-                    const url = URL.createObjectURL(content);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `exif_edited_${Date.now()}.zip`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-
-                    Utils.toast('下载成功', `已打包 ${processed.length} 张图片`);
-                } catch (error) {
-                    Utils.toast('打包失败', '请重试', 'error');
-                } finally {
-                    DOM.downloadBtn.disabled = false;
-                    DOM.downloadBtn.innerHTML = '<i class="ri-download-2-fill"></i><span>打包下载</span>';
-                }
+                DOM.progressFill.style.width = '0%';
             }
-        };
+        }
 
-        // ==================== 事件绑定 ====================
-        function initEvents() {
-            // 上传
-            DOM.uploadArea.addEventListener('click', () => DOM.fileInput.click());
-            DOM.fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    FileHandler.handle(e.target.files);
-                }
-            });
-
-            // 拖拽
-            DOM.uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                DOM.uploadArea.classList.add('dragover');
-            });
-            DOM.uploadArea.addEventListener('dragleave', () => {
-                DOM.uploadArea.classList.remove('dragover');
-            });
-            DOM.uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                DOM.uploadArea.classList.remove('dragover');
-                if (e.dataTransfer.files.length > 0) {
-                    FileHandler.handle(e.dataTransfer.files);
-                }
-            });
-
-            // 图片选择
-            DOM.imagesGrid.addEventListener('change', (e) => {
-                if (e.target.classList.contains('image-checkbox')) {
-                    const id = e.target.dataset.id;
-                    const item = e.target.closest('.image-item');
+        // 🔥 新增：将任何图片转换为 JPEG
+        function convertToJpeg(dataUrl) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
                     
-                    state.toggleSelection(id);
-                    item.classList.toggle('selected', e.target.checked);
-                }
+                    const ctx = canvas.getContext('2d');
+                    // 白色背景（PNG 透明部分会变成白色）
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // 转换为 JPEG
+                    const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                    resolve(jpegDataUrl);
+                };
+                img.onerror = () => reject(new Error('图片加载失败'));
+                img.src = dataUrl;
             });
+        }
 
-            // 全选
-            DOM.selectAllBtn.addEventListener('click', () => {
-                state.selectAll();
-                document.querySelectorAll('.image-item').forEach(item => {
-                    item.classList.add('selected');
-                    item.querySelector('.image-checkbox').checked = true;
-                });
-            });
-
-            // 添加更多
-            DOM.addMoreBtn.addEventListener('click', () => {
-                DOM.fileInput.click();
-            });
-
-            // 相机品牌
-            DOM.cameraBrand.addEventListener('change', (e) => {
-                const brand = e.target.value;
-                DOM.cameraModel.innerHTML = '<option value="">选择型号</option>';
-                
-                if (brand && CAMERAS[brand]) {
-                    CAMERAS[brand].forEach(model => {
-                        const opt = document.createElement('option');
-                        opt.value = model;
-                        opt.textContent = model;
-                        DOM.cameraModel.appendChild(opt);
-                    });
-                    DOM.cameraModel.disabled = false;
-                } else {
-                    DOM.cameraModel.disabled = true;
-                }
-            });
-
-            // 地点预设
-            DOM.locationPreset.addEventListener('change', (e) => {
-                const coords = e.target.value.split(',');
-                if (coords.length === 2) {
-                    MapManager.setLocation(parseFloat(coords[0]), parseFloat(coords[1]));
-                }
-            });
-
-            // 地图搜索
-            DOM.mapSearchBtn.addEventListener('click', () => {
-                MapManager.search(DOM.mapSearch.value);
-            });
-            DOM.mapSearch.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    MapManager.search(DOM.mapSearch.value);
-                }
-            });
-
-            // 地图控制
-            DOM.currentLocationBtn.addEventListener('click', () => {
-                MapManager.getCurrentLocation();
-            });
-            DOM.clearLocationBtn.addEventListener('click', () => {
-                MapManager.clear();
-            });
-
-            // 应用和下载
-            DOM.applyBtn.addEventListener('click', () => {
-                ExifHandler.batchProcess();
-            });
-            DOM.downloadBtn.addEventListener('click', () => {
-                ExifHandler.downloadAll();
-            });
-
-            // 重置
-            DOM.resetBtn.addEventListener('click', () => {
-                if (confirm('确定要重新开始吗？所有数据将丢失。')) {
-                    location.reload();
+        // 🔥 处理 JPEG 图片并写入 EXIF
+        function processImageWithExif(jpegDataUrl, exifData, timestamp) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const exif = buildExif(exifData, timestamp);
+                    const exifBytes = piexif.dump(exif);
+                    const newDataUrl = piexif.insert(exifBytes, jpegDataUrl);
+                    
+                    fetch(newDataUrl)
+                        .then(res => res.blob())
+                        .then(blob => resolve(blob))
+                        .catch(err => reject(err));
+                        
+                } catch (error) {
+                    reject(error);
                 }
             });
         }
 
-        // ==================== 初始化 ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            initEvents();
-            console.log('EXIF Editor Pro 已启动');
+        function buildExif(data, timestamp) {
+            const exif = {
+                "0th": {},
+                "Exif": {},
+                "GPS": {}
+            };
+
+            if (data.make) exif["0th"][piexif.ImageIFD.Make] = String(data.make);
+            if (data.model) exif["0th"][piexif.ImageIFD.Model] = String(data.model);
+            exif["0th"][piexif.ImageIFD.Software] = "EXIF Editor Pro";
+
+            if (data.iso) exif["Exif"][piexif.ExifIFD.ISOSpeedRatings] = parseInt(data.iso);
+            
+            if (data.aperture) {
+                const f = parseFloat(data.aperture);
+                exif["Exif"][piexif.ExifIFD.FNumber] = [Math.round(f * 10), 10];
+            }
+            
+            if (data.shutter) {
+                const parts = data.shutter.split('/');
+                if (parts.length === 2) {
+                    exif["Exif"][piexif.ExifIFD.ExposureTime] = [parseInt(parts[0]), parseInt(parts[1])];
+                }
+            }
+            
+            if (data.focal) {
+                exif["Exif"][piexif.ExifIFD.FocalLength] = [parseInt(data.focal), 1];
+            }
+
+            const date = new Date(timestamp);
+            const dateStr = `${date.getFullYear()}:${String(date.getMonth() + 1).padStart(2, '0')}:${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+            
+            exif["0th"][piexif.ImageIFD.DateTime] = dateStr;
+            exif["Exif"][piexif.ExifIFD.DateTimeOriginal] = dateStr;
+            exif["Exif"][piexif.ExifIFD.DateTimeDigitized] = dateStr;
+
+            if (data.latitude && data.longitude) {
+                const lat = parseFloat(data.latitude);
+                const lon = parseFloat(data.longitude);
+                
+                exif["GPS"][piexif.GPSIFD.GPSLatitudeRef] = lat >= 0 ? "N" : "S";
+                exif["GPS"][piexif.GPSIFD.GPSLatitude] = degToDms(Math.abs(lat));
+                exif["GPS"][piexif.GPSIFD.GPSLongitudeRef] = lon >= 0 ? "E" : "W";
+                exif["GPS"][piexif.GPSIFD.GPSLongitude] = degToDms(Math.abs(lon));
+            }
+
+            return exif;
+        }
+
+        function degToDms(deg) {
+            const d = Math.floor(deg);
+            const m = Math.floor((deg - d) * 60);
+            const s = Math.round(((deg - d - m / 60) * 3600) * 100);
+            return [[d, 1], [m, 1], [s, 100]];
+        }
+
+        function generateFilename(brand, timestamp, index) {
+            const seq = String(1000 + index).padStart(4, '0');
+            const prefix = brand === 'Canon' ? 'IMG' : brand === 'Nikon' ? 'DSC' : brand === 'Sony' ? 'DSC' : 'IMG';
+            return `${prefix}_${seq}.jpg`;
+        }
+
+        async function downloadFiles(files) {
+            if (files.length === 1) {
+                const url = URL.createObjectURL(files[0].blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = files[0].name;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else {
+                const zip = new JSZip();
+                const folder = zip.folder('exif_edited');
+                files.forEach(f => folder.file(f.name, f.blob));
+                const content = await zip.generateAsync({ type: 'blob' });
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `exif_edited_${Date.now()}.zip`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // 事件绑定
+        DOM.uploadArea.addEventListener('click', () => DOM.fileInput.click());
+        DOM.fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFiles(e.target.files);
+        });
+
+        DOM.uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            DOM.uploadArea.classList.add('dragover');
+        });
+        DOM.uploadArea.addEventListener('dragleave', () => {
+            DOM.uploadArea.classList.remove('dragover');
+        });
+        DOM.uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            DOM.uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
+        });
+
+        DOM.imagesGrid.addEventListener('change', (e) => {
+            if (e.target.classList.contains('image-checkbox')) {
+                const id = parseFloat(e.target.dataset.id);
+                const item = e.target.closest('.image-item');
+                if (e.target.checked) {
+                    state.selectedIds.add(id);
+                    item.classList.add('selected');
+                } else {
+                    state.selectedIds.delete(id);
+                    item.classList.remove('selected');
+                }
+                updateUI();
+            }
+        });
+
+        DOM.selectAllBtn.addEventListener('click', () => {
+            state.images.forEach(img => state.selectedIds.add(img.id));
+            document.querySelectorAll('.image-item').forEach(item => {
+                item.classList.add('selected');
+                item.querySelector('.image-checkbox').checked = true;
+            });
+            updateUI();
+        });
+
+        DOM.addMoreBtn.addEventListener('click', () => DOM.fileInput.click());
+
+        DOM.cameraBrand.addEventListener('change', (e) => {
+            const brand = e.target.value;
+            DOM.cameraModel.innerHTML = '<option value="">选择型号</option>';
+            if (brand && CAMERAS[brand]) {
+                CAMERAS[brand].forEach(model => {
+                    const opt = document.createElement('option');
+                    opt.value = model;
+                    opt.textContent = model;
+                    DOM.cameraModel.appendChild(opt);
+                });
+                DOM.cameraModel.disabled = false;
+            } else {
+                DOM.cameraModel.disabled = true;
+            }
+        });
+
+        DOM.locationPreset.addEventListener('change', (e) => {
+            const coords = e.target.value.split(',');
+            if (coords.length === 2) {
+                setLocation(parseFloat(coords[0]), parseFloat(coords[1]));
+            }
+        });
+
+        DOM.mapSearchBtn.addEventListener('click', async () => {
+            const query = DOM.mapSearch.value.trim();
+            if (!query) return;
+
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    setLocation(parseFloat(data[0].lat), parseFloat(data[0].lon));
+                    toast('搜索成功', data[0].display_name);
+                } else {
+                    toast('未找到', '请尝试其他关键词', 'warning');
+                }
+            } catch (error) {
+                toast('搜索失败', '网络错误', 'error');
+            }
+        });
+
+        DOM.currentLocationBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                toast('不支持定位', '浏览器不支持', 'error');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => setLocation(pos.coords.latitude, pos.coords.longitude),
+                () => toast('定位失败', '无法获取位置', 'error')
+            );
+        });
+
+        DOM.clearLocationBtn.addEventListener('click', () => {
+            DOM.latitude.value = '';
+            DOM.longitude.value = '';
+            if (state.marker) {
+                state.map.removeLayer(state.marker);
+                state.marker = null;
+            }
+        });
+
+        DOM.applyBtn.addEventListener('click', processAndDownload);
+
+        DOM.resetBtn.addEventListener('click', () => {
+            if (confirm('确定要重新开始吗？')) location.reload();
         });
     </script>
 </body>
