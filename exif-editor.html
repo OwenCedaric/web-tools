@@ -1134,7 +1134,6 @@
 
             if (data.make) exif["0th"][piexif.ImageIFD.Make] = String(data.make);
             if (data.model) exif["0th"][piexif.ImageIFD.Model] = String(data.model);
-            exif["0th"][piexif.ImageIFD.Software] = "EXIF Editor Pro";
 
             if (data.iso) exif["Exif"][piexif.ExifIFD.ISOSpeedRatings] = parseInt(data.iso);
             
