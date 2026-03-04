@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>屏幕清理助手 - 纯黑全屏显示</title>
+    <meta name="description" content="在线屏幕清理助手，一键将屏幕切换为纯黑全屏模式，帮助您更清晰地发现和清理显示器上的灰尘、污渍和指纹。支持随时切换回纯白浅色背景。" />
+    <meta name="keywords" content="屏幕清理, 纯黑背景, 全屏显示, 清理灰尘, 显示器维护, 屏幕测试, Screen Cleaner" />
+
+    <!-- Use Tailwind CSS or similar? No, standard CSS is fine and faster to load. -->
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --btn-bg: #000000;
+            --btn-text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family:
+                -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, sans-serif;
+            transition: background-color 0.3s ease;
+        }
+
+        body.is-black {
+            --bg-color: #000000;
+            --text-color: #000000;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            z-index: 10;
+        }
+
+        body.is-black .container {
+            display: none;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.25rem;
+            font-weight: 500;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            background-color: #1a1a1a;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Fullscreen Icon SVG */
+        .fullscreen-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .exit-hint {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 20;
+            text-align: center;
+            user-select: none;
+        }
+
+        body.is-black .exit-hint {
+            display: block;
+        }
+
+        body.is-black.show-hint .exit-hint {
+            opacity: 1;
+        }
+
+        /* The invisible overlay that captures clicks to exit when in black screen */
+        .exit-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 15;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        body.is-black .exit-overlay {
+            display: block;
+        }
+
+        .cleaning-tips {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            text-align: left;
+            border: 1px solid #eaeaea;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cleaning-tips h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #111;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cleaning-tips ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .cleaning-tips li {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .cleaning-tips li::before {
+            content: "•";
+            color: var(--btn-bg);
+            font-weight: bold;
+            position: absolute;
+            left: 0.5rem;
+        }
+
+        .cleaning-tips li strong {
+            color: #222;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>屏幕清理助手</h1>
+        <p>
+            显示器上的灰尘、指纹和污渍在纯黑背景下会更加明显。<br />本工具可一键将屏幕切换为纯黑并全屏显示，方便您彻底清理屏幕。清洁完成后，点击屏幕任意位置即可恢复纯白显示。
+        </p>
+        <button class="btn" id="startBtn" aria-label="进入纯黑全屏">
+            <svg class="fullscreen-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 5h5v2H7v3H5V5zm9 0h5v5h-2V7h-3V5zm5 9h2v5h-5v-2h3v-3zm-9 3H5v-5h2v3h3v2z" />
+            </svg>
+            进入纯黑全屏
+        </button>
+
+        <div class="cleaning-tips">
+            <h3>✨ 屏幕安全清理建议</h3>
+            <ul>
+                <li><strong>推荐工具：</strong>使用干净、柔软的超细纤维布（如眼镜布），它不会在屏幕的涂层上留下划痕。</li>
+                <li><strong>正确的方法：</strong>直接用干布轻轻擦拭屏幕。对于顽固污渍，稍微用纯净水或专用的屏幕清洁剂**喷在布上**（让布微湿即可），再轻轻擦拭。</li>
+                <li><strong>绝对要避免：</strong>不要直接往屏幕上喷洒任何液体！坚决避免使用含有酒精、氨水（例如玻璃水）或其他刺激性化学物质的清洁剂，这会永久破坏屏幕反光涂层。</li>
+                <li><strong>动作建议：</strong>擦拭时尽量沿同一个方向（推荐画圈或由上至下），不要用力刮擦。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Hidden overlay and hint for exiting mode -->
+    <div class="exit-overlay" id="exitOverlay" aria-label="点击退出纯黑模式"></div>
+    <div class="exit-hint" id="exitHint">点击屏幕任意位置 或 按 ESC 退出</div>
+
+    <script>
+        const body = document.body;
+        const startBtn = document.getElementById("startBtn");
+        const exitOverlay = document.getElementById("exitOverlay");
+
+        let hintTimeout;
+
+        function enterBlackScreen() {
+            // Add classes immediately for visual response
+            body.classList.add("is-black");
+            showHintTemporarily();
+
+            // Request fullscreen
+            const docEl = document.documentElement;
+            if (docEl.requestFullscreen) {
+                docEl
+                    .requestFullscreen()
+                    .catch((err) => console.warn("Fullscreen request failed:", err));
+            } else if (docEl.webkitRequestFullscreen) {
+                /* Safari */
+                docEl.webkitRequestFullscreen();
+            } else if (docEl.msRequestFullscreen) {
+                /* IE11 */
+                docEl.msRequestFullscreen();
+            }
+        }
+
+        function exitBlackScreen() {
+            // Exit fullscreen if active
+            const isFullscreen =
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.msFullscreenElement;
+            if (isFullscreen) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+
+            // Remove classes
+            body.classList.remove("is-black");
+            body.classList.remove("show-hint");
+        }
+
+        function showHintTemporarily() {
+            body.classList.add("show-hint");
+            clearTimeout(hintTimeout);
+            hintTimeout = setTimeout(() => {
+                body.classList.remove("show-hint");
+            }, 2500); // Hide after 2.5 seconds
+        }
+
+        // Event Listeners
+        startBtn.addEventListener("click", enterBlackScreen);
+        exitOverlay.addEventListener("click", exitBlackScreen);
+
+        // Show hint on mouse movement
+        exitOverlay.addEventListener("mousemove", () => {
+            if (body.classList.contains("is-black")) {
+                showHintTemporarily();
+            }
+        });
+
+        // Listen for native full screen exits (like user pressing ESC)
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+        document.addEventListener(
+            "webkitfullscreenchange",
+            handleFullscreenChange,
+        );
+        document.addEventListener("msfullscreenchange", handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            const isFullscreen =
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.msFullscreenElement;
+            if (!isFullscreen && body.classList.contains("is-black")) {
+                // If exited fullscreen natively, also remove black background
+                exitBlackScreen();
+            }
+        }
+    </script>
+</body>
+
+</html>
