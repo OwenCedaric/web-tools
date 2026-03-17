@@ -3,106 +3,78 @@ const path = require('path');
 
 const baseDir = __dirname;
 const toolsDir = path.join(baseDir, 'tools');
-const toolsJsPath = path.join(baseDir, 'tools.js');
+const toolsJsonPath = path.join(baseDir, 'tools.json');
+const generatedToolsPath = path.join(baseDir, 'generated-tools.json');
 const sitemapPath = path.join(baseDir, 'sitemap.xml');
-
-// Hardcoded cross-domain tools that don't have local HTML files
-const externalTools = [
-    {
-        title: "Google Font to Svg Path",
-        description: "将 Google font 转换为 SVG path 的工具",
-        icon: "ri-font-family",
-        url: "https://fontsvg.ceda.is/",
-        tags: ["Font", "Google", "SVG"],
-    },
-    {
-        "title": "HTML to Markdown",
-        "description": "html 转 Markdown 的工具",
-        "icon": "ri-markdown-line",
-        "url": "https://html2md.ceda.is/",
-        "tags": [
-            "HTML",
-            "Markdown",
-            "转换工具"
-        ]
-    },
-    {
-        title: "IT-Tools",
-        description: "为开发者和 IT 行业从业者准备的实用工具集合",
-        icon: "ri-tools-line",
-        url: "https://tools.ceda.is/",
-        tags: ["IT", "Google", "SVG"],
-    }
-];
-
-const generatedTools = [];
-const sitemapUrls = [];
 
 // Base URL for sitemap
 const baseUrl = 'https://tools.ceda.is';
 
-// Add root page to sitemap
-sitemapUrls.push({
-    loc: `${baseUrl}/`,
-    priority: '1.0'
+// 1. Read external tools from tools.json
+let externalTools = [];
+try {
+    if (fs.existsSync(toolsJsonPath)) {
+        const toolsJsonContent = fs.readFileSync(toolsJsonPath, 'utf-8');
+        externalTools = JSON.parse(toolsJsonContent);
+        console.log(`Successfully read ${externalTools.length} external tools from tools.json.`);
+    }
+} catch (err) {
+    console.error('Error reading tools.json:', err);
+}
+
+// 2. Scan local HTML files in tools/ directory
+const localTools = [];
+if (fs.existsSync(toolsDir)) {
+    const files = fs.readdirSync(toolsDir);
+    const htmlFiles = files.filter(f => f.endsWith('.html'));
+
+    htmlFiles.forEach(file => {
+        const filePath = path.join(toolsDir, file);
+        const content = fs.readFileSync(filePath, 'utf-8');
+
+        // Extract metadata using regex
+        const titleMatch = content.match(/<title>([^<]*?) - Web Tools<\/title>/) || content.match(/<title>([^<]*?)<\/title>/);
+        const descMatch = content.match(/<meta\s+name="description"\s+content="([^"]*?)"/);
+        const iconMatch = content.match(/<meta\s+name="tool-icon"\s+content="([^"]*?)"/);
+        const tagsMatch = content.match(/<meta\s+name="tool-tags"\s+content="([^"]*?)"/);
+
+        const title = titleMatch ? titleMatch[1].trim() : file.replace('.html', '');
+        const description = descMatch ? descMatch[1].trim() : '';
+        const icon = iconMatch ? iconMatch[1].trim() : 'ri-tools-line';
+        const tagsStr = tagsMatch ? tagsMatch[1].trim() : '';
+        const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+        localTools.push({
+            title,
+            description,
+            icon,
+            url: `/tools/${file}`,
+            tags
+        });
+    });
+    console.log(`Successfully scanned ${localTools.length} local tools from tools/ directory.`);
+}
+
+// 3. Combine and save
+const allTools = [...externalTools, ...localTools];
+fs.writeFileSync(generatedToolsPath, JSON.stringify(allTools, null, 2), 'utf-8');
+console.log(`Successfully generated generated-tools.json with ${allTools.length} tools.`);
+
+// 4. Generate sitemap.xml
+const sitemapUrls = [{ loc: `${baseUrl}/`, priority: '1.0' }];
+
+allTools.forEach(tool => {
+    // Only add local tools to sitemap
+    if (tool.url && tool.url.startsWith('/')) {
+        sitemapUrls.push({
+            loc: `${baseUrl}${tool.url}`,
+            priority: '0.8'
+        });
+    }
 });
 
-// Read all HTML files in tools/ directory
-const files = fs.readdirSync(toolsDir);
-const htmlFiles = files.filter(f => f.endsWith('.html'));
-
-htmlFiles.forEach(file => {
-    const filePath = path.join(toolsDir, file);
-    const content = fs.readFileSync(filePath, 'utf-8');
-
-    // Extract metadata using regex
-    const titleMatch = content.match(/<title>([^<]*?) - Web Tools<\/title>/) || content.match(/<title>([^<]*?)<\/title>/);
-    const descMatch = content.match(/<meta\s+name="description"\s+content="([^"]*?)"/);
-    const iconMatch = content.match(/<meta\s+name="tool-icon"\s+content="([^"]*?)"/);
-    const tagsMatch = content.match(/<meta\s+name="tool-tags"\s+content="([^"]*?)"/);
-
-    const title = titleMatch ? titleMatch[1].trim() : file.replace('.html', '');
-    const description = descMatch ? descMatch[1].trim() : '';
-    const icon = iconMatch ? iconMatch[1].trim() : 'ri-tools-line'; // fallback icon
-    const tagsStr = tagsMatch ? tagsMatch[1].trim() : '';
-
-    const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
-
-    const url = `/tools/${file}`;
-
-    generatedTools.push({
-        title,
-        description,
-        icon,
-        url,
-        tags
-    });
-
-    // Add to sitemap
-    sitemapUrls.push({
-        loc: `${baseUrl}${url}`,
-        priority: '0.8'
-    });
-});
-
-// Combine eternal and local tools
-const allTools = [...externalTools, ...generatedTools];
-
-// --- Write tools.js ---
-const toolsJsContent = `// 工具配置文件 (Auto-generated by build.js)
-// 包含跨域工具与 tools/ 目录下的所有应用。
-
-const tools = ${JSON.stringify(allTools, null, 2)};
-`;
-
-fs.writeFileSync(toolsJsPath, toolsJsContent, 'utf-8');
-console.log(`Successfully generated tools.js with ${allTools.length} tools.`);
-
-// --- Write sitemap.xml ---
 const today = new Date().toISOString().split('T')[0];
-
 let sitemapXmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-
 sitemapUrls.forEach(u => {
     sitemapXmlContent += `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${u.priority}</priority>\n  </url>\n`;
 });

@@ -461,8 +461,9 @@
         &copy; 2025 Web Tools Collection • Made with ❤️ • <a href="https://ceda.is/">Cedar</a>
     </div>
 
-    <script src="tools.js"></script>
     <script>
+        let tools = [];
+
         // 渲染工具卡片
         function renderTools(toolsToRender = tools) {
             const toolsGrid = document.getElementById('toolsGrid');
@@ -502,8 +503,20 @@
         }
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', function () {
-            renderTools();
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const response = await fetch('generated-tools.json');
+                tools = await response.json();
+                renderTools();
+            } catch (err) {
+                console.error('Error loading tools:', err);
+                document.getElementById('noResults').style.display = 'block';
+                document.getElementById('noResults').innerHTML = `
+                    <i class="ri-error-warning-line no-results-icon"></i>
+                    <h3>Error loading tools</h3>
+                    <p>Please try again later</p>
+                `;
+            }
 
             const searchBox = document.getElementById('searchBox');
             searchBox.addEventListener('input', function () {
