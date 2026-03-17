@@ -16,6 +16,17 @@ const externalTools = [
         tags: ["Font", "Google", "SVG"],
     },
     {
+        "title": "HTML to Markdown",
+        "description": "html 转 Markdown 的工具",
+        "icon": "ri-markdown-line",
+        "url": "https://html2md.ceda.is/",
+        "tags": [
+            "HTML",
+            "Markdown",
+            "转换工具"
+        ]
+    },
+    {
         title: "IT-Tools",
         description: "为开发者和 IT 行业从业者准备的实用工具集合",
         icon: "ri-tools-line",
