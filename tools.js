@@ -25,6 +25,17 @@ const tools = [
     ]
   },
   {
+    "title": "HTML to Markdown",
+    "description": "html 转 Markdown 的工具",
+    "icon": "ri-markdown-line",
+    "url": "https://html2md.ceda.is/",
+    "tags": [
+      "HTML",
+      "Markdown",
+      "转换工具"
+    ]
+  },
+  {
     "title": "Base64 Encoder/Decoder",
     "description": "Free online tool to encode text and data to Base64 or decode Base64 back to text.",
     "icon": "ri-lock-unlock-line",
