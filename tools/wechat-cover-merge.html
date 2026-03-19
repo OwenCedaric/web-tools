@@ -577,7 +577,10 @@
     <!-- 提示框 -->
     <div id="toast" class="toast"></div>
 
-    <script>
+    <script type="module">
+        import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        window.toggleTheme = toggleTheme;
+        window.showToast = showToast;
         // 图片和变换状态
         const app = {
             pixelRatio: window.devicePixelRatio || 1,
@@ -1063,16 +1066,7 @@
         }
 
         // 显示提示框
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-
-            setTimeout(function () {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
+        
         // 防抖函数
         function debounce(func, wait) {
             let timeout;

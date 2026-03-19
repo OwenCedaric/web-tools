@@ -3,17 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown + App Creator - Web Tools</title>
+    <title>Markdown + App Creator - {{siteName}}</title>
     <meta name="description" content="全能型 Markdown 编辑器与单页应用构建工具。支持实时预览、自定义 CSS/JS 注入及一键项目导出。">
     <meta name="tool-icon" content="ri-markdown-fill">
     <meta name="tool-tags" content="Markdown, 编辑器, 开发者工具, App构建">
-    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap');
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
@@ -149,7 +144,10 @@
 
     <!-- Core Logic -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script>
+    <script type="module">
+        import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        window.toggleTheme = toggleTheme;
+        window.showToast = showToast;
         const state = {
             md: localStorage.getItem('md-creator-content') || '',
             css: localStorage.getItem('md-creator-css') || '',
@@ -174,25 +172,6 @@
         els.dynamicStyle.textContent = state.css;
 
         // Theme
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcon();
-        }
-
-        function updateThemeIcon() {
-            const icon = document.getElementById('theme-icon');
-            if (document.documentElement.classList.contains('dark')) {
-                icon.className = 'ri-sun-line text-xl opacity-70';
-            } else {
-                icon.className = 'ri-moon-line text-xl opacity-70';
-            }
-        }
-
-        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
-        updateThemeIcon();
 
         // Pipeline: MD -> HTML
         function render() {
@@ -263,9 +242,9 @@
             const fullHtml = generateFullDocument();
             try {
                 await navigator.clipboard.writeText(fullHtml);
-                toast('代码已复制', '可以直接保存为 .html 文件使用');
+                showToast('代码已复制', '可以直接保存为 .html 文件使用');
             } catch (err) {
-                toast('复制失败', err.message, 'error');
+                showToast('复制失败', err.message, 'error');
             }
         }
 
@@ -278,11 +257,11 @@
             a.download = `app-export-${Date.now()}.html`;
             a.click();
             URL.revokeObjectURL(url);
-            toast('项目已导出', '单文件 HTML 应用程序已准备就绪');
+            showToast('项目已导出', '单文件 HTML 应用程序已准备就绪');
         }
 
         function exportPdf() {
-            toast('正在优化分页...', '确保图片与代码块完整中');
+            showToast('正在优化分页...', '确保图片与代码块完整中');
             const opt = {
                 margin: [0.5, 0.5, 0.5, 0.5],
                 filename: `document-${Date.now()}.pdf`,
@@ -312,11 +291,11 @@
 
             html2pdf().set(opt).from(els.renderTarget).save().then(() => {
                 printStyle.remove();
-                toast('PDF 导出成功');
+                showToast('PDF 导出成功');
             }).catch(err => {
                 printStyle.remove();
                 console.error(err);
-                toast('PDF 导出失败', '请尝试直接页面打印 Ctrl+P', 'error');
+                showToast('PDF 导出失败', '请尝试直接页面打印 Ctrl+P', 'error');
                 window.print();
             });
         }
@@ -355,30 +334,6 @@
 </body>
 </html>`;
         }
-
-        function toast(title, message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            if (container.children.length > 2) container.children[0].remove();
-            const toast = document.createElement('div');
-            const bgClass = type === 'success' ? 'bg-slate-900 border border-slate-800' : 'bg-rose-600';
-            const icon = type === 'success' ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill';
-            
-            toast.className = `flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl backdrop-blur-xl text-white transform transition-all duration-300 translate-y-10 opacity-0 ${bgClass}`;
-            toast.innerHTML = `
-                <i class="${icon} text-lg opacity-80"></i>
-                <div class="flex flex-col leading-tight">
-                    <span class="font-bold text-[12px] truncate opacity-90 tracking-tight">${title}</span>
-                    ${message ? `<span class="text-[10px] opacity-60 font-medium">${message}</span>` : ''}
-                </div>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
-            setTimeout(() => {
-                toast.classList.add('translate-y-10', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
         // Init
         render();
     </script>

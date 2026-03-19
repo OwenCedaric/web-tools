@@ -3,20 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Tools Collection - 极简工具箱</title>
+    <title>{{siteName}} - 极简工具箱</title>
     <meta name="description" content="一个现代、简约、高效的在线工具箱，包含开发、设计、文本及日常实用工具。">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        
-        .tool-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .tool-card:hover {
-            transform: translateY(-4px);
-        }
+    <link rel="stylesheet" href="/src/style.css">
         
         @keyframes reveal {
             from { opacity: 0; transform: translateY(20px); }
@@ -80,37 +69,14 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="py-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <div class="max-w-7xl mx-auto px-4 text-center space-y-8">
-            <div class="flex items-center justify-center gap-12 flex-wrap">
-                <div class="text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</p>
-                    <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> ALL SYSTEMS ONLINE
-                    </div>
-                </div>
-                <div class="text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Version</p>
-                    <span class="text-xs font-bold">2.0.0-Slate</span>
-                </div>
-            </div>
-            
-            <div class="w-12 h-px bg-slate-200 dark:bg-slate-800 mx-auto"></div>
-            
-            <div class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] space-y-2">
-                <p>&copy; 2025 Web Tools Collection • Made with ❤️</p>
-                <div class="flex items-center justify-center gap-4 text-slate-300 dark:text-slate-600">
-                    <a href="https://ceda.is/" class="hover:text-slate-900 dark:hover:text-white transition-colors">Cedar</a>
-                    <span>•</span>
-                    <a href="https://github.com/cedar-tools" class="hover:text-slate-900 dark:hover:text-white transition-colors">GitHub</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- INJECT_FOOTER -->
 
-    <script>
+    <script type="module">
+        import { initTheme, toggleTheme } from '/src/common.js';
+        
         let tools = [];
+
+        window.toggleTheme = toggleTheme;
 
         function renderTools(filtered = tools) {
             const grid = document.getElementById('toolsGrid');
@@ -148,8 +114,9 @@
                 renderTools();
             } catch (e) {
                 console.error('Failed to load tools:', e);
-                document.getElementById('noResults').classList.remove('hidden');
-                document.getElementById('noResults').querySelector('p').textContent = '无法加载工具数据，请检查网络连接。';
+                const empty = document.getElementById('noResults');
+                empty.classList.remove('hidden');
+                empty.querySelector('p').textContent = '无法加载工具数据，请检查网络连接。';
             }
         }
 
@@ -163,22 +130,9 @@
             renderTools(filtered);
         }
 
-        // Theme Handling
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcon();
-        }
-
-        function updateThemeIcon() {
-            const icon = document.getElementById('theme-icon');
-            if (icon) {
-                icon.className = document.documentElement.classList.contains('dark') ? 'ri-sun-line text-xl' : 'ri-moon-line text-xl';
-            }
-        }
-
         // Setup
         document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
             init();
             
             const searchBox = document.getElementById('searchBox');
@@ -196,13 +150,9 @@
                     searchBox.blur();
                 }
             });
-
-            // Theme Sync
-            if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            }
-            updateThemeIcon();
         });
     </script>
+</body>
+</html>
 </body>
 </html>

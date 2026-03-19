@@ -1,0 +1,9 @@
+{
+    "siteName": "Web Tools Collection",
+    "footerText": "© 2024 Web Tools Collection. 极简、高效、开源。",
+    "author": "Cedaric",
+    "githubUrl": "https://github.com/OwenCedaric/web-tools",
+    "theme": {
+        "primary": "slate"
+    }
+}

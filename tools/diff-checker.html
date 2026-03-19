@@ -3,31 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文本对比工具 - Web Tools</title>
+    <title>文本对比工具 - {{siteName}}</title>
     <meta name="description" content="实时文本对比工具，支持侧边对比与差异高亮，快速找出两个文本片段之间的不同点。">
     <meta name="tool-icon" content="ri-file-transfer-line">
     <meta name="tool-tags" content="Diff, 对比, 文本, 开发者工具, 实时">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/7.0.0/diff.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        .dark ::-webkit-scrollbar-thumb { background: #475569; }
-        
-        .diff-added { background-color: rgba(16, 185, 129, 0.2); }
-        .dark .diff-added { background-color: rgba(16, 185, 129, 0.15); }
-        .diff-removed { background-color: rgba(244, 63, 94, 0.2); text-decoration: line-through; opacity: 0.7; }
-        .dark .diff-removed { background-color: rgba(244, 63, 94, 0.15); }
-
-        .editor-layer {
-            scrollbar-gutter: stable;
-        }
-    </style>
+    
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
     <!-- Header -->
@@ -96,7 +79,10 @@
         </button>
     </div>
 
-    <script>
+    <script type="module">
+        import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        window.toggleTheme = toggleTheme;
+        window.showToast = showToast;
         const origInput = document.getElementById('origInput');
         const modInput = document.getElementById('modInput');
         const modHighlight = document.getElementById('modHighlight');
@@ -168,24 +154,6 @@
             modInput.value = "Antigravity is an extremely powerful agentic AI coding assistant.\nBuilt for modern developers.\nFast, safe and reliable.";
             runDiff();
         }
-
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcon();
-        }
-
-        function updateThemeIcon() {
-            const icon = document.getElementById('theme-icon');
-            if (icon) {
-                icon.className = document.documentElement.classList.contains('dark') ? 'ri-sun-line text-xl opacity-70' : 'ri-moon-line text-xl opacity-70';
-            }
-        }
-
-        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
-        updateThemeIcon();
 
         // Initial
         loadSample();

@@ -13,8 +13,11 @@ Desktop.ini
 *.log
 tmp/
 temp/
+build_log.txt
 
 # Build artifacts
+node_modules/
+dist/
 generated-tools.json
 
 # Local environment
