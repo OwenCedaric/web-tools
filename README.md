@@ -1,6 +1,6 @@
 # Web Tools Collection
 
-基于 Vite + Tailwind CSS v4 构建的现代在线工具箱，内置 27+ 实用工具。
+基于 Vite + Tailwind CSS v4 构建的在线工具箱。
 
 ## 快速开始
 
@@ -18,7 +18,7 @@ npm run build
 ## 目录结构
 
 -   index.html: 首页入口
--   tools/: 27+ 工具的 HTML 源码
+-   tools/: 工具的 HTML 源码
 -   src/: 共享样式和 JS 逻辑
 -   config.json: 全局配置（站点名称、页脚文案等）
 -   vite.config.mjs: 构建配置
@@ -32,7 +32,7 @@ npm run build
 {
   "siteName": "Web Tools",
   "footerText": "© 2024 Web Tools Collection",
-  "githubUrl": "https://github.com/Gedaric/web-tools"
+  "githubUrl": "https://github.com/OwenGedaric/web-tools"
 }
 ```
 
