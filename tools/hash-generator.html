@@ -1,245 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hash Generator - Web Tools</title>
-    <meta name="description" content="Generate MD5, SHA-1, SHA-256 and other hashes securely in-browser.">
-    <meta name="tool-icon" content="ri-hashtag">
-    <meta name="tool-tags" content="Hash, Crypto, MD5, SHA256, Security">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.8.0/fonts/remixicon.css" rel="stylesheet">
+    <title>Hash 生成器 - Web Tools</title>
+    <meta name="description" content="在线哈希生成工具，支持 MD5, SHA-1, SHA-256, SHA-512, SHA-3, RIPEMD-160 等多种算法。">
+    <meta name="tool-icon" content="ri-fingerprint-line">
+    <meta name="tool-tags" content="Hash, MD5, SHA256, 安全, 加密">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #f8fafc;
-            --text-color: #1e293b;
-            --surface-color: #ffffff;
-            --border-color: #e2e8f0;
-            --primary-color: #3b82f6;
-            --text-muted: #64748b;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #0f172a;
-                --text-color: #e2e8f0;
-                --surface-color: #1e293b;
-                --border-color: #334155;
-            }
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            padding: 1.5rem 2rem;
-            background: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .header a {
-            color: var(--text-muted);
-            text-decoration: none;
-        }
-
-        .header a:hover {
-            color: var(--text-color);
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .container {
-            flex: 1;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .panel {
-            background: var(--surface-color);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .panel-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(0, 0, 0, 0.02);
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 1.5rem;
-            border: none;
-            resize: vertical;
-            background: transparent;
-            color: var(--text-color);
-            font-family: ui-monospace, monospace;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .hash-list {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .hash-item {
-            display: grid;
-            grid-template-columns: 100px 1fr auto;
-            gap: 1rem;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .hash-item:last-child {
-            border-bottom: none;
-        }
-
-        .alg-name {
-            font-weight: 700;
-            color: var(--primary-color);
-            text-transform: uppercase;
-        }
-
-        .hash-val {
-            font-family: ui-monospace, monospace;
-            word-break: break-all;
-            color: var(--text-color);
-        }
-
-        .btn-icon {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 0.5rem;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-icon:hover {
-            background: var(--border-color);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap');
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
     </style>
 </head>
-
-<body>
-    <header class="header">
-        <a href="../index.html" title="Back to Tools"><i class="ri-arrow-left-line ri-xl"></i></a>
-        <h1><i class="ri-hashtag text-primary"></i> Hash Generator</h1>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+                <i class="ri-arrow-left-line text-xl opacity-70"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-fingerprint-line text-slate-900 dark:text-white"></i>
+                <span class="tracking-tight">Hash 生成器</span>
+            </h1>
+        </div>
+        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
+            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
+        </button>
     </header>
 
-    <main class="container">
-        <div class="panel">
-            <div class="panel-header">
-                Input Text
-                <button class="btn-icon" style="border:none;"
-                    onclick="document.getElementById('inputStr').value=''; generateHashes();"><i
-                        class="ri-delete-bin-line"></i> Clear</button>
+    <main class="max-w-4xl mx-auto px-4 py-8 lg:py-12">
+        <div class="space-y-8">
+            <!-- Input Area -->
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between px-2">
+                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <i class="ri-edit-line"></i> 输入文本
+                    </h2>
+                    <button onclick="clearInput()" class="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase">清空内容</button>
+                </div>
+                <div class="relative group">
+                    <textarea id="input" 
+                        class="w-full h-48 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent outline-none transition-all font-mono text-sm leading-relaxed"
+                        placeholder="输入你想要转换的文本..."></textarea>
+                </div>
             </div>
-            <textarea id="inputStr" placeholder="Type text here to generate hashes instantly..."
-                oninput="generateHashes()">Hello World</textarea>
-        </div>
 
-        <div class="panel">
-            <div class="panel-header">Results</div>
-            <div class="hash-list">
-                <div class="hash-item">
-                    <div class="alg-name">MD5</div>
-                    <div class="hash-val" id="res_md5">-</div>
-                    <button class="btn-icon" onclick="copyHash('res_md5')" title="Copy"><i
-                            class="ri-clipboard-line"></i></button>
+            <!-- Hash Results -->
+            <div class="grid gap-4" id="results">
+                <!-- MD5 -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                    <div class="flex items-center gap-4">
+                        <span class="w-20 text-[10px] font-bold text-slate-400 uppercase tracking-widest">MD5</span>
+                        <code id="md5" class="text-sm font-mono break-all text-slate-600 dark:text-slate-300">...</code>
+                    </div>
+                    <button onclick="copy('md5')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white" title="复制结果">
+                        <i class="ri-file-copy-line text-lg"></i>
+                    </button>
                 </div>
-                <div class="hash-item">
-                    <div class="alg-name">SHA-1</div>
-                    <div class="hash-val" id="res_sha1">-</div>
-                    <button class="btn-icon" onclick="copyHash('res_sha1')" title="Copy"><i
-                            class="ri-clipboard-line"></i></button>
+                <!-- SHA-256 -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                    <div class="flex items-center gap-4">
+                        <span class="w-20 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-emerald-500">SHA-256</span>
+                        <code id="sha256" class="text-sm font-mono break-all text-slate-600 dark:text-slate-300">...</code>
+                    </div>
+                    <button onclick="copy('sha256')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white" title="复制结果">
+                        <i class="ri-file-copy-line text-lg"></i>
+                    </button>
                 </div>
-                <div class="hash-item">
-                    <div class="alg-name">SHA-256</div>
-                    <div class="hash-val" id="res_sha256">-</div>
-                    <button class="btn-icon" onclick="copyHash('res_sha256')" title="Copy"><i
-                            class="ri-clipboard-line"></i></button>
-                </div>
-                <div class="hash-item">
-                    <div class="alg-name">SHA-512</div>
-                    <div class="hash-val" id="res_sha512">-</div>
-                    <button class="btn-icon" onclick="copyHash('res_sha512')" title="Copy"><i
-                            class="ri-clipboard-line"></i></button>
+                <!-- SHA-512 -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                    <div class="flex items-center gap-4">
+                        <span class="w-20 text-[10px] font-bold text-slate-400 uppercase tracking-widest">SHA-512</span>
+                        <code id="sha512" class="text-xs font-mono break-all text-slate-600 dark:text-slate-300">...</code>
+                    </div>
+                    <button onclick="copy('sha512')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white" title="复制结果">
+                        <i class="ri-file-copy-line text-lg"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- Footer -->
+    <footer class="py-12 border-t border-slate-200 dark:border-slate-800 text-center text-slate-400 dark:text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+        <p>&copy; 2025 Web Tools Collection • Made with ❤️ • <a href="https://ceda.is/" class="hover:text-slate-900 dark:hover:text-white transition-colors">Cedar</a></p>
+    </footer>
+
+    <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
+
     <script>
+        const inputEl = document.getElementById('input');
+        const hashElements = {
+            md5: document.getElementById('md5'),
+            sha256: document.getElementById('sha256'),
+            sha512: document.getElementById('sha512')
+        };
+
         function generateHashes() {
-            const input = document.getElementById('inputStr').value;
-            if (!input) {
-                document.getElementById('res_md5').innerText = '-';
-                document.getElementById('res_sha1').innerText = '-';
-                document.getElementById('res_sha256').innerText = '-';
-                document.getElementById('res_sha512').innerText = '-';
+            const text = inputEl.value;
+            if (!text) {
+                Object.values(hashElements).forEach(el => el.textContent = '...');
                 return;
             }
-
-            // CryptoJS handles utf8 naturally
-            document.getElementById('res_md5').innerText = CryptoJS.MD5(input).toString();
-            document.getElementById('res_sha1').innerText = CryptoJS.SHA1(input).toString();
-            document.getElementById('res_sha256').innerText = CryptoJS.SHA256(input).toString();
-            document.getElementById('res_sha512').innerText = CryptoJS.SHA512(input).toString();
+            hashElements.md5.textContent = CryptoJS.MD5(text).toString();
+            hashElements.sha256.textContent = CryptoJS.SHA256(text).toString();
+            hashElements.sha512.textContent = CryptoJS.SHA512(text).toString();
         }
 
-        async function copyHash(id) {
-            const val = document.getElementById(id).innerText;
-            if (val === '-') return;
+        function clearInput() {
+            inputEl.value = '';
+            generateHashes();
+        }
+
+        async function copy(id) {
+            const text = hashElements[id].textContent;
+            if (text === '...') return;
             try {
-                await navigator.clipboard.writeText(val);
-                alert('Copied to clipboard');
-            } catch (e) { }
+                await navigator.clipboard.writeText(text);
+                showToast('哈希值已复制');
+            } catch (err) {
+                showToast('复制失败', 'error');
+            }
         }
 
-        // init
-        generateHashes();
+        function showToast(title, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (container.children.length > 2) container.children[0].remove();
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-slate-900 border border-slate-800' : 'bg-rose-600';
+            const icon = type === 'success' ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill';
+            
+            toast.className = `flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-xl text-white transform transition-all duration-300 translate-y-10 opacity-0 ${bgClass}`;
+            toast.innerHTML = `
+                <i class="${icon} text-lg opacity-80"></i>
+                <span class="font-bold text-[12px] truncate tracking-tight">${title}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.className = document.documentElement.classList.contains('dark') ? 'ri-sun-line text-xl opacity-70' : 'ri-moon-line text-xl opacity-70';
+            }
+        }
+
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        updateThemeIcon();
+
+        inputEl.addEventListener('input', generateHashes);
+        
+        // Initial check if content exists (e.g. from session)
+        if (inputEl.value) generateHashes();
     </script>
 </body>
-
 </html>

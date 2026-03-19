@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown + App Creator - Web Tools</title>
+    <meta name="description" content="全能型 Markdown 编辑器与单页应用构建工具。支持实时预览、自定义 CSS/JS 注入及一键项目导出。">
+    <meta name="tool-icon" content="ri-markdown-fill">
+    <meta name="tool-tags" content="Markdown, 编辑器, 开发者工具, App构建">
+    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap');
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .markdown-body { width: 100% !important; max-width: none !important; padding: 0 !important; }
+            /* Fix for PDF split issue */
+            .markdown-body pre, 
+            .markdown-body img, 
+            .markdown-body table, 
+            .markdown-body blockquote, 
+            .markdown-body figure {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .editor-container { height: calc(100vh - 64px); }
+        .tab-btn.active { color: #0f172a; border-bottom-color: #0f172a; background: rgba(15, 23, 42, 0.05); }
+        .dark .tab-btn.active { color: #f8fafc; border-bottom-color: #f8fafc; background: rgba(248, 250, 252, 0.1); }
+        .tab-pane { display: none !important; }
+        .tab-pane.active { display: flex !important; }
+        
+        /* Grid background for editor */
+        .code-grid {
+            background-image: linear-gradient(#f8fafc 1px, transparent 1px), linear-gradient(90deg, #f8fafc 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .dark .code-grid {
+            background-image: linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50 no-print">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+                <i class="ri-arrow-left-line text-xl opacity-70"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-markdown-fill text-slate-900 dark:text-white"></i>
+                <span class="hidden sm:inline tracking-tight">Markdown + App Creator</span>
+                <span class="sm:hidden">MD Creator</span>
+            </h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mr-2">
+                <button onclick="copyFullHtml()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-wider">
+                    <i class="ri-code-s-slash-line"></i> 复制 HTML
+                </button>
+                <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
+                <button onclick="downloadHtml()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-wider">
+                    <i class="ri-download-cloud-2-line"></i> 导出项目
+                </button>
+            </div>
+            <button onclick="exportPdf()" class="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold shadow-lg shadow-slate-900/10 active:scale-95 transition-all">
+                <i class="ri-file-pdf-2-line"></i>
+                <span>打印 PDF</span>
+            </button>
+            <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors ml-1">
+                <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="lg:flex editor-container overflow-hidden">
+        <!-- Sidebar: Editor Tabs -->
+        <div class="lg:w-1/2 flex flex-col border-r border-slate-200 dark:border-slate-800 no-print h-[50vh] lg:h-full overflow-hidden bg-white dark:bg-slate-950">
+            <!-- Tabs Header -->
+            <div class="flex-none flex items-center bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800 px-2 overflow-x-auto no-scrollbar">
+                <button onclick="switchTab('markdown')" id="tab-btn-markdown" class="tab-btn active px-4 py-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-all border-b-2 border-transparent">
+                    <i class="ri-markdown-line text-base opacity-70"></i> Markdown
+                </button>
+                <button onclick="switchTab('css')" id="tab-btn-css" class="tab-btn px-4 py-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-all border-b-2 border-transparent">
+                    <i class="ri-css3-line text-base opacity-70"></i> 自定义样式
+                </button>
+                <button onclick="switchTab('js')" id="tab-btn-js" class="tab-btn px-4 py-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-all border-b-2 border-transparent">
+                    <i class="ri-javascript-line text-base opacity-70"></i> 交互脚本
+                </button>
+                <div class="flex-1"></div>
+                <button onclick="clearCurrentEditor()" class="px-3 py-1.5 text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1">
+                    <i class="ri-delete-bin-7-line"></i> 清空
+                </button>
+            </div>
+
+            <!-- Tab Content: Editors -->
+            <div class="flex-1 relative overflow-hidden code-grid">
+                <!-- Markdown Editor -->
+                <div id="tab-markdown" class="tab-pane active absolute inset-0 flex flex-col">
+                    <textarea id="md-editor" class="flex-1 w-full p-6 bg-transparent border-none resize-none focus:ring-0 font-mono text-sm leading-relaxed outline-none custom-scroll text-slate-700 dark:text-slate-300" placeholder="# 在这里编写 Markdown...&#10;&#10;### 快捷提示：&#10;- 支持 GFM 语法&#10;- 实时渲染预览&#10;- 支持图片拖拽/粘贴 (URL)&#10;- 导出为单文件 HTML 或 PDF" spellcheck="false"></textarea>
+                </div>
+                <!-- CSS Editor -->
+                <div id="tab-css" class="tab-pane absolute inset-0 flex flex-col">
+                    <textarea id="css-editor" class="flex-1 w-full p-6 bg-transparent border-none resize-none focus:ring-0 font-mono text-sm leading-relaxed outline-none custom-scroll text-slate-700 dark:text-emerald-400/80" placeholder="/* 编写 CSS 样式，实时作用于预览区... */&#10;.markdown-body h1 { color: #000; }" spellcheck="false"></textarea>
+                </div>
+                <!-- JS Editor -->
+                <div id="tab-js" class="tab-pane absolute inset-0 flex flex-col">
+                    <textarea id="js-editor" class="flex-1 w-full p-6 bg-transparent border-none resize-none focus:ring-0 font-mono text-sm leading-relaxed outline-none custom-scroll text-slate-700 dark:text-amber-400/80" placeholder="// 编写 JavaScript...&#10;console.log('Markdown 组件已加载');" spellcheck="false"></textarea>
+                </div>
+            </div>
+
+            <!-- File Upload Helper (Hidden) -->
+            <div class="bg-slate-50 dark:bg-slate-900 p-3 border-t border-slate-200 dark:border-slate-800">
+                <div class="relative group w-full h-10 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 hover:border-slate-900 dark:hover:border-white transition-all cursor-pointer flex items-center justify-center gap-2">
+                    <input type="file" id="fileInput" accept=".md,.markdown" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <i class="ri-file-upload-line text-slate-400 opacity-60"></i>
+                    <span id="fileName" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest opacity-80">导入 .md 文件</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Pane -->
+        <div class="lg:w-1/2 h-[50vh] lg:h-full overflow-y-auto bg-white dark:bg-slate-950 custom-scroll relative">
+            <div id="preview-header" class="p-2 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center no-print sticky top-0 z-10">
+                <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-2">实时应用预览 (App View)</span>
+            </div>
+            <div id="render-target" class="markdown-body prose prose-slate dark:prose-invert max-w-none p-8 sm:p-12 lg:p-16 break-words min-h-screen selection:bg-slate-200 dark:selection:bg-slate-800">
+                <!-- Content -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Dynamic Styles & Scripts -->
+    <style id="dynamic-style"></style>
+    <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
+
+    <!-- Core Logic -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        const state = {
+            md: localStorage.getItem('md-creator-content') || '',
+            css: localStorage.getItem('md-creator-css') || '',
+            js: localStorage.getItem('md-creator-js') || '',
+            currentTab: 'markdown'
+        };
+
+        const els = {
+            mdEditor: document.getElementById('md-editor'),
+            cssEditor: document.getElementById('css-editor'),
+            jsEditor: document.getElementById('js-editor'),
+            renderTarget: document.getElementById('render-target'),
+            dynamicStyle: document.getElementById('dynamic-style'),
+            fileInput: document.getElementById('fileInput'),
+            fileName: document.getElementById('fileName')
+        };
+
+        // Initialize Values
+        els.mdEditor.value = state.md;
+        els.cssEditor.value = state.css;
+        els.jsEditor.value = state.js;
+        els.dynamicStyle.textContent = state.css;
+
+        // Theme
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            if (document.documentElement.classList.contains('dark')) {
+                icon.className = 'ri-sun-line text-xl opacity-70';
+            } else {
+                icon.className = 'ri-moon-line text-xl opacity-70';
+            }
+        }
+
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        updateThemeIcon();
+
+        // Pipeline: MD -> HTML
+        function render() {
+            try {
+                els.renderTarget.innerHTML = marked.parse(state.md);
+                injectJs();
+                // Persist
+                localStorage.setItem('md-creator-content', state.md);
+                localStorage.setItem('md-creator-css', state.css);
+                localStorage.setItem('md-creator-js', state.js);
+            } catch (err) {
+                console.error('Render error:', err);
+            }
+        }
+
+        function injectJs() {
+            const oldScript = document.getElementById('dynamic-script');
+            if (oldScript) oldScript.remove();
+            if (state.js) {
+                const script = document.createElement('script');
+                script.id = 'dynamic-script';
+                script.textContent = `(function() { try { ${state.js} } catch(e) { console.error('Custom Script Error:', e); } })();`;
+                document.body.appendChild(script);
+            }
+        }
+
+        // Tabs
+        function switchTab(tab) {
+            state.currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-btn-' + tab).classList.add('active');
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        function clearCurrentEditor() {
+            if (!confirm('确定要清空当前编辑器的内容吗？')) return;
+            const editor = state.currentTab === 'markdown' ? els.mdEditor : (state.currentTab === 'css' ? els.cssEditor : els.jsEditor);
+            editor.value = '';
+            state[state.currentTab === 'markdown' ? 'md' : state.currentTab] = '';
+            if (state.currentTab === 'css') els.dynamicStyle.textContent = '';
+            render();
+        }
+
+        // Input Listeners
+        els.mdEditor.addEventListener('input', (e) => { state.md = e.target.value; render(); });
+        els.mdEditor.addEventListener('paste', () => { setTimeout(render, 10); });
+        els.cssEditor.addEventListener('input', (e) => { state.css = e.target.value; els.dynamicStyle.textContent = state.css; render(); });
+        els.jsEditor.addEventListener('input', (e) => { state.js = e.target.value; render(); });
+
+        // File Import
+        els.fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            els.fileName.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.md = e.target.result;
+                els.mdEditor.value = state.md;
+                switchTab('markdown');
+                render();
+            };
+            reader.readAsText(file);
+        });
+
+        // Export Functions
+        async function copyFullHtml() {
+            const fullHtml = generateFullDocument();
+            try {
+                await navigator.clipboard.writeText(fullHtml);
+                toast('代码已复制', '可以直接保存为 .html 文件使用');
+            } catch (err) {
+                toast('复制失败', err.message, 'error');
+            }
+        }
+
+        function downloadHtml() {
+            const fullHtml = generateFullDocument();
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `app-export-${Date.now()}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast('项目已导出', '单文件 HTML 应用程序已准备就绪');
+        }
+
+        function exportPdf() {
+            toast('正在优化分页...', '确保图片与代码块完整中');
+            const opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `document-${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            const printStyle = document.createElement('style');
+            printStyle.textContent = `
+                .markdown-body pre, .markdown-body code { 
+                    white-space: pre-wrap !important; 
+                    word-break: break-all !important;
+                    overflow-wrap: break-word !important;
+                }
+                /* Avoid breaking short blocks, allow breaking very long ones */
+                .markdown-body pre, .markdown-body img, .markdown-body table, .markdown-body blockquote { 
+                    page-break-inside: auto !important;
+                    break-inside: auto !important;
+                }
+                .markdown-body h1, .markdown-body h2, .markdown-body h3 { 
+                    page-break-after: avoid !important;
+                }
+            `;
+            document.head.appendChild(printStyle);
+
+            html2pdf().set(opt).from(els.renderTarget).save().then(() => {
+                printStyle.remove();
+                toast('PDF 导出成功');
+            }).catch(err => {
+                printStyle.remove();
+                console.error(err);
+                toast('PDF 导出失败', '请尝试直接页面打印 Ctrl+P', 'error');
+                window.print();
+            });
+        }
+
+        function generateFullDocument() {
+            return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exported Project</title>
+    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"><\/script>
+    <style>
+        @media (prefers-color-scheme: dark) { body { background: #020617; color: #f1f5f9; } }
+        body { margin: 0; padding: 2rem; min-height: 100vh; line-height: 1.6; }
+        .markdown-body { max-width: 800px; margin: 0 auto; }
+        @media print { 
+            .markdown-body pre, .markdown-body code { 
+                white-space: pre-wrap !important; 
+                word-break: break-all !important;
+            }
+            .markdown-body pre, .markdown-body img { 
+                page-break-inside: auto; 
+            } 
+        }
+        ${state.css}
+    </style>
+</head>
+<body class="prose prose-slate dark:prose-invert markdown-body">
+    ${els.renderTarget.innerHTML}
+    <script>
+        (function() { 
+            try { ${state.js} } catch(e) { console.error('Project Script Error:', e); }
+        })();
+    <\/script>
+</body>
+</html>`;
+        }
+
+        function toast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (container.children.length > 2) container.children[0].remove();
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-slate-900 border border-slate-800' : 'bg-rose-600';
+            const icon = type === 'success' ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill';
+            
+            toast.className = `flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl backdrop-blur-xl text-white transform transition-all duration-300 translate-y-10 opacity-0 ${bgClass}`;
+            toast.innerHTML = `
+                <i class="${icon} text-lg opacity-80"></i>
+                <div class="flex flex-col leading-tight">
+                    <span class="font-bold text-[12px] truncate opacity-90 tracking-tight">${title}</span>
+                    ${message ? `<span class="text-[10px] opacity-60 font-medium">${message}</span>` : ''}
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Init
+        render();
+    </script>
+</body>
+</html>

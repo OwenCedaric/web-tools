@@ -1,0 +1,25 @@
+# System files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+*.log
+tmp/
+temp/
+
+# Build artifacts
+generated-tools.json
+
+# Local environment
+.env
+.env.local
+
+# Git
+.git/

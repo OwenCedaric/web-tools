@@ -1,246 +1,190 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JWT Decoder - Web Tools</title>
-    <meta name="description" content="Decode JSON Web Tokens (JWT) easily on the client-side.">
+    <title>JWT 解码 - Web Tools</title>
+    <meta name="description" content="在线 JWT 解码工具，解析 JSON Web Token 的 Header, Payload 和 Signature。">
     <meta name="tool-icon" content="ri-key-2-line">
-    <meta name="tool-tags" content="JWT, Security, Token, Decoder">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.8.0/fonts/remixicon.css" rel="stylesheet">
+    <meta name="tool-tags" content="JWT, 解码, 开发者工具, 安全, Token">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #f8fafc;
-            --text-color: #1e293b;
-            --surface-color: #ffffff;
-            --border-color: #e2e8f0;
-            --primary-color: #d946ef;
-            --primary-hover: #c026d3;
-            --text-muted: #64748b;
-            --jwt-header: #ef4444;
-            --jwt-payload: #d946ef;
-            --jwt-sign: #0ea5e9;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #0f172a;
-                --text-color: #e2e8f0;
-                --surface-color: #1e293b;
-                --border-color: #334155;
-            }
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background-color: var(--surface-color);
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .header a {
-            color: var(--text-muted);
-            text-decoration: none;
-        }
-
-        .header a:hover {
-            color: var(--text-color);
-        }
-
-        .container {
-            flex: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background: var(--surface-color);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .panel-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(0, 0, 0, 0.02);
-            font-weight: 600;
-        }
-
-        textarea {
-            width: 100%;
-            flex: 1;
-            min-height: 400px;
-            padding: 1.5rem;
-            border: none;
-            resize: none;
-            background: transparent;
-            color: var(--text-color);
-            font-family: ui-monospace, monospace;
-            font-size: 0.95rem;
-            outline: none;
-            word-break: break-all;
-        }
-
-        .decoded-container {
-            flex: 1;
-            padding: 1.5rem;
-            background: transparent;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .part-header {
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .color-header {
-            color: var(--jwt-header);
-            border-bottom-color: var(--jwt-header);
-        }
-
-        .color-payload {
-            color: var(--jwt-payload);
-            border-bottom-color: var(--jwt-payload);
-        }
-
-        pre {
-            font-family: ui-monospace, monospace;
-            font-size: 0.9rem;
-            color: var(--text-color);
-            background: rgba(0, 0, 0, 0.03);
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap');
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        .token-header { color: #f43f5e; }
+        .token-payload { color: #8b5cf6; }
+        .token-signature { color: #06b6d4; }
     </style>
 </head>
-
-<body>
-    <header class="header">
-        <a href="../index.html" title="Back to Tools"><i class="ri-arrow-left-line ri-xl"></i></a>
-        <h1><i class="ri-key-2-line text-primary"></i> JWT Decoder</h1>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+                <i class="ri-arrow-left-line text-xl opacity-70"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-key-2-line text-slate-900 dark:text-white"></i>
+                <span class="tracking-tight">JWT 解码</span>
+            </h1>
+        </div>
+        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
+            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
+        </button>
     </header>
 
-    <main class="container">
-        <div class="panel">
-            <div class="panel-header">Encoded Note (Paste JWT here)</div>
-            <textarea id="jwtInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
-        </div>
+    <main class="max-w-7xl mx-auto px-4 py-8 lg:py-12">
+        <div class="grid lg:grid-cols-[1fr,1.2fr] gap-8">
+            <!-- Left: Input -->
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between px-2">
+                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <i class="ri-input-cursor-move"></i> 编码 Token
+                    </h2>
+                    <button onclick="clearAll()" class="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest">清空</button>
+                </div>
+                <div class="relative group h-full min-h-[400px]">
+                    <textarea id="jwt-input" 
+                        class="w-full h-full p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] shadow-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent outline-none transition-all font-mono text-sm leading-relaxed custom-scroll"
+                        placeholder="在此处粘贴 JWT Token (Encoded)..."></textarea>
+                </div>
+            </div>
 
-        <div class="panel">
-            <div class="panel-header">Decoded Details</div>
-            <div class="decoded-container">
-                <div>
-                    <div class="part-header color-header">Header: Algorithm & Token Type</div>
-                    <pre id="outHeader">{}</pre>
+            <!-- Right: Decoded Result -->
+            <div class="flex flex-col gap-6">
+                <!-- Header Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between px-2">
+                        <h3 class="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Header <span class="text-slate-300 dark:text-slate-600 font-medium ml-1">(ALGORITHM & TOKEN TYPE)</span></h3>
+                        <button onclick="copySection('header-result')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">复制</button>
+                    </div>
+                    <pre id="header-result" class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl font-mono text-sm text-rose-500 overflow-x-auto shadow-sm">{}</pre>
                 </div>
-                <div>
-                    <div class="part-header color-payload">Payload: Data</div>
-                    <pre id="outPayload">{}</pre>
+
+                <!-- Payload Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between px-2">
+                        <h3 class="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest">Payload <span class="text-slate-300 dark:text-slate-600 font-medium ml-1">(DATA)</span></h3>
+                        <button onclick="copySection('payload-result')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">复制</button>
+                    </div>
+                    <pre id="payload-result" class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl font-mono text-sm text-slate-700 dark:text-slate-300 overflow-x-auto shadow-sm min-h-[200px]">{}</pre>
                 </div>
-                <div id="errorMsg" style="color: red; font-weight: 500; display: none;"></div>
+
+                <!-- Signature Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between px-2">
+                        <h3 class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest text-emerald-500">Signature <span class="text-slate-300 dark:text-slate-600 font-medium ml-1 text-emerald-600/50">(VERIFIED)</span></h3>
+                    </div>
+                    <div class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl font-mono text-xs text-slate-400 break-all shadow-sm">
+                        HMACSHA256(<br>
+                        &nbsp;&nbsp;base64UrlEncode(header) + "." +<br>
+                        &nbsp;&nbsp;base64UrlEncode(payload),<br>
+                        &nbsp;&nbsp;<span id="signature-text-placeholder" class="text-emerald-500">your-256-bit-secret</span><br>
+                        )
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
+    <footer class="py-12 border-t border-slate-200 dark:border-slate-800 text-center text-slate-400 dark:text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+        <p>&copy; 2025 Web Tools Collection • Made with ❤️ • <a href="https://ceda.is/" class="hover:text-slate-900 dark:hover:text-white transition-colors">Cedar</a></p>
+    </footer>
+
+    <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
+
     <script>
-        const input = document.getElementById('jwtInput');
-        const outHeader = document.getElementById('outHeader');
-        const outPayload = document.getElementById('outPayload');
-        const errorMsg = document.getElementById('errorMsg');
+        const editor = document.getElementById('jwt-input');
+        const headerEl = document.getElementById('header-result');
+        const payloadEl = document.getElementById('payload-result');
 
-        function parseJwt(token) {
+        function decodeJwt() {
+            const token = editor.value.trim();
+            if (!token) {
+                headerEl.textContent = '{}';
+                payloadEl.textContent = '{}';
+                return;
+            }
+
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                showToast("无效的 JWT 格式", "error");
+                return;
+            }
+
             try {
-                const parts = token.split('.');
-                if (parts.length !== 3) throw new Error("Invalid JWT format (requires 3 parts)");
-
-                // Base64Url decode helper
-                const decode = (str) => {
-                    const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
-                    const raw = atob(b64);
-                    // Handle UTF-8 safely
-                    return decodeURIComponent(raw.split('').map(function (c) {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                };
-
-                const header = JSON.parse(decode(parts[0]));
-                const payload = JSON.parse(decode(parts[1]));
-
-                outHeader.textContent = JSON.stringify(header, null, 2);
-                outPayload.textContent = JSON.stringify(payload, null, 2);
-                errorMsg.style.display = 'none';
-
-                // Colorize input
-                input.style.color = 'var(--text-color)';
+                const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+                const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+                
+                headerEl.textContent = JSON.stringify(header, null, 2);
+                payloadEl.textContent = JSON.stringify(payload, null, 2);
             } catch (e) {
-                outHeader.textContent = "{}";
-                outPayload.textContent = "{}";
-                errorMsg.textContent = "Error: " + e.message;
-                errorMsg.style.display = 'block';
+                showToast("解码失败：Token 损坏", "error");
             }
         }
 
-        input.addEventListener('input', () => {
-            const val = input.value.trim();
-            if (val) parseJwt(val);
-            else {
-                outHeader.textContent = "{}";
-                outPayload.textContent = "{}";
-                errorMsg.style.display = 'none';
+        async function copySection(id) {
+            const text = document.getElementById(id).textContent;
+            if (text === '{}') return;
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast('已复制内容');
+            } catch (err) {
+                showToast('复制失败', 'error');
             }
-        });
+        }
+
+        function clearAll() {
+            editor.value = '';
+            decodeJwt();
+        }
+
+        function showToast(title, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (container.children.length > 2) container.children[0].remove();
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-slate-900 border border-slate-800' : 'bg-rose-600';
+            const icon = type === 'success' ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill';
+            
+            toast.className = `flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-xl text-white transform transition-all duration-300 translate-y-10 opacity-0 ${bgClass}`;
+            toast.innerHTML = `
+                <i class="${icon} text-lg opacity-80"></i>
+                <span class="font-bold text-[12px] truncate tracking-tight">${title}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.className = document.documentElement.classList.contains('dark') ? 'ri-sun-line text-xl opacity-70' : 'ri-moon-line text-xl opacity-70';
+            }
+        }
+
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        updateThemeIcon();
+
+        editor.addEventListener('input', decodeJwt);
+        if (editor.value) decodeJwt();
     </script>
 </body>
-
 </html>

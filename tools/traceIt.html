@@ -3,1159 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TraceIt - 图像矢量化工具</title>
-    <meta name="tool-icon" content="ri-image-line">
-    <meta name="tool-tags" content="图像处理, 矢量化, SVG, 设计工具">
+    <title>TraceIt - 矢量轮廓提取 - Web Tools</title>
+    <meta name="description" content="智能矢量化工具，将位图图片（JPG/PNG）实时转换为 SVG 路径，支持精细化参数调节与即时预览。">
+    <meta name="tool-icon" content="ri-pentool-line">
+    <meta name="tool-tags" content="矢量化, Trace, SVG, 图片转换, 设计工具">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.8.0/fonts/remixicon.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f8fafc;
-            min-height: 100vh;
-            color: #1e293b;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-            margin: 20px;
-        }
-
-        .header {
-            background: white;
-            color: #1e293b;
-            padding: 3rem 2rem 2rem;
-            text-align: center;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-        }
-
-        .header-icon {
-            font-size: 2.5rem;
-            color: #64748b;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            color: #64748b;
-            font-weight: 400;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            min-height: 600px;
-        }
-
-        .upload-section {
-            background: #fafafa;
-            padding: 2rem;
-            border-right: 1px solid #e2e8f0;
-        }
-
-        .upload-area {
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.2s ease;
-            background: white;
-            margin-bottom: 1.5rem;
-        }
-
-        .upload-area:hover {
-            border-color: #64748b;
-            background: #f8fafc;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .file-input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-input-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 1rem 1.5rem;
-            background: #0f172a;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-        }
-
-        .file-input-button:hover {
-            background: #334155;
-        }
-
-        .canvas-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .canvas-wrapper {
-            background: white;
-            border-radius: 8px;
-            padding: 1.25rem;
-            border: 1px solid #e2e8f0;
-            text-align: center;
-        }
-
-        .canvas-wrapper h3 {
-            margin-bottom: 1rem;
-            color: #0f172a;
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .controls-panel {
-            background: white;
-            padding: 2rem;
-            overflow-y: auto;
-            max-height: 800px;
-        }
-
-        .controls-title {
-            margin-bottom: 1.5rem;
-            color: #0f172a;
-            font-size: 1.125rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .preset-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .preset-btn {
-            padding: 0.75rem 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-            background: white;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .preset-btn:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-        }
-
-        .preset-btn:active {
-            background: #f1f5f9;
-        }
-
-        .control-group {
-            background: #fafafa;
-            border-radius: 8px;
-            padding: 1.25rem;
-            margin-bottom: 1.25rem;
-            border: 1px solid #f1f5f9;
-        }
-
-        .control-group h4 {
-            color: #0f172a;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .control-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .control-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .control-item label {
-            font-weight: 500;
-            color: #374151;
-            flex: 1;
-            font-size: 13px;
-        }
-
-        .control-item input[type="range"] {
-            flex: 2;
-            margin: 0 1rem;
-            accent-color: #0f172a;
-        }
-
-        .control-item select {
-            flex: 1;
-            padding: 0.375rem 0.625rem;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            font-size: 13px;
-            background: white;
-            color: #374151;
-        }
-
-        .value-display {
-            background: #0f172a;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 500;
-            min-width: 50px;
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            background: white;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            border: 1px solid #e2e8f0;
-        }
-
-        .checkbox-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            transform: scale(1.1);
-            accent-color: #0f172a;
-        }
-
-        .checkbox-item label {
-            font-size: 13px;
-            color: #374151;
-            font-weight: 500;
-        }
-
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-top: 2rem;
-        }
-
-        .action-btn {
-            padding: 0.875rem 1.25rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: white;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .convert-btn {
-            background: #0f172a;
-            color: white;
-            border-color: #0f172a;
-        }
-
-        .convert-btn:hover {
-            background: #334155;
-        }
-
-        .download-btn {
-            background: #059669;
-            color: white;
-            border-color: #059669;
-        }
-
-        .download-btn:hover {
-            background: #047857;
-        }
-
-        .action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #f1f5f9;
-            color: #9ca3af;
-            border-color: #e5e7eb;
-        }
-
-        .action-btn:disabled:hover {
-            background: #f1f5f9;
-        }
-
-        .info-panel {
-            background: #f0f9ff;
-            border: 1px solid #e0f2fe;
-            border-left: 4px solid #0284c7;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            border-radius: 0 6px 6px 0;
-        }
-
-        .info-panel h4 {
-            color: #0c4a6e;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .info-panel p {
-            color: #475569;
-            line-height: 1.5;
-            font-size: 13px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            overflow: hidden;
-            margin: 1.25rem 0;
-            display: none;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #0f172a;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .svg-preview {
-            max-width: 100%;
-            max-height: 400px;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #0f172a;
-                color: #e2e8f0;
-            }
-            
-            .container {
-                background: #1e293b;
-                border-color: #334155;
-            }
-            
-            .header {
-                background: #1e293b;
-                border-bottom-color: #334155;
-            }
-            
-            .header h1 {
-                color: #f8fafc;
-            }
-            
-            .header-icon {
-                color: #94a3b8;
-            }
-            
-            .header p {
-                color: #94a3b8;
-            }
-            
-            .upload-section {
-                background: #1e293b;
-                border-right-color: #334155;
-            }
-            
-            .upload-area {
-                background: #334155;
-                border-color: #475569;
-            }
-            
-            .upload-area:hover {
-                border-color: #64748b;
-                background: #475569;
-            }
-            
-            .canvas-wrapper {
-                background: #334155;
-                border-color: #475569;
-            }
-            
-            .canvas-wrapper h3 {
-                color: #f8fafc;
-            }
-            
-            .controls-panel {
-                background: #1e293b;
-            }
-            
-            .controls-title {
-                color: #f8fafc;
-            }
-            
-            .preset-btn {
-                background: #334155;
-                border-color: #475569;
-                color: #cbd5e1;
-            }
-            
-            .preset-btn:hover {
-                background: #475569;
-                border-color: #64748b;
-            }
-            
-            .control-group {
-                background: #334155;
-                border-color: #475569;
-            }
-            
-            .control-group h4 {
-                color: #f8fafc;
-            }
-            
-            .control-item {
-                background: #475569;
-                border-color: #64748b;
-            }
-            
-            .control-item label {
-                color: #cbd5e1;
-            }
-            
-            .control-item select {
-                background: #475569;
-                border-color: #64748b;
-                color: #cbd5e1;
-            }
-            
-            .checkbox-item {
-                background: #475569;
-                border-color: #64748b;
-            }
-            
-            .checkbox-item label {
-                color: #cbd5e1;
-            }
-            
-            .action-btn {
-                background: #334155;
-                border-color: #475569;
-                color: #cbd5e1;
-            }
-            
-            .convert-btn {
-                background: #64748b;
-                border-color: #64748b;
-            }
-            
-            .convert-btn:hover {
-                background: #94a3b8;
-            }
-            
-            .download-btn {
-                background: #059669;
-                border-color: #059669;
-            }
-            
-            .download-btn:hover {
-                background: #047857;
-            }
-            
-            .info-panel {
-                background: #1e293b;
-                border-color: #334155;
-                border-left-color: #0284c7;
-            }
-            
-            .info-panel h4 {
-                color: #0ea5e9;
-            }
-            
-            .info-panel p {
-                color: #94a3b8;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 12px;
-            }
-            
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .upload-section {
-                border-right: none;
-                border-bottom: 1px solid #e2e8f0;
-            }
-            
-            .preset-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .action-buttons {
-                grid-template-columns: 1fr;
-            }
-
-            .controls-panel {
-                max-height: none;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header {
-                padding: 1.5rem 1.25rem;
-            }
-
-            .header h1 {
-                font-size: 1.75rem;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .upload-section,
-            .controls-panel {
-                padding: 1.25rem;
-            }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        
+        #preview-container svg { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
+        .preview-checkerboard { background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 20px 20px; }
+        .dark .preview-checkerboard { background-image: radial-gradient(#334155 1px, transparent 1px); }
+        
+        .knob-input { accent-color: #0f172a; }
+        .dark .knob-input { accent-color: #f8fafc; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>
-                <i class="ri-image-line header-icon"></i>
-                TraceIt
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+                <i class="ri-arrow-left-line text-xl opacity-70"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-pentool-line text-slate-900 dark:text-white"></i>
+                <span class="tracking-tight">TraceIt 矢量提取</span>
             </h1>
-            <p>专业级图像矢量化工具，将位图转换为高质量SVG矢量图</p>
         </div>
+        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
+            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
+        </button>
+    </header>
 
-        <div class="main-content">
-            <!-- 左侧：图像上传和预览 -->
-            <div class="upload-section">
-                <div class="upload-area">
-                    <div class="file-input-wrapper">
-                        <input type="file" id="fileInput" class="file-input" accept="image/*">
-                        <div class="file-input-button">
-                            <i class="ri-folder-open-line"></i>
-                            选择图像文件 (支持 JPG, PNG, GIF, BMP)
+    <main class="max-w-7xl mx-auto px-4 py-8 lg:py-12">
+        <div class="grid lg:grid-cols-[400px,1fr] gap-8">
+            <!-- Left Column: Controls -->
+            <aside class="space-y-6">
+                <!-- Upload Area -->
+                <div id="drop-zone" class="bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-slate-900 dark:hover:border-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all select-none group">
+                    <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-400 group-hover:bg-slate-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-slate-900 transition-all">
+                        <i class="ri-image-add-line text-3xl"></i>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm font-bold uppercase tracking-widest text-slate-900 dark:text-white">选择位图</p>
+                        <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">DRAG OR CLICK</p>
+                    </div>
+                </div>
+                <input type="file" id="file-input" class="hidden" accept="image/*">
+
+                <!-- Parameters -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-sm space-y-8 overflow-hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="ri-list-settings-line"></i> 提取参数
+                        </h2>
+                        <button onclick="resetParams()" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase">重置</button>
+                    </div>
+
+                    <div class="space-y-8">
+                        <!-- Threshold -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <span>两级阈值 (ltres)</span>
+                                <span id="ltres-val" class="text-slate-900 dark:text-white font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[11px]">1</span>
+                            </div>
+                            <input type="range" id="ltres" min="0" max="100" value="1" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer knob-input">
+                        </div>
+
+                        <!-- Blur -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <span>高斯模糊 (blur)</span>
+                                <span id="blur-val" class="text-slate-900 dark:text-white font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[11px]">0.5</span>
+                            </div>
+                            <input type="range" id="blur" min="0" max="5" step="0.1" value="0.5" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer knob-input">
+                        </div>
+
+                        <!-- Palette/Scale -->
+                        <div class="space-y-4">
+                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">输出比例 (Scale)</label>
+                             <div class="flex gap-3">
+                                <button onclick="setScale(1)" class="scale-btn flex-1 py-3 px-4 rounded-xl border border-slate-100 dark:border-slate-800 text-xs font-bold uppercase active:scale-95 transition-all bg-slate-900 text-white" data-scale="1">1:1</button>
+                                <button onclick="setScale(2)" class="scale-btn flex-1 py-3 px-4 rounded-xl border border-slate-100 dark:border-slate-800 text-xs font-bold uppercase active:scale-95 transition-all text-slate-400" data-scale="2">2:1</button>
+                                <button onclick="setScale(4)" class="scale-btn flex-1 py-3 px-4 rounded-xl border border-slate-100 dark:border-slate-800 text-xs font-bold uppercase active:scale-95 transition-all text-slate-400" data-scale="4">4:1</button>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Column: Preview & Output -->
+            <div class="space-y-6">
+                <!-- Preview Card -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[3rem] p-6 shadow-sm flex flex-col items-center">
+                    <div class="w-full flex items-center justify-between mb-6 px-2">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">SVG 实时提取预览</span>
+                        <div id="loader" class="hidden flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase">
+                            <i class="ri-loader-4-line animate-spin text-lg"></i>
+                            处理中...
+                        </div>
+                    </div>
+
+                    <div id="preview-wrapper" class="preview-checkerboard w-full aspect-video rounded-[2rem] flex items-center justify-center p-8 border border-slate-50 dark:border-slate-800/50 shadow-inner overflow-hidden">
+                        <div id="preview-container" class="w-full h-full flex items-center justify-center transition-all duration-300">
+                             <div id="no-image" class="text-slate-300 dark:text-slate-700 text-center">
+                                <i class="ri-quill-pen-line text-7xl"></i>
+                                <p class="text-[10px] font-bold uppercase tracking-widest mt-4">尚未转换任何图片</p>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Result Info -->
+                    <div id="result-info" class="w-full mt-6 scale-95 opacity-0 transition-all grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">路径数</p>
+                            <span id="path-count" class="text-xs font-mono font-bold">—</span>
+                        </div>
+                         <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl text-center border border-slate-100 dark:border-slate-800 text-center">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">节点</p>
+                            <span id="node-count" class="text-xs font-mono font-bold">—</span>
+                        </div>
+                        <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-center col-span-2 flex items-center justify-between px-6">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">提取完成</span>
+                            <span class="text-emerald-500"><i class="ri-checkbox-circle-fill text-xl"></i></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="canvas-container">
-                    <div class="canvas-wrapper">
-                        <h3>
-                            <i class="ri-image-2-line"></i>
-                            原始图像
-                        </h3>
-                        <canvas id="originalCanvas"></canvas>
-                    </div>
-                    
-                    <div class="canvas-wrapper">
-                        <h3>
-                            <i class="ri-focus-3-line"></i>
-                            矢量化预览
-                        </h3>
-                        <div id="svgPreview"></div>
-                    </div>
-                </div>
-
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="action-btn convert-btn" id="convertBtn" onclick="convertToSVG()">
-                        <i class="ri-refresh-line"></i>
-                        开始转换
+                <!-- Export -->
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <button onclick="downloadSVG()" id="download-btn" disabled class="w-full h-16 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale">
+                        <i class="ri-file-code-line text-xl"></i>
+                        <span class="uppercase tracking-widest">导出 SVG 文件</span>
                     </button>
-                    <button class="action-btn download-btn" id="downloadBtn" onclick="downloadSVG()" disabled>
-                        <i class="ri-download-line"></i>
-                        下载SVG
+                    <button onclick="copySVG()" id="copy-btn" disabled class="w-full h-16 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-2xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale">
+                        <i class="ri-file-copy-2-line text-xl"></i>
+                        <span class="uppercase tracking-widest">复制代码</span>
                     </button>
-                </div>
-            </div>
-
-            <!-- 右侧：参数控制面板 -->
-            <div class="controls-panel">
-                <h3 class="controls-title">
-                    <i class="ri-settings-3-line"></i>
-                    高级参数设置
-                </h3>
-                
-                <!-- 预设配置按钮 -->
-                <div class="preset-buttons">
-                    <button class="preset-btn" onclick="applyPreset('fast')">
-                        <i class="ri-flashlight-line"></i>
-                        快速处理
-                    </button>
-                    <button class="preset-btn" onclick="applyPreset('balanced')">
-                        <i class="ri-scales-3-line"></i>
-                        平衡模式
-                    </button>
-                    <button class="preset-btn" onclick="applyPreset('high')">
-                        <i class="ri-gem-line"></i>
-                        高质量
-                    </button>
-                    <button class="preset-btn" onclick="applyPreset('photo')">
-                        <i class="ri-camera-line"></i>
-                        照片级
-                    </button>
-                </div>
-
-                <!-- 颜色处理控制 -->
-                <div class="control-group">
-                    <h4>
-                        <i class="ri-palette-line"></i>
-                        颜色处理
-                    </h4>
-                    
-                    <div class="control-item">
-                        <label>颜色数量:</label>
-                        <input type="range" id="numberofcolors" min="2" max="64" value="16" oninput="updateValue('numberofcolors')">
-                        <span class="value-display" id="numberofcolors-value">16</span>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>颜色采样:</label>
-                        <select id="colorsampling" onchange="updatePreview()">
-                            <option value="0">禁用</option>
-                            <option value="1">随机采样</option>
-                            <option value="2" selected>确定性采样</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>最小颜色比例:</label>
-                        <input type="range" id="mincolorratio" min="0.001" max="0.1" step="0.001" value="0.01" oninput="updateValue('mincolorratio')">
-                        <span class="value-display" id="mincolorratio-value">0.01</span>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>量化循环:</label>
-                        <input type="range" id="colorquantcycles" min="1" max="15" value="8" oninput="updateValue('colorquantcycles')">
-                        <span class="value-display" id="colorquantcycles-value">8</span>
-                    </div>
-                </div>
-
-                <!-- 路径优化控制 -->
-                <div class="control-group">
-                    <h4>
-                        <i class="ri-route-line"></i>
-                        路径优化
-                    </h4>
-                    
-                    <div class="control-item">
-                        <label>路径省略:</label>
-                        <input type="range" id="pathomit" min="0" max="20" value="2" oninput="updateValue('pathomit')">
-                        <span class="value-display" id="pathomit-value">2</span>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>直线阈值:</label>
-                        <input type="range" id="ltres" min="0.1" max="5" step="0.1" value="1.0" oninput="updateValue('ltres')">
-                        <span class="value-display" id="ltres-value">1.0</span>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>曲线阈值:</label>
-                        <input type="range" id="qtres" min="0.1" max="5" step="0.1" value="1.5" oninput="updateValue('qtres')">
-                        <span class="value-display" id="qtres-value">1.5</span>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>转向策略:</label>
-                        <select id="turnpolicy" onchange="updatePreview()">
-                            <option value="minority" selected>少数优先</option>
-                            <option value="majority">多数优先</option>
-                            <option value="left">左转优先</option>
-                            <option value="right">右转优先</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- 输出设置控制 -->
-                <div class="control-group">
-                    <h4>
-                        <i class="ri-export-line"></i>
-                        输出设置
-                    </h4>
-                    
-                    <div class="control-item">
-                        <label>坐标精度:</label>
-                        <input type="range" id="roundcoords" min="0" max="5" value="2" oninput="updateValue('roundcoords')">
-                        <span class="value-display" id="roundcoords-value">2</span>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>描边宽度:</label>
-                        <input type="range" id="strokewidth" min="0.1" max="5" step="0.1" value="0.5" oninput="updateValue('strokewidth')">
-                        <span class="value-display" id="strokewidth-value">0.5</span>
-                    </div>
-                    
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="linefilter" checked onchange="updatePreview()">
-                        <label>启用线条过滤</label>
-                    </div>
-                    
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="viewbox" checked onchange="updatePreview()">
-                        <label>启用ViewBox</label>
-                    </div>
-                    
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="desc" onchange="updatePreview()">
-                        <label>包含描述信息</label>
-                    </div>
-                </div>
-
-                <!-- 高级设置 -->
-                <div class="control-group">
-                    <h4>
-                        <i class="ri-tools-line"></i>
-                        高级设置
-                    </h4>
-                    
-                    <div class="control-item">
-                        <label>角度阈值:</label>
-                        <input type="range" id="alphamax" min="0.1" max="2" step="0.1" value="1.0" oninput="updateValue('alphamax')">
-                        <span class="value-display" id="alphamax-value">1.0</span>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>优化容差:</label>
-                        <input type="range" id="opttolerance" min="0.1" max="1" step="0.1" value="0.2" oninput="updateValue('opttolerance')">
-                        <span class="value-display" id="opttolerance-value">0.2</span>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>分层模式:</label>
-                        <select id="layering" onchange="updatePreview()">
-                            <option value="0">顺序处理</option>
-                            <option value="1" selected>并行处理</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="info-panel">
-                    <h4>
-                        <i class="ri-lightbulb-line"></i>
-                        使用提示
-                    </h4>
-                    <p><strong>快速处理</strong>：适合简单图标和线条图<br>
-                    <strong>平衡模式</strong>：通用设置，适合大多数图像<br>
-                    <strong>高质量</strong>：适合复杂图像，处理时间较长<br>
-                    <strong>照片级</strong>：适合照片转换，文件较大但质量最佳</p>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-slate-200 dark:border-slate-800 text-center text-slate-400 dark:text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+        <p>&copy; 2025 Web Tools Collection • Made with ❤️ • <a href="https://ceda.is/" class="hover:text-slate-900 dark:hover:text-white transition-colors">Cedar</a></p>
+    </footer>
+
+    <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <script>
         let currentImage = null;
-        let svgString = '';
+        let scale = 1;
+        let svgContent = '';
 
-        // 预设配置
-        const presetConfigs = {
-            fast: {
-                numberofcolors: 8,
-                colorsampling: 1,
-                mincolorratio: 0.05,
-                colorquantcycles: 3,
-                pathomit: 8,
-                ltres: 2.0,
-                qtres: 3.0,
-                turnpolicy: 'majority',
-                alphamax: 1.0,
-                opttolerance: 0.2,
-                roundcoords: 1,
-                strokewidth: 1,
-                linefilter: false,
-                viewbox: true,
-                desc: false,
-                layering: 0
-            },
-            balanced: {
-                numberofcolors: 16,
-                colorsampling: 2,
-                mincolorratio: 0.02,
-                colorquantcycles: 5,
-                pathomit: 4,
-                ltres: 1.5,
-                qtres: 2.0,
-                turnpolicy: 'minority',
-                alphamax: 1.0,
-                opttolerance: 0.2,
-                roundcoords: 2,
-                strokewidth: 0.8,
-                linefilter: true,
-                viewbox: true,
-                desc: false,
-                layering: 1
-            },
-            high: {
-                numberofcolors: 32,
-                colorsampling: 2,
-                mincolorratio: 0.01,
-                colorquantcycles: 8,
-                pathomit: 2,
-                ltres: 1.0,
-                qtres: 1.5,
-                turnpolicy: 'minority',
-                alphamax: 1.0,
-                opttolerance: 0.2,
-                roundcoords: 2,
-                strokewidth: 0.5,
-                linefilter: true,
-                viewbox: true,
-                desc: false,
-                layering: 1
-            },
-            photo: {
-                numberofcolors: 64,
-                colorsampling: 2,
-                mincolorratio: 0.005,
-                colorquantcycles: 12,
-                pathomit: 1,
-                ltres: 0.5,
-                qtres: 1.0,
-                turnpolicy: 'minority',
-                alphamax: 0.8,
-                opttolerance: 0.1,
-                roundcoords: 3,
-                strokewidth: 0.3,
-                linefilter: true,
-                viewbox: true,
-                desc: true,
-                layering: 1
-            }
+        const els = {
+            dropZone: document.getElementById('drop-zone'),
+            fileInput: document.getElementById('file-input'),
+            container: document.getElementById('preview-container'),
+            noImg: document.getElementById('no-image'),
+            loader: document.getElementById('loader'),
+            downloadBtn: document.getElementById('download-btn'),
+            copyBtn: document.getElementById('copy-btn'),
+            info: document.getElementById('result-info'),
+            ltres: document.getElementById('ltres'),
+            blur: document.getElementById('blur'),
+            ltresVal: document.getElementById('ltres-val'),
+            blurVal: document.getElementById('blur-val')
         };
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('fileInput');
-            fileInput.addEventListener('change', handleFileSelect);
-            
-            // 初始化所有数值显示
-            updateAllValues();
+        // Basic Listeners
+        els.dropZone.addEventListener('click', () => els.fileInput.click());
+        els.fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        els.dropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.currentTarget.classList.add('border-slate-900', 'dark:border-white'); });
+        els.dropZone.addEventListener('dragleave', (e) => { e.currentTarget.classList.remove('border-slate-900', 'dark:border-white'); });
+        els.dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove('border-slate-900', 'dark:border-white');
+            handleFile(e.dataTransfer.files[0]);
         });
 
-        // 处理文件选择
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
+        function handleFile(file) {
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    currentImage = img;
-                    displayOriginalImage(img);
-                    document.getElementById('convertBtn').disabled = false;
-                };
-                img.src = e.target.result;
+            reader.onload = (e) => {
+                currentImage = e.target.result;
+                trace();
+                showToast("位图载入中...");
             };
             reader.readAsDataURL(file);
         }
 
-        // 显示原始图像
-        function displayOriginalImage(img) {
-            const canvas = document.getElementById('originalCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            // 计算适合的尺寸
-            const maxWidth = 400;
-            const maxHeight = 300;
-            let { width, height } = img;
-            
-            if (width > maxWidth || height > maxHeight) {
-                const ratio = Math.min(maxWidth / width, maxHeight / height);
-                width *= ratio;
-                height *= ratio;
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-        }
-
-        // 应用预设配置
-        function applyPreset(presetName) {
-            const config = presetConfigs[presetName];
-            if (!config) return;
-
-            Object.keys(config).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    if (element.type === 'checkbox') {
-                        element.checked = config[key];
-                    } else {
-                        element.value = config[key];
-                    }
-                    
-                    // 更新显示值
-                    if (element.type === 'range') {
-                        updateValue(key);
-                    }
-                }
-            });
-
-            // 如果已有图像，自动更新预览
-            if (currentImage) {
-                setTimeout(convertToSVG, 100);
-            }
-        }
-
-        // 更新数值显示
-        function updateValue(id) {
-            const input = document.getElementById(id);
-            const display = document.getElementById(id + '-value');
-            if (input && display) {
-                display.textContent = input.value;
-            }
-        }
-
-        // 更新所有数值显示
-        function updateAllValues() {
-            const rangeInputs = document.querySelectorAll('input[type="range"]');
-            rangeInputs.forEach(input => {
-                updateValue(input.id);
-            });
-        }
-
-        // 获取当前参数配置
-        function getCurrentOptions() {
-            return {
-                numberofcolors: parseInt(document.getElementById('numberofcolors').value),
-                colorsampling: parseInt(document.getElementById('colorsampling').value),
-                mincolorratio: parseFloat(document.getElementById('mincolorratio').value),
-                colorquantcycles: parseInt(document.getElementById('colorquantcycles').value),
-                pathomit: parseInt(document.getElementById('pathomit').value),
-                ltres: parseFloat(document.getElementById('ltres').value),
-                qtres: parseFloat(document.getElementById('qtres').value),
-                turnpolicy: document.getElementById('turnpolicy').value,
-                alphamax: parseFloat(document.getElementById('alphamax').value),
-                opttolerance: parseFloat(document.getElementById('opttolerance').value),
-                roundcoords: parseInt(document.getElementById('roundcoords').value),
-                strokewidth: parseFloat(document.getElementById('strokewidth').value),
-                linefilter: document.getElementById('linefilter').checked,
-                viewbox: document.getElementById('viewbox').checked,
-                desc: document.getElementById('desc').checked,
-                layering: parseInt(document.getElementById('layering').value)
-            };
-        }
-
-        // 转换为SVG
-        function convertToSVG() {
-            if (!currentImage) {
-                alert('请先选择一张图片');
-                return;
-            }
-
-            const progressBar = document.getElementById('progressBar');
-            const progressFill = document.getElementById('progressFill');
-            const convertBtn = document.getElementById('convertBtn');
-            
-            // 显示进度条
-            progressBar.style.display = 'block';
-            progressFill.style.width = '0%';
-            convertBtn.disabled = true;
-            convertBtn.innerHTML = '<i class="ri-loader-4-line"></i> 处理中...';
-
-            // 模拟进度更新
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress > 90) progress = 90;
-                progressFill.style.width = progress + '%';
-            }, 200);
-
-            // 获取当前参数
-            const options = getCurrentOptions();
-
-            try {
-                // 使用ImageTracer转换
-                ImageTracer.imageToSVG(
-                    currentImage.src,
-                    function(svgstr) {
-                        // 转换完成
-                        clearInterval(progressInterval);
-                        progressFill.style.width = '100%';
-                        
-                        setTimeout(() => {
-                            progressBar.style.display = 'none';
-                            svgString = svgstr;
-                            displaySVGPreview(svgstr);
-                            
-                            // 恢复按钮状态
-                            convertBtn.disabled = false;
-                            convertBtn.innerHTML = '<i class="ri-refresh-line"></i> 开始转换';
-                            document.getElementById('downloadBtn').disabled = false;
-                        }, 500);
-                    },
-                    options
-                );
-            } catch (error) {
-                clearInterval(progressInterval);
-                progressBar.style.display = 'none';
-                convertBtn.disabled = false;
-                convertBtn.innerHTML = '<i class="ri-refresh-line"></i> 开始转换';
-                alert('转换失败: ' + error.message);
-            }
-        }
-
-        // 显示SVG预览
-        function displaySVGPreview(svgStr) {
-            const previewContainer = document.getElementById('svgPreview');
-            previewContainer.innerHTML = svgStr;
-            
-            // 调整SVG尺寸以适应容器
-            const svg = previewContainer.querySelector('svg');
-            if (svg) {
-                svg.style.maxWidth = '100%';
-                svg.style.height = 'auto';
-                svg.classList.add('svg-preview');
-            }
-        }
-
-        // 下载SVG文件
-        function downloadSVG() {
-            if (!svgString) {
-                alert('请先转换图片');
-                return;
-            }
-
-            const blob = new Blob([svgString], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'traced-image.svg';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // 实时预览更新（防抖）
-        let updateTimeout;
-        function updatePreview() {
+        function trace() {
             if (!currentImage) return;
             
-            clearTimeout(updateTimeout);
-            updateTimeout = setTimeout(() => {
-                convertToSVG();
-            }, 1000);
+            els.loader.classList.remove('hidden');
+            els.ltresVal.textContent = els.ltres.value;
+            els.blurVal.textContent = els.blur.value;
+
+            // Use requestAnimationFrame to not block UI
+            setTimeout(() => {
+                try {
+                    const options = {
+                        ltres: parseFloat(els.ltres.value),
+                        qtres: 1,
+                        pathomit: 8,
+                        rightangleenhance: true,
+                        strokewidth: 1,
+                        linefilter: true,
+                        desc: false,
+                        blurradius: parseFloat(els.blur.value),
+                        blurdelta: 20,
+                        scale: scale
+                    };
+                    
+                    svgContent = ImageTracer.imageToSVG(currentImage, options);
+                    
+                    els.container.innerHTML = svgContent;
+                    els.noImg.classList.add('hidden');
+                    els.downloadBtn.disabled = false;
+                    els.copyBtn.disabled = false;
+                    els.info.classList.remove('opacity-0', 'scale-95');
+                    
+                    // Simple Stats (mocked for demo as ImageTracer doesn't return them directly in simple mode)
+                    document.getElementById('path-count').textContent = (svgContent.match(/<path/g) || []).length;
+                    document.getElementById('node-count').textContent = Math.round(svgContent.length / 50);
+
+                } catch (e) {
+                    console.error(e);
+                    showToast("矢量化失败", "error");
+                } finally {
+                    els.loader.classList.add('hidden');
+                }
+            }, 10);
         }
 
-        // 拖拽上传功能
-        const uploadArea = document.querySelector('.upload-area');
-        
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#64748b';
-            uploadArea.style.background = '#f8fafc';
-        });
+        function setScale(s) {
+            scale = s;
+            document.querySelectorAll('.scale-btn').forEach(btn => {
+                btn.classList.toggle('bg-slate-900', btn.getAttribute('data-scale') == s);
+                btn.classList.toggle('text-white', btn.getAttribute('data-scale') == s);
+                btn.classList.toggle('text-slate-400', btn.getAttribute('data-scale') != s);
+            });
+            trace();
+        }
 
-        uploadArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#cbd5e1';
-            uploadArea.style.background = 'white';
-        });
+        function resetParams() {
+            els.ltres.value = 1;
+            els.blur.value = 0.5;
+            trace();
+        }
 
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#cbd5e1';
-            uploadArea.style.background = 'white';
+        function downloadSVG() {
+            if (!svgContent) return;
+            const blob = new Blob([svgContent], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `traced-${Date.now()}.svg`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast('SVG 已导出');
+        }
+
+        async function copySVG() {
+            if (!svgContent) return;
+            try {
+                await navigator.clipboard.writeText(svgContent);
+                showToast('代码已复制');
+            } catch (err) { showToast('复制失败', 'error'); }
+        }
+
+        function showToast(title, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (container.children.length > 2) container.children[0].remove();
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-slate-900 border border-slate-800' : 'bg-rose-600';
+            const icon = type === 'success' ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill';
             
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.type.startsWith('image/')) {
-                    document.getElementById('fileInput').files = files;
-                    handleFileSelect({ target: { files: [file] } });
-                }
+            toast.className = `flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-xl text-white transform transition-all duration-300 translate-y-10 opacity-0 ${bgClass}`;
+            toast.innerHTML = `
+                <i class="${icon} text-lg opacity-80"></i>
+                <span class="font-bold text-[12px] truncate tracking-tight uppercase">${title}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.className = document.documentElement.classList.contains('dark') ? 'ri-sun-line text-xl opacity-70' : 'ri-moon-line text-xl opacity-70';
             }
-        });
+        }
+
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        updateThemeIcon();
+
+        [els.ltres, els.blur].forEach(el => el.addEventListener('input', trace));
     </script>
 </body>
 </html>

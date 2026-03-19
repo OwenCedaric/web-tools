@@ -1,335 +1,247 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSS Box Shadow Generator - Web Tools</title>
-    <meta name="description" content="Generate and preview CSS box shadows visually.">
-    <meta name="tool-icon" content="ri-shape-2-line">
-    <meta name="tool-tags" content="CSS, Shadow, Design, Generator">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.8.0/fonts/remixicon.css" rel="stylesheet">
+    <title>CSS 阴影生成器 - Web Tools</title>
+    <meta name="description" content="可视化 CSS box-shadow 生成工具，支持多层阴影、内阴影效果，实时生成代码。">
+    <meta name="tool-icon" content="ri-shadow-line">
+    <meta name="tool-tags" content="CSS, 阴影, 开发者工具, 设计, UI">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #f8fafc;
-            --text-color: #1e293b;
-            --surface-color: #ffffff;
-            --border-color: #e2e8f0;
-            --primary-color: #6366f1;
-            --text-muted: #64748b;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #0f172a;
-                --text-color: #e2e8f0;
-                --surface-color: #1e293b;
-                --border-color: #334155;
-                --text-muted: #94a3b8;
-            }
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            padding: 1.5rem 2rem;
-            background: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .header a {
-            color: var(--text-muted);
-            text-decoration: none;
-        }
-
-        .header a:hover {
-            color: var(--text-color);
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .container {
-            flex: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .control-group label {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--primary-color);
-        }
-
-        input[type="color"] {
-            width: 100%;
-            height: 40px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            padding: 2px;
-            background: var(--surface-color);
-        }
-
-        .toggle-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            color: var(--text-color);
-            cursor: pointer;
-        }
-
-        /* Right side */
-        .preview-area {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .canvas {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f1f5f9;
-            min-height: 400px;
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 20px 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .box {
-            width: 250px;
-            height: 250px;
-            background-color: #ffffff;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: #94a3b8;
-            transition: box-shadow 0.1s;
-            /* smooth dragging */
-        }
-
-        .code-container {
-            padding: 1.5rem;
-            background: var(--surface-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .code-box {
-            font-family: ui-monospace, monospace;
-            font-size: 1.1rem;
-            color: var(--text-color);
-            background: rgba(0, 0, 0, 0.03);
-            padding: 1rem;
-            border-radius: 8px;
-            flex: 1;
-            margin-right: 1rem;
-            word-break: break-all;
-        }
-
-        .btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap');
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        
+        .preview-checkerboard { background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 20px 20px; }
+        .dark .preview-checkerboard { background-image: radial-gradient(#334155 1px, transparent 1px); }
+        
+        input[type="range"] { accent-color: #0f172a; }
+        .dark input[type="range"] { accent-color: #f8fafc; }
     </style>
 </head>
-
-<body>
-    <header class="header">
-        <a href="../index.html" title="Back to Tools"><i class="ri-arrow-left-line ri-xl"></i></a>
-        <h1><i class="ri-shape-2-line text-primary"></i> CSS Box Shadow Generator</h1>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+                <i class="ri-arrow-left-line text-xl opacity-70"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-shadow-line text-slate-900 dark:text-white"></i>
+                <span class="tracking-tight">CSS 阴影生成器</span>
+            </h1>
+        </div>
+        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
+            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
+        </button>
     </header>
 
-    <main class="container">
-        <div class="panel controls">
-            <div class="control-group">
-                <label><span>Horizontal Offset</span> <span id="valX">0px</span></label>
-                <input type="range" id="shiftX" min="-50" max="50" value="0">
+    <main class="max-w-7xl mx-auto px-4 py-8 lg:py-12">
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Left: Controls -->
+            <div class="space-y-6">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm space-y-8">
+                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <i class="ri-settings-3-line"></i> 控制参数
+                    </h2>
+                    
+                    <div class="grid gap-8">
+                        <!-- Horizontal -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                <span>水平偏移 (Horizontal)</span>
+                                <span id="h-value" class="text-slate-900 dark:text-white font-mono text-sm">0px</span>
+                            </div>
+                            <input type="range" id="h-offset" min="-100" max="100" value="0" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <!-- Vertical -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                <span>垂直偏移 (Vertical)</span>
+                                <span id="v-value" class="text-slate-900 dark:text-white font-mono text-sm">10px</span>
+                            </div>
+                            <input type="range" id="v-offset" min="-100" max="100" value="10" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <!-- Blur -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                <span>模糊半径 (Blur)</span>
+                                <span id="blur-value" class="text-slate-900 dark:text-white font-mono text-sm">25px</span>
+                            </div>
+                            <input type="range" id="blur" min="0" max="200" value="25" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <!-- Spread -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                <span>扩展半径 (Spread)</span>
+                                <span id="spread-value" class="text-slate-900 dark:text-white font-mono text-sm">0px</span>
+                            </div>
+                            <input type="range" id="spread" min="-100" max="100" value="0" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <!-- Opacity -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                <span>阴影透明度 (Opacity)</span>
+                                <span id="opacity-value" class="text-slate-900 dark:text-white font-mono text-sm">0.1</span>
+                            </div>
+                            <input type="range" id="opacity" min="0" max="1" step="0.01" value="0.1" class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Inner Switch -->
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border border-slate-100 dark:border-slate-800 group">
+                        <input type="checkbox" id="inset" class="w-5 h-5 rounded border-slate-300 text-slate-900 focus:ring-slate-900 transition-all">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold uppercase tracking-widest group-hover:text-slate-900 dark:group-hover:text-white transition-colors">内阴影 (Inset)</span>
+                            <span class="text-[8px] text-slate-400 font-medium">应用 CSS Inset 属性</span>
+                        </div>
+                    </label>
+                </div>
             </div>
 
-            <div class="control-group">
-                <label><span>Vertical Offset</span> <span id="valY">10px</span></label>
-                <input type="range" id="shiftY" min="-50" max="50" value="10">
-            </div>
+            <!-- Right: Preview -->
+            <div class="space-y-6">
+                <!-- Preview Box -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] shadow-sm p-4 overflow-hidden relative">
+                    <div class="flex items-center justify-between p-4 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl mb-4 border border-slate-100 dark:border-slate-700">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">实时预览效果</span>
+                        <div class="flex gap-2">
+                             <input type="color" id="bg-color" value="#f8fafc" class="w-6 h-6 rounded-lg overflow-hidden border-none outline-none cursor-pointer">
+                             <input type="color" id="box-color" value="#ffffff" class="w-6 h-6 rounded-lg overflow-hidden border-none outline-none cursor-pointer">
+                        </div>
+                    </div>
+                    <div id="preview-area" class="preview-checkerboard w-full aspect-square rounded-3xl flex items-center justify-center transition-colors overflow-hidden">
+                        <div id="preview-box" class="w-48 h-48 bg-white border border-slate-100 dark:border-slate-800/50 rounded-3xl transition-all"></div>
+                    </div>
+                </div>
 
-            <div class="control-group">
-                <label><span>Blur Radius</span> <span id="valBlur">25px</span></label>
-                <input type="range" id="blur" min="0" max="100" value="25">
-            </div>
-
-            <div class="control-group">
-                <label><span>Spread Radius</span> <span id="valSpread">-5px</span></label>
-                <input type="range" id="spread" min="-50" max="50" value="-5">
-            </div>
-
-            <div class="control-group">
-                <label>Shadow Color</label>
-                <input type="color" id="shadowColor" value="#000000">
-            </div>
-
-            <div class="control-group">
-                <label><span>Shadow Opacity</span> <span id="valOpac">0.1</span></label>
-                <input type="range" id="opacity" min="0" max="1" step="0.01" value="0.1">
-            </div>
-
-            <label class="toggle-row">
-                <input type="checkbox" id="inset">
-                Inset (Inner Shadow)
-            </label>
-        </div>
-
-        <div class="preview-area">
-            <div class="canvas">
-                <div class="box" id="box">Preview Box</div>
-            </div>
-            <div class="code-container">
-                <div class="code-box" id="cssCode">box-shadow: 0px 10px 25px -5px rgba(0,0,0,0.1);</div>
-                <button class="btn" onclick="copyCode()"><i class="ri-clipboard-line"></i> Copy</button>
+                <!-- Generated Code -->
+                <div class="bg-slate-900 text-white rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group">
+                    <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500/0 via-emerald-500/50 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">CSS 代码</h3>
+                        <button onclick="copyCode()" class="px-4 py-2 bg-white/10 hover:bg-white text-white hover:text-slate-900 text-[10px] font-bold rounded-xl transition-all uppercase tracking-widest shadow-xl active:scale-95 flex items-center gap-2">
+                            <i class="ri-file-copy-line"></i> 复制成果
+                        </button>
+                    </div>
+                    <pre id="code-output" class="font-mono text-sm leading-relaxed text-slate-300 break-all select-all whitespace-pre-wrap"></pre>
+                </div>
             </div>
         </div>
     </main>
 
+    <footer class="py-12 border-t border-slate-200 dark:border-slate-800 text-center text-slate-400 dark:text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+        <p>&copy; 2025 Web Tools Collection • Made with ❤️ • <a href="https://ceda.is/" class="hover:text-slate-900 dark:hover:text-white transition-colors">Cedar</a></p>
+    </footer>
+
+    <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
+
     <script>
-        const els = {
-            sx: document.getElementById('shiftX'),
-            sy: document.getElementById('shiftY'),
-            bl: document.getElementById('blur'),
-            sp: document.getElementById('spread'),
-            color: document.getElementById('shadowColor'),
-            op: document.getElementById('opacity'),
+        const inputs = {
+            h: document.getElementById('h-offset'),
+            v: document.getElementById('v-offset'),
+            blur: document.getElementById('blur'),
+            spread: document.getElementById('spread'),
+            opacity: document.getElementById('opacity'),
             inset: document.getElementById('inset'),
-            vx: document.getElementById('valX'),
-            vy: document.getElementById('valY'),
-            vbl: document.getElementById('valBlur'),
-            vsp: document.getElementById('valSpread'),
-            vop: document.getElementById('valOpac'),
-            box: document.getElementById('box'),
-            code: document.getElementById('cssCode')
+            bgColor: document.getElementById('bg-color'),
+            boxColor: document.getElementById('box-color')
         };
 
-        function hexToRgba(hex, alpha) {
-            let r = 0, g = 0, b = 0;
-            if (hex.length == 7) {
-                r = parseInt(hex.substring(1, 3), 16);
-                g = parseInt(hex.substring(3, 5), 16);
-                b = parseInt(hex.substring(5, 7), 16);
-            }
-            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        }
+        const outputs = {
+            hVal: document.getElementById('h-value'),
+            vVal: document.getElementById('v-value'),
+            blurVal: document.getElementById('blur-value'),
+            spreadVal: document.getElementById('spread-value'),
+            opacityVal: document.getElementById('opacity-value'),
+            box: document.getElementById('preview-box'),
+            area: document.getElementById('preview-area'),
+            code: document.getElementById('code-output')
+        };
 
         function update() {
-            const x = els.sx.value;
-            const y = els.sy.value;
-            const b = els.bl.value;
-            const s = els.sp.value;
-            const cStr = hexToRgba(els.color.value, els.op.value);
-            const inStr = els.inset.checked ? 'inset ' : '';
+            const h = inputs.h.value;
+            const v = inputs.v.value;
+            const b = inputs.blur.value;
+            const s = inputs.spread.value;
+            const o = inputs.opacity.value;
+            const i = inputs.inset.checked ? 'inset ' : '';
+            
+            outputs.hVal.textContent = h + 'px';
+            outputs.vVal.textContent = v + 'px';
+            outputs.blurVal.textContent = b + 'px';
+            outputs.spreadVal.textContent = s + 'px';
+            outputs.opacityVal.textContent = o;
 
-            // Update text labels
-            els.vx.textContent = x + 'px';
-            els.vy.textContent = y + 'px';
-            els.vbl.textContent = b + 'px';
-            els.vsp.textContent = s + 'px';
-            els.vop.textContent = els.op.value;
-
-            // Update visual and code
-            const shadowVal = `${inStr}${x}px ${y}px ${b}px ${s}px ${cStr}`;
-            els.box.style.boxShadow = shadowVal;
-            els.code.textContent = `box-shadow: ${shadowVal};`;
+            const shadow = `${i}${h}px ${v}px ${b}px ${s}px rgba(0, 0, 0, ${o})`;
+            outputs.box.style.boxShadow = shadow;
+            outputs.box.style.backgroundColor = inputs.boxColor.value;
+            outputs.area.style.backgroundColor = inputs.bgColor.value;
+            
+            outputs.code.textContent = `box-shadow: ${shadow};`;
         }
-
-        ['sx', 'sy', 'bl', 'sp', 'color', 'op', 'inset'].forEach(k => {
-            els[k].addEventListener('input', update);
-        });
 
         async function copyCode() {
             try {
-                await navigator.clipboard.writeText(els.code.textContent);
-                alert('Copied CSS');
-            } catch (e) { }
+                await navigator.clipboard.writeText(outputs.code.textContent);
+                showToast('CSS 代码已复制');
+            } catch (err) {
+                showToast('复制失败', 'error');
+            }
         }
 
+        function showToast(title, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (container.children.length > 2) container.children[0].remove();
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-slate-900 border border-slate-800' : 'bg-rose-600';
+            const icon = type === 'success' ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill';
+            
+            toast.className = `flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-xl text-white transform transition-all duration-300 translate-y-10 opacity-0 ${bgClass}`;
+            toast.innerHTML = `
+                <i class="${icon} text-lg opacity-80"></i>
+                <span class="font-bold text-[12px] truncate tracking-tight uppercase">${title}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.className = document.documentElement.classList.contains('dark') ? 'ri-sun-line text-xl opacity-70' : 'ri-moon-line text-xl opacity-70';
+            }
+        }
+
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            inputs.bgColor.value = '#020617';
+            inputs.boxColor.value = '#0f172a';
+        }
+        updateThemeIcon();
+
+        Object.values(inputs).forEach(input => input.addEventListener('input', update));
         update();
     </script>
 </body>
-
 </html>
