@@ -35,6 +35,13 @@
   .dark ::-webkit-scrollbar-thumb {
     @apply bg-slate-700;
   }
+
+  /* Global Accent Colors */
+  input[type="range"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    @apply accent-slate-900 dark:accent-slate-100 cursor-pointer;
+  }
 }
 
 @layer utilities {
