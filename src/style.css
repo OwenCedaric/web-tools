@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono&display=swap');
 @import "tailwindcss";
 @import "remixicon/fonts/remixicon.css";
 
@@ -7,8 +8,6 @@
 }
 
 @layer base {
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono&display=swap');
-  
   body {
     @apply font-sans antialiased bg-slate-50 text-slate-900 transition-colors duration-200;
   }
@@ -22,7 +21,7 @@
     @apply bg-slate-950 text-slate-100;
   }
 
-  /* Custom Scrollbar */
+  /* Global Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -42,6 +41,13 @@
   .no-print {
     @media print {
       display: none !important;
+    }
+  }
+
+  @media print {
+    body {
+      background: white !important;
+      color: black !important;
     }
   }
 }
