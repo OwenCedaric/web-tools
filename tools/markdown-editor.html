@@ -8,7 +8,7 @@
     <meta name="tool-icon" content="ri-markdown-fill">
     <meta name="tool-tags" content="Markdown, 编辑器, 开发者工具, App构建">
     <link rel="stylesheet" href="/src/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Local packages will be imported in the module script below -->
     <style>
 
         
@@ -146,11 +146,15 @@
     <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <!-- Core Logic -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Local packages will be imported in the module script below -->
     <script type="module">
         import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        import { marked } from 'marked';
+        import html2pdf from 'html2pdf.js';
         window.toggleTheme = toggleTheme;
         window.showToast = showToast;
+        window.marked = marked;
+        window.html2pdf = html2pdf;
         const state = {
             md: localStorage.getItem('md-creator-content') || '',
             css: localStorage.getItem('md-creator-css') || '',

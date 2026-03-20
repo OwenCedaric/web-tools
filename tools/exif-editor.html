@@ -8,9 +8,6 @@
     <meta name="tool-icon" content="ri-camera-lens-line">
     <meta name="tool-tags" content="EXIF, 图片元数据, 隐私保护, 照片编辑">
     <link rel="stylesheet" href="/src/style.css">
-    
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js"></script>
-    
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
     <!-- Header -->
@@ -247,6 +244,7 @@
 
     <script type="module">
         import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        import * as piexif from 'piexifjs';
         window.toggleTheme = toggleTheme;
         window.showToast = showToast;
         const DEVICE_DATA = {
@@ -284,6 +282,10 @@
         };
 
         // Events
+        window.saveImage = saveImage;
+        window.stripExif = stripExif;
+        window.handleFiles = handleFiles;
+
         els.dropZone.addEventListener('click', () => els.fileInput.click());
         els.fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
         
@@ -446,7 +448,6 @@
             } catch (err) {
                 showToast("清理失败", "error");
             }
-    
         }
     </script>
 </body>

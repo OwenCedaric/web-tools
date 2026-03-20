@@ -9,7 +9,7 @@
     <meta name="tool-tags" content="二维码, QR Code, 生成器, 开发者工具">
     <link rel="stylesheet" href="/src/style.css">
     
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <!-- Local packages will be imported in the module script below -->
     
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
@@ -149,8 +149,11 @@
 
     <script type="module">
         import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        import QRCode from 'qrcode';
         window.toggleTheme = toggleTheme;
         window.showToast = showToast;
+        window.download = download;
+        window.clearAll = clearAll;
         const inputs = {
             data: document.getElementById('qr-data'),
             colorDark: document.getElementById('qr-color-dark'),

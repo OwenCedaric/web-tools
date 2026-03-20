@@ -8,7 +8,7 @@
     <meta name="tool-icon" content="ri-fingerprint-line">
     <meta name="tool-tags" content="Hash, MD5, SHA256, 安全, 加密">
     <link rel="stylesheet" href="/src/style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Local packages and native scripts will be imported in the module script below -->
     
     
 </head>
@@ -89,6 +89,7 @@
 
     <script type="module">
         import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        import CryptoJS from 'crypto-js';
         window.toggleTheme = toggleTheme;
         window.showToast = showToast;
         const inputEl = document.getElementById('input');
@@ -98,15 +99,33 @@
             sha512: document.getElementById('sha512')
         };
 
-        function generateHashes() {
+        async function hashNative(algo, text) {
+            const msgUint8 = new TextEncoder().encode(text);
+            const hashBuffer = await crypto.subtle.digest(algo, msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function generateHashes() {
             const text = inputEl.value;
             if (!text) {
                 Object.values(hashElements).forEach(el => el.textContent = '...');
                 return;
             }
+            
+            // MD5 using crypto-js (not available in Web Crypto)
             hashElements.md5.textContent = CryptoJS.MD5(text).toString();
-            hashElements.sha256.textContent = CryptoJS.SHA256(text).toString();
-            hashElements.sha512.textContent = CryptoJS.SHA512(text).toString();
+            
+            // SHA-256 and SHA-512 using native Web Crypto API
+            try {
+                hashElements.sha256.textContent = await hashNative('SHA-256', text);
+                hashElements.sha512.textContent = await hashNative('SHA-512', text);
+            } catch (err) {
+                console.error('Native hash error:', err);
+                // Fallback to crypto-js if native fails (unlikely in modern browsers)
+                hashElements.sha256.textContent = CryptoJS.SHA256(text).toString();
+                hashElements.sha512.textContent = CryptoJS.SHA512(text).toString();
+            }
         }
 
         function clearInput() {

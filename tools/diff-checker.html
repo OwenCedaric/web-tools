@@ -8,9 +8,64 @@
     <meta name="tool-icon" content="ri-file-transfer-line">
     <meta name="tool-tags" content="Diff, 对比, 文本, 开发者工具, 实时">
     <link rel="stylesheet" href="/src/style.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/7.0.0/diff.min.js"></script>
-    
+    <style>
+        /* Specific styles for the diff overlay to ensure pixel-perfect alignment */
+        .editor-container {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            background: white;
+        }
+        .dark .editor-container {
+            background: #020617; /* slate-950 */
+        }
+        .editor-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            padding: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.625; /* leading-relaxed */
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+            border: none;
+            outline: none;
+            resize: none;
+        }
+        .highlight-layer {
+            pointer-events: none;
+            color: transparent;
+            overflow-y: auto;
+            z-index: 1;
+        }
+        .input-layer {
+            background: transparent;
+            z-index: 2;
+            overflow-y: auto;
+        }
+        .diff-added {
+            background-color: rgba(16, 185, 129, 0.2); /* emerald-500/20 */
+            color: #064e3b; /* emerald-950 */
+            border-bottom: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .dark .diff-added {
+            background-color: rgba(16, 185, 129, 0.25);
+            color: #34d399; /* emerald-400 */
+        }
+        .diff-removed {
+            background-color: rgba(244, 63, 94, 0.2); /* rose-500/20 */
+            color: #4c0519; /* rose-950 */
+            text-decoration: line-through;
+            border-bottom: 1px solid rgba(244, 63, 94, 0.4);
+        }
+        .dark .diff-removed {
+            background-color: rgba(244, 63, 94, 0.25);
+            color: #fb7185; /* rose-400 */
+        }
+    </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
     <!-- Header -->
@@ -38,25 +93,28 @@
         <!-- Left: Original -->
         <div class="flex-1 flex flex-col border-r border-slate-200 dark:border-slate-800">
             <div class="h-10 bg-white dark:bg-slate-900 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Original Original</span>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Original Version</span>
                 <span id="origStats" class="text-[9px] font-bold text-slate-400 font-mono">0 Lines</span>
             </div>
-            <div class="flex-1 relative overflow-hidden bg-white dark:bg-slate-950">
-                <textarea id="origInput" class="editor-layer absolute inset-0 w-full h-full p-8 font-mono text-sm leading-relaxed bg-transparent border-none outline-none resize-none focus:ring-0 text-slate-900 dark:text-slate-300" placeholder="在此粘贴原始文本..."></textarea>
+            <div class="editor-container">
+                <!-- Highlight Layer Original -->
+                <div id="origHighlight" class="editor-layer highlight-layer"></div>
+                <!-- Interactive Layer Original -->
+                <textarea id="origInput" class="editor-layer input-layer text-slate-900 dark:text-slate-300" placeholder="在此粘贴原始文本..."></textarea>
             </div>
         </div>
 
-        <!-- Right: Modified with Highlights -->
+        <!-- Right: Modified -->
         <div class="flex-1 flex flex-col">
             <div class="h-10 bg-white dark:bg-slate-900 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Modified Version</span>
                 <span id="modStats" class="text-[9px] font-bold text-slate-400 font-mono">0 Lines</span>
             </div>
-            <div class="flex-1 relative overflow-hidden bg-white dark:bg-slate-950">
-                 <!-- Highlight Layer -->
-                <div id="modHighlight" class="editor-layer absolute inset-0 w-full h-full p-8 font-mono text-sm leading-relaxed whitespace-pre-wrap break-all pointer-events-none opacity-100 text-transparent overflow-y-auto"></div>
-                <!-- Interactive Layer -->
-                <textarea id="modInput" class="editor-layer absolute inset-0 w-full h-full p-8 font-mono text-sm leading-relaxed bg-transparent border-none outline-none resize-none focus:ring-0 text-slate-900 dark:text-slate-300" placeholder="在此粘贴修改后的文本进行对比..."></textarea>
+            <div class="editor-container">
+                 <!-- Highlight Layer Modified -->
+                <div id="modHighlight" class="editor-layer highlight-layer"></div>
+                <!-- Interactive Layer Modified -->
+                <textarea id="modInput" class="editor-layer input-layer text-slate-900 dark:text-slate-300" placeholder="在此粘贴修改后的文本进行对比..."></textarea>
             </div>
         </div>
     </main>
@@ -68,11 +126,11 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/30"></span> 新增
             </div>
             <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500/20 border border-rose-500/30"></span> 修改/删除
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500/20 border border-rose-500/30"></span> 删除/修改
             </div>
         </div>
         <div class="hidden sm:block">
-            文本差异会实时高亮显示
+            文本差异会实时高亮显示 • 滚动已自动同步
         </div>
         <button onclick="loadSample()" class="px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2">
             <i class="ri-magic-line"></i> 载入示例
@@ -81,10 +139,13 @@
 
     <script type="module">
         import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        import { diffChars } from 'diff';
         window.toggleTheme = toggleTheme;
         window.showToast = showToast;
+
         const origInput = document.getElementById('origInput');
         const modInput = document.getElementById('modInput');
+        const origHighlight = document.getElementById('origHighlight');
         const modHighlight = document.getElementById('modHighlight');
         const origStats = document.getElementById('origStats');
         const modStats = document.getElementById('modStats');
@@ -100,24 +161,25 @@
             const orig = origInput.value;
             const mod = modInput.value;
 
-            // Simple char-level diff for better visual results in a highlights layer
-            const diff = Diff.diffChars(orig, mod);
+            const diff = diffChars(orig, mod);
             
-            let html = '';
+            let origHtml = '';
+            let modHtml = '';
+
             diff.forEach(part => {
                 const value = escapeHtml(part.value);
                 if (part.added) {
-                    html += `<span class="diff-added text-emerald-900 dark:text-emerald-400">${value}</span>`;
+                    modHtml += `<span class="diff-added">${value}</span>`;
                 } else if (part.removed) {
-                    // Since this is the "Modified" pane, we don't show removed items in the text flow, 
-                    // but we can show a placeholder if we want to align. 
-                    // To keep them perfectly aligned with the textarea, we MUST NOT show removed chars here.
+                    origHtml += `<span class="diff-removed">${value}</span>`;
                 } else {
-                    html += `<span class="text-transparent">${value}</span>`;
+                    origHtml += `<span>${value}</span>`;
+                    modHtml += `<span>${value}</span>`;
                 }
             });
 
-            modHighlight.innerHTML = html;
+            origHighlight.innerHTML = origHtml;
+            modHighlight.innerHTML = modHtml;
             updateStats();
         }
 
@@ -127,29 +189,37 @@
             return div.innerHTML;
         }
 
-        // Synchronize scroll
-        modInput.addEventListener('scroll', () => {
-            modHighlight.scrollTop = modInput.scrollTop;
-            modHighlight.scrollLeft = modInput.scrollLeft;
-        });
+        // Synchronized Scrolling Logic
+        function syncScroll(e) {
+            const source = e.target;
+            const targets = [];
+            
+            if (source === origInput) {
+                targets.push(origHighlight, modInput, modHighlight);
+            } else if (source === modInput) {
+                targets.push(modHighlight, origInput, origHighlight);
+            }
 
-        // Toggle sync scroll between panes (optional but good)
-        origInput.addEventListener('scroll', () => {
-            modInput.scrollTop = origInput.scrollTop;
-            modHighlight.scrollTop = origInput.scrollTop;
-        });
+            targets.forEach(target => {
+                target.scrollTop = source.scrollTop;
+                target.scrollLeft = source.scrollLeft;
+            });
+        }
+
+        origInput.addEventListener('scroll', syncScroll);
+        modInput.addEventListener('scroll', syncScroll);
 
         // Input listeners
         origInput.addEventListener('input', runDiff);
         modInput.addEventListener('input', runDiff);
 
-        function clearAll() {
+        window.clearAll = () => {
             origInput.value = '';
             modInput.value = '';
             runDiff();
         }
 
-        function loadSample() {
+        window.loadSample = () => {
             origInput.value = "Antigravity is a powerful agentic AI coding assistant.\nDesigned for modern developers.\nFast and reliable.";
             modInput.value = "Antigravity is an extremely powerful agentic AI coding assistant.\nBuilt for modern developers.\nFast, safe and reliable.";
             runDiff();
