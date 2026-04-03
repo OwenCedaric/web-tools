@@ -8,31 +8,28 @@
     <meta name="tool-icon" content="ri-timer-line">
     <meta name="tool-tags" content="番茄钟, 计时器, 生产力, 时间管理">
     <link rel="stylesheet" href="/src/style.css">
-    
-    
+
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200" id="bodyCtx">
+<body class="bg-slate-50  text-slate-900  min-h-screen transition-colors duration-200" id="bodyCtx">
     <!-- Header -->
-    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <header class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-timer-line text-slate-900 dark:text-white" id="header-icon"></i>
+                <i class="ri-timer-line text-slate-900 " id="header-icon"></i>
                 <span class="tracking-tight">专注番茄钟</span>
             </h1>
         </div>
-        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
-            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-        </button>
+        
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-8 lg:py-20">
         <div class="flex flex-col items-center space-y-12">
             <!-- Mode Switcher -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1.5 rounded-[2rem] shadow-sm flex gap-1">
-                <button onclick="setMode('work')" id="btn-work" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all bg-slate-900 text-white dark:bg-white dark:text-slate-900">专注 (Work)</button>
+            <div class="bg-white  border border-slate-200  p-1.5 rounded-[2rem] shadow-sm flex gap-1">
+                <button onclick="setMode('work')" id="btn-work" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all bg-slate-900 text-white  ">专注 (Work)</button>
                 <button onclick="setMode('short')" id="btn-short" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all text-slate-400">短休 (Short)</button>
                 <button onclick="setMode('long')" id="btn-long" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all text-slate-400">长休 (Long)</button>
             </div>
@@ -40,27 +37,27 @@
             <!-- Timer Circle -->
             <div class="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center">
                 <svg class="absolute inset-0 w-full h-full -rotate-90">
-                    <circle cx="50%" cy="50%" r="48%" stroke="currentColor" stroke-width="4" fill="transparent" class="text-slate-100 dark:text-slate-800/50"></circle>
-                    <circle id="progress-circle" cx="50%" cy="50%" r="48%" stroke="currentColor" stroke-width="4" fill="transparent" stroke-dasharray="1000" stroke-dashoffset="0" stroke-linecap="round" class="timer-progress text-slate-900 dark:text-white transition-all duration-300"></circle>
+                    <circle cx="50%" cy="50%" r="48%" stroke="currentColor" stroke-width="4" fill="transparent" class="text-slate-100 "></circle>
+                    <circle id="progress-circle" cx="50%" cy="50%" r="48%" stroke="currentColor" stroke-width="4" fill="transparent" stroke-dasharray="1000" stroke-dashoffset="0" stroke-linecap="round" class="timer-progress text-slate-900  transition-all duration-300"></circle>
                 </svg>
                 
                 <div class="text-center z-10 space-y-1">
-                    <div id="timeDisplay" class="text-7xl font-bold tracking-tighter tabular-nums text-slate-900 dark:text-white">25:00</div>
+                    <div id="timeDisplay" class="text-7xl font-bold tracking-tighter tabular-nums text-slate-900 ">25:00</div>
                     <div id="modeLabel" class="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">Pomodoro</div>
                 </div>
             </div>
 
             <!-- Controls -->
             <div class="flex items-center gap-6">
-                <button onclick="resetTimer()" class="w-16 h-16 flex items-center justify-center rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors hover:shadow-lg active:scale-95">
+                <button onclick="resetTimer()" class="w-16 h-16 flex items-center justify-center rounded-3xl bg-white  border border-slate-200  text-slate-400 hover:text-slate-900  transition-colors hover:shadow-lg active:scale-95">
                     <i class="ri-refresh-line text-2xl"></i>
                 </button>
                 
-                <button onclick="toggleTimer()" id="startBtn" class="px-16 py-6 rounded-[2.5rem] bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold uppercase tracking-[0.2em] shadow-2xl hover:shadow-slate-900/10 active:scale-95 transition-all">
+                <button onclick="toggleTimer()" id="startBtn" class="px-16 py-6 rounded-[2.5rem] bg-slate-900  text-white  text-sm font-bold uppercase tracking-[0.2em] shadow-2xl hover:shadow-slate-900/10 active:scale-95 transition-all">
                     开始专注
                 </button>
 
-                <button onclick="skipTimer()" class="w-16 h-16 flex items-center justify-center rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors hover:shadow-lg active:scale-95" title="跳过当前阶段">
+                <button onclick="skipTimer()" class="w-16 h-16 flex items-center justify-center rounded-3xl bg-white  border border-slate-200  text-slate-400 hover:text-slate-900  transition-colors hover:shadow-lg active:scale-95" title="跳过当前阶段">
                     <i class="ri-skip-forward-line text-2xl"></i>
                 </button>
             </div>
@@ -73,8 +70,8 @@
     <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
-        window.toggleTheme = toggleTheme;
+        import { showToast  } from '/src/common.js';
+        
         window.showToast = showToast;
         const TIMES = { work: 25 * 60, short: 5 * 60, long: 15 * 60 };
         let currentMode = 'work';
@@ -114,13 +111,13 @@
                 btn.className = "px-8 py-3 rounded-[1.5rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all text-slate-400";
             });
             const activeBtn = document.getElementById(`btn-${mode}`);
-            activeBtn.className = "px-8 py-3 rounded-[1.5rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl";
+            activeBtn.className = "px-8 py-3 rounded-[1.5rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all bg-slate-900 text-white   shadow-xl";
             
             const labels = { work: '专注 (Pomodoro)', short: '短休 (Short Break)', long: '长休 (Long Break)' };
             document.getElementById('modeLabel').textContent = labels[mode];
             
             // Mode-specific accents (Optional: subtly change circle color for visual cue while staying grayscale-ish)
-            const colors = { work: 'text-slate-900 dark:text-white', short: 'text-emerald-500', long: 'text-sky-500' };
+            const colors = { work: 'text-slate-900', short: 'text-emerald-500', long: 'text-sky-500' };
             progressCircle.className = `timer-progress transition-all duration-300 ${colors[mode]}`;
             
             updateDisplay();
@@ -137,9 +134,6 @@
             startBtn.textContent = '暂停专注';
             startBtn.classList.replace('bg-slate-900', 'bg-slate-100');
             startBtn.classList.replace('text-white', 'text-slate-500');
-            startBtn.classList.replace('dark:bg-white', 'dark:bg-slate-800');
-            startBtn.classList.replace('dark:text-slate-900', 'dark:text-slate-400');
-
             timerId = setInterval(() => {
                 timeLeft--;
                 updateDisplay();
@@ -157,8 +151,6 @@
             startBtn.textContent = '开始专注';
             startBtn.classList.replace('bg-slate-100', 'bg-slate-900');
             startBtn.classList.replace('text-slate-500', 'text-white');
-            startBtn.classList.replace('dark:bg-slate-800', 'dark:bg-white');
-            startBtn.classList.replace('dark:text-slate-400', 'dark:text-slate-900');
         }
 
         function resetTimer() {
@@ -195,7 +187,6 @@
             alert("时间到！休息一下吧。");
         }
 
-        
         // Init
         updateDisplay();
         // Expose functions to window for onclick handlers

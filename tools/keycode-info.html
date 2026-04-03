@@ -8,30 +8,27 @@
     <meta name="tool-icon" content="ri-keyboard-line">
     <meta name="tool-tags" content="Keycode, Javascript, 事件, 键盘, 调试工具">
     <link rel="stylesheet" href="/src/style.css">
-    
-    
+
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200 flex flex-col">
+<body class="bg-slate-50  text-slate-900  min-h-screen transition-colors duration-200 flex flex-col">
     <!-- Header -->
-    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <header class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-keyboard-line text-slate-900 dark:text-white"></i>
+                <i class="ri-keyboard-line text-slate-900 "></i>
                 <span class="tracking-tight">按键信息检测</span>
             </h1>
         </div>
-        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
-            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-        </button>
+        
     </header>
 
     <main class="flex-1 flex flex-col items-center justify-center p-8 relative">
         <!-- Waiting Prompt -->
         <div id="wait-prompt" class="flex flex-col items-center space-y-6 pulse-text">
-            <div class="w-24 h-24 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-700 shadow-sm">
+            <div class="w-24 h-24 rounded-[2.5rem] bg-white  border border-slate-200  flex items-center justify-center text-slate-300  shadow-sm">
                 <i class="ri-keyboard-box-line text-5xl"></i>
             </div>
             <p class="text-xs font-bold uppercase tracking-[0.4em] text-slate-400">请按下键盘上的任意按键</p>
@@ -42,26 +39,26 @@
             <!-- Big Display -->
             <div class="space-y-2 text-center">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.5em]">Pressed Key</p>
-                <div id="main-key" class="text-9xl font-bold tracking-tighter text-slate-900 dark:text-white pointer-events-none lowercase">A</div>
+                <div id="main-key" class="text-9xl font-bold tracking-tighter text-slate-900  pointer-events-none lowercase">A</div>
             </div>
 
             <!-- Details Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm space-y-1 group hover:border-slate-900 dark:hover:border-white transition-all cursor-pointer" onclick="copyValue(this.querySelector('.card-val').innerText)">
+                <div class="bg-white  border border-slate-200  rounded-[2rem] p-6 shadow-sm space-y-1 group hover:border-slate-900  transition-all cursor-pointer" onclick="copyValue(this.querySelector('.card-val').innerText)">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">event.key</p>
-                    <p class="card-val text-xl font-bold font-mono text-slate-900 dark:text-white break-all">-</p>
+                    <p class="card-val text-xl font-bold font-mono text-slate-900  break-all">-</p>
                 </div>
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm space-y-1 group hover:border-slate-900 dark:hover:border-white transition-all cursor-pointer" onclick="copyValue(this.querySelector('.card-val').innerText)">
+                <div class="bg-white  border border-slate-200  rounded-[2rem] p-6 shadow-sm space-y-1 group hover:border-slate-900  transition-all cursor-pointer" onclick="copyValue(this.querySelector('.card-val').innerText)">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">event.code</p>
-                    <p class="card-val text-xl font-bold font-mono text-slate-900 dark:text-white break-all">-</p>
+                    <p class="card-val text-xl font-bold font-mono text-slate-900  break-all">-</p>
                 </div>
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm space-y-1 group hover:border-slate-900 dark:hover:border-white transition-all cursor-pointer" onclick="copyValue(this.querySelector('.card-val').innerText)">
+                <div class="bg-white  border border-slate-200  rounded-[2rem] p-6 shadow-sm space-y-1 group hover:border-slate-900  transition-all cursor-pointer" onclick="copyValue(this.querySelector('.card-val').innerText)">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">event.which</p>
-                    <p class="card-val text-xl font-bold font-mono text-slate-900 dark:text-white break-all">-</p>
+                    <p class="card-val text-xl font-bold font-mono text-slate-900  break-all">-</p>
                 </div>
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm space-y-1 group hover:border-slate-900 dark:hover:border-white transition-all cursor-pointer" onclick="copyValue(this.querySelector('.card-val').innerText)">
+                <div class="bg-white  border border-slate-200  rounded-[2rem] p-6 shadow-sm space-y-1 group hover:border-slate-900  transition-all cursor-pointer" onclick="copyValue(this.querySelector('.card-val').innerText)">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Modifier</p>
-                    <p class="card-val text-xl font-bold font-mono text-slate-900 dark:text-white break-all">None</p>
+                    <p class="card-val text-xl font-bold font-mono text-slate-900  break-all">None</p>
                 </div>
             </div>
 
@@ -75,8 +72,8 @@
     <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
-        window.toggleTheme = toggleTheme;
+        import { showToast  } from '/src/common.js';
+        
         window.showToast = showToast;
         const prompt = document.getElementById('wait-prompt');
         const content = document.getElementById('result-content');

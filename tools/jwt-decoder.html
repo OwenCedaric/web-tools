@@ -8,24 +8,21 @@
     <meta name="tool-icon" content="ri-key-2-line">
     <meta name="tool-tags" content="JWT, 解码, 开发者工具, 安全, Token">
     <link rel="stylesheet" href="/src/style.css">
-    
-    
+
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+<body class="bg-slate-50  text-slate-900  min-h-screen transition-colors duration-200">
     <!-- Header -->
-    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <header class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-key-2-line text-slate-900 dark:text-white"></i>
+                <i class="ri-key-2-line text-slate-900 "></i>
                 <span class="tracking-tight">JWT 解码</span>
             </h1>
         </div>
-        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
-            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-        </button>
+        
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-8 lg:py-12">
@@ -40,7 +37,7 @@
                 </div>
                 <div class="relative group h-full min-h-[400px]">
                     <textarea id="jwt-input" 
-                        class="w-full h-full p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] shadow-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent outline-none transition-all font-mono text-sm leading-relaxed custom-scroll"
+                        class="w-full h-full p-8 bg-white  border border-slate-200  rounded-[2.5rem] shadow-sm focus:ring-2 focus:ring-slate-900  focus:border-transparent outline-none transition-all font-mono text-sm leading-relaxed custom-scroll"
                         placeholder="在此处粘贴 JWT Token (Encoded)..."></textarea>
                 </div>
             </div>
@@ -50,27 +47,27 @@
                 <!-- Header Section -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between px-2">
-                        <h3 class="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Header <span class="text-slate-300 dark:text-slate-600 font-medium ml-1">(ALGORITHM & TOKEN TYPE)</span></h3>
-                        <button onclick="copySection('header-result')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">复制</button>
+                        <h3 class="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Header <span class="text-slate-300  font-medium ml-1">(ALGORITHM & TOKEN TYPE)</span></h3>
+                        <button onclick="copySection('header-result')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900  transition-colors">复制</button>
                     </div>
-                    <pre id="header-result" class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl font-mono text-sm text-rose-500 overflow-x-auto shadow-sm">{}</pre>
+                    <pre id="header-result" class="p-6 bg-white  border border-slate-200  rounded-3xl font-mono text-sm text-rose-500 overflow-x-auto shadow-sm">{}</pre>
                 </div>
 
                 <!-- Payload Section -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between px-2">
-                        <h3 class="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest">Payload <span class="text-slate-300 dark:text-slate-600 font-medium ml-1">(DATA)</span></h3>
-                        <button onclick="copySection('payload-result')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">复制</button>
+                        <h3 class="text-[10px] font-bold text-slate-900  uppercase tracking-widest">Payload <span class="text-slate-300  font-medium ml-1">(DATA)</span></h3>
+                        <button onclick="copySection('payload-result')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900  transition-colors">复制</button>
                     </div>
-                    <pre id="payload-result" class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl font-mono text-sm text-slate-700 dark:text-slate-300 overflow-x-auto shadow-sm min-h-[200px]">{}</pre>
+                    <pre id="payload-result" class="p-6 bg-white  border border-slate-200  rounded-3xl font-mono text-sm text-slate-700  overflow-x-auto shadow-sm min-h-[200px]">{}</pre>
                 </div>
 
                 <!-- Signature Section -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between px-2">
-                        <h3 class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Signature <span class="text-slate-300 dark:text-slate-600 font-medium ml-1 text-emerald-600/50">(VERIFIED)</span></h3>
+                        <h3 class="text-[10px] font-bold text-slate-500  uppercase tracking-widest">Signature <span class="text-slate-300  font-medium ml-1 text-emerald-600/50">(VERIFIED)</span></h3>
                     </div>
-                    <div class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl font-mono text-xs text-slate-400 break-all shadow-sm">
+                    <div class="p-6 bg-white  border border-slate-200  rounded-3xl font-mono text-xs text-slate-400 break-all shadow-sm">
                         HMACSHA256(<br>
                         &nbsp;&nbsp;base64UrlEncode(header) + "." +<br>
                         &nbsp;&nbsp;base64UrlEncode(payload),<br>
@@ -87,8 +84,8 @@
     <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
-        window.toggleTheme = toggleTheme;
+        import { showToast  } from '/src/common.js';
+        
         window.showToast = showToast;
         const editor = document.getElementById('jwt-input');
         const headerEl = document.getElementById('header-result');
@@ -135,7 +132,6 @@
             decodeJwt();
         }
 
-        
         editor.addEventListener('input', decodeJwt);
         if (editor.value) decodeJwt();
         // Expose functions to window for onclick handlers

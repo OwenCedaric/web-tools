@@ -13,26 +13,21 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .reveal { animation: reveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-        
-        
-        
-        
-        
+
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
+<body class="bg-slate-50 text-slate-900 min-h-screen transition-colors duration-300">
     <!-- Header -->
-    <header class="relative overflow-hidden pt-20 pb-16 lg:pt-32 lg:pb-24 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-50"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-50"></div>
         
         <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-8 reveal" style="animation-delay: 0.1s">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-8 reveal" style="animation-delay: 0.1s">
                 <i class="ri-sparkling-fill text-slate-400"></i> Modern Utility Hub
             </div>
             <h1 class="text-4xl lg:text-6xl font-extrabold tracking-tight mb-6 reveal" style="animation-delay: 0.2s">
                 Web Tools <span class="text-slate-400">Collection</span>
             </h1>
-            <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-lg reveal" style="animation-delay: 0.3s">
+            <p class="text-slate-500 max-w-2xl mx-auto text-lg reveal" style="animation-delay: 0.3s">
                 一个为效率而生的工具集。现代、简约、全能。
             </p>
 
@@ -40,18 +35,14 @@
             <div class="mt-12 max-w-xl mx-auto relative reveal" style="animation-delay: 0.4s">
                 <i class="ri-search-2-line absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
                 <input type="text" id="searchBox" placeholder="搜索工具 (支持拼音、描述、标签)..." 
-                    class="w-full h-16 pl-14 pr-6 bg-slate-100 dark:bg-slate-800/50 border-none rounded-2xl text-lg font-medium focus:ring-2 focus:ring-slate-900 dark:focus:ring-white transition-all shadow-inner outline-none">
+                    class="w-full h-16 pl-14 pr-6 bg-slate-100 border-none rounded-2xl text-lg font-medium focus:ring-2 focus:ring-slate-900 transition-all shadow-inner outline-none">
                 <div class="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 gap-1.5 pointer-events-none opacity-40">
-                    <kbd class="px-2 py-1 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700 text-[10px] font-bold">⌘</kbd>
-                    <kbd class="px-2 py-1 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700 text-[10px] font-bold">K</kbd>
+                    <kbd class="px-2 py-1 bg-white rounded border border-slate-200 text-[10px] font-bold">⌘</kbd>
+                    <kbd class="px-2 py-1 bg-white rounded border border-slate-200 text-[10px] font-bold">K</kbd>
                 </div>
             </div>
         </div>
 
-        <!-- Theme Toggle -->
-        <button onclick="toggleTheme()" class="fixed top-8 right-8 z-[100] p-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl hover:scale-110 active:scale-95 transition-all text-slate-600 dark:text-slate-300" title="切换主题">
-            <i id="theme-icon" class="ri-moon-line text-xl"></i>
-        </button>
     </header>
 
     <!-- Main Content -->
@@ -62,7 +53,7 @@
 
         <!-- Empty State -->
         <div id="noResults" class="hidden py-32 text-center reveal">
-            <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
+            <div class="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-300">
                 <i class="ri-search-line text-4xl"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">未找到相关工具</h3>
@@ -73,11 +64,9 @@
     <!-- INJECT_FOOTER -->
 
     <script type="module">
-        import { initTheme, toggleTheme } from '/src/common.js';
+        import { showToast } from '/src/common.js';
         
         let tools = [];
-
-        window.toggleTheme = toggleTheme;
 
         function renderTools(filtered = tools) {
             const grid = document.getElementById('toolsGrid');
@@ -93,15 +82,15 @@
             empty.classList.add('hidden');
             
             grid.innerHTML = filtered.map((tool, idx) => `
-                <a href="${tool.url}" class="tool-card group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-sm hover:shadow-2xl hover:border-slate-900 dark:hover:border-white reveal" style="animation-delay: ${0.05 * (idx % 12)}s">
-                    <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mb-8 text-slate-400 group-hover:bg-slate-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-slate-900 transition-all duration-500">
+                <a href="${tool.url}" class="tool-card group bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm hover:shadow-2xl hover:border-slate-900 reveal" style="animation-delay: ${0.05 * (idx % 12)}s">
+                    <div class="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center mb-8 text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all duration-500">
                         <i class="${tool.icon || 'ri-tools-line'} text-3xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 tracking-tight group-hover:text-slate-900 dark:group-hover:text-white transition-colors">${tool.title}</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8 line-clamp-2">${tool.description || '高效实用的在线工具'}</p>
+                    <h3 class="text-xl font-bold mb-3 tracking-tight group-hover:text-slate-900 transition-colors">${tool.title}</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed mb-8 line-clamp-2">${tool.description || '高效实用的在线工具'}</p>
                     <div class="flex flex-wrap gap-2">
                         ${(tool.tags || []).map(tag => `
-                            <span class="px-3 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:border-slate-200 dark:group-hover:border-slate-600 transition-colors">${tag}</span>
+                            <span class="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:border-slate-200 transition-colors">${tag}</span>
                         `).join('')}
                     </div>
                 </a>
@@ -133,7 +122,6 @@
 
         // Setup
         document.addEventListener('DOMContentLoaded', () => {
-            initTheme();
             init();
             
             const searchBox = document.getElementById('searchBox');

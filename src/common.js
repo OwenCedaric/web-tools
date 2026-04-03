@@ -3,33 +3,7 @@
  * Handles Theme, Toasts, and Shared UI logic
  */
 
-// Theme Management
-export function initTheme() {
-    const theme = localStorage.getItem('theme') || 
-                 (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-    updateThemeIcon();
-}
 
-export function toggleTheme() {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    updateThemeIcon();
-}
-
-function updateThemeIcon() {
-    const icon = document.getElementById('theme-icon');
-    if (icon) {
-        icon.className = document.documentElement.classList.contains('dark') 
-            ? 'ri-sun-line text-xl opacity-70' 
-            : 'ri-moon-line text-xl opacity-70';
-    }
-}
 
 // Toast Notification System
 export function showToast(title, message = '', type = 'success') {
@@ -66,7 +40,4 @@ export function showToast(title, message = '', type = 'success') {
     }, 3000);
 }
 
-// Global Init
-window.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-});
+

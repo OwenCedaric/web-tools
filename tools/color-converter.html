@@ -8,24 +8,21 @@
     <meta name="tool-icon" content="ri-palette-line">
     <meta name="tool-tags" content="颜色, 转换, 开发者工具, 设计">
     <link rel="stylesheet" href="/src/style.css">
-    
-    
+
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+<body class="bg-slate-50  text-slate-900  min-h-screen transition-colors duration-200">
     <!-- Header -->
-    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <header class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-palette-line text-slate-900 dark:text-white"></i>
+                <i class="ri-palette-line text-slate-900 "></i>
                 <span class="tracking-tight">颜色转换器</span>
             </h1>
         </div>
-        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
-            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-        </button>
+        
     </header>
 
     <main class="max-w-6xl mx-auto px-4 py-8 lg:py-12">
@@ -33,57 +30,57 @@
             <!-- Left: Inputs -->
             <div class="space-y-6">
                 <!-- HEX -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
+                <div class="bg-white  border border-slate-200  rounded-3xl p-6 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">HEX 颜色代码</label>
-                        <button onclick="copy('hex')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase">复制成果</button>
+                        <button onclick="copy('hex')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900  transition-colors uppercase">复制成果</button>
                     </div>
                     <div class="flex gap-4">
-                        <div class="w-12 h-12 rounded-xl flex-none border border-slate-100 dark:border-slate-800 shadow-inner" id="hex-preview"></div>
-                        <input type="text" id="hex-input" class="flex-1 bg-slate-50 dark:bg-slate-800/50 border-none rounded-xl px-4 font-mono text-lg focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none" value="#F0EEE9">
+                        <div class="w-12 h-12 rounded-xl flex-none border border-slate-100  shadow-inner" id="hex-preview"></div>
+                        <input type="text" id="hex-input" class="flex-1 bg-slate-50  border-none rounded-xl px-4 font-mono text-lg focus:ring-2 focus:ring-slate-900  outline-none" value="#F0EEE9">
                     </div>
                 </div>
 
                 <!-- RGB -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+                <div class="bg-white  border border-slate-200  rounded-3xl p-6 shadow-sm space-y-4">
                     <div class="flex items-center justify-between">
                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">RGB 数值</label>
-                        <button onclick="copy('rgb')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-widest">复制成果</button>
+                        <button onclick="copy('rgb')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900  transition-colors uppercase tracking-widest">复制成果</button>
                     </div>
                     <div class="grid grid-cols-3 gap-4">
                         <div class="space-y-2">
                             <span class="text-[10px] font-bold text-rose-500/50 uppercase ml-1">Red</span>
-                            <input type="number" id="r-input" min="0" max="255" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none">
+                            <input type="number" id="r-input" min="0" max="255" class="w-full bg-slate-50  border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900  outline-none">
                         </div>
                         <div class="space-y-2">
                             <span class="text-[10px] font-bold text-emerald-500/50 uppercase ml-1">Green</span>
-                            <input type="number" id="g-input" min="0" max="255" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none">
+                            <input type="number" id="g-input" min="0" max="255" class="w-full bg-slate-50  border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900  outline-none">
                         </div>
                         <div class="space-y-2">
                             <span class="text-[10px] font-bold text-blue-500/50 uppercase ml-1 text-slate-400">Blue</span>
-                            <input type="number" id="b-input" min="0" max="255" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none">
+                            <input type="number" id="b-input" min="0" max="255" class="w-full bg-slate-50  border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900  outline-none">
                         </div>
                     </div>
                 </div>
 
                 <!-- HSL -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+                <div class="bg-white  border border-slate-200  rounded-3xl p-6 shadow-sm space-y-4">
                     <div class="flex items-center justify-between">
                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">HSL 数值</label>
-                        <button onclick="copy('hsl')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-widest">复制成果</button>
+                        <button onclick="copy('hsl')" class="text-[10px] font-bold text-slate-400 hover:text-slate-900  transition-colors uppercase tracking-widest">复制成果</button>
                     </div>
                     <div class="grid grid-cols-3 gap-4">
                         <div class="space-y-2">
                             <span class="text-[10px] font-bold text-slate-400 uppercase ml-1">Hue</span>
-                            <input type="number" id="h-input" min="0" max="360" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none">
+                            <input type="number" id="h-input" min="0" max="360" class="w-full bg-slate-50  border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900  outline-none">
                         </div>
                         <div class="space-y-2">
                             <span class="text-[10px] font-bold text-slate-400 uppercase ml-1">Sat</span>
-                            <input type="number" id="s-input" min="0" max="100" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none">
+                            <input type="number" id="s-input" min="0" max="100" class="w-full bg-slate-50  border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900  outline-none">
                         </div>
                         <div class="space-y-2">
                             <span class="text-[10px] font-bold text-slate-400 uppercase ml-1">Light</span>
-                            <input type="number" id="l-input" min="0" max="100" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none">
+                            <input type="number" id="l-input" min="0" max="100" class="w-full bg-slate-50  border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-slate-900  outline-none">
                         </div>
                     </div>
                 </div>
@@ -92,17 +89,17 @@
             <!-- Right: Preview -->
             <div class="space-y-6">
                 <div id="main-preview" class="w-full aspect-square rounded-[3rem] shadow-2xl color-pre-box flex items-center justify-center relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-white/10 dark:bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-white/10  opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                     <span id="contrast-check" class="text-xs font-bold uppercase tracking-[0.2em] shadow-sm bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 transition-all active:scale-95 cursor-pointer">Sample Text</span>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 text-center space-y-2 shadow-sm">
-                        <div id="lighter-preview" class="w-12 h-12 rounded-full mx-auto border border-slate-100 dark:border-slate-800 shadow-inner mb-2"></div>
+                    <div class="bg-white  border border-slate-200  rounded-[2rem] p-6 text-center space-y-2 shadow-sm">
+                        <div id="lighter-preview" class="w-12 h-12 rounded-full mx-auto border border-slate-100  shadow-inner mb-2"></div>
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">更亮</span>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 text-center space-y-2 shadow-sm">
-                        <div id="darker-preview" class="w-12 h-12 rounded-full mx-auto border border-slate-100 dark:border-slate-800 shadow-inner mb-2"></div>
+                    <div class="bg-white  border border-slate-200  rounded-[2rem] p-6 text-center space-y-2 shadow-sm">
+                        <div id="darker-preview" class="w-12 h-12 rounded-full mx-auto border border-slate-100  shadow-inner mb-2"></div>
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">更暗</span>
                     </div>
                 </div>
@@ -116,8 +113,8 @@
     <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
-        window.toggleTheme = toggleTheme;
+        import { showToast  } from '/src/common.js';
+        
         window.showToast = showToast;
         // Core Logic
         const els = {
@@ -253,7 +250,6 @@
             } catch (err) { showToast('复制失败', 'error'); }
         }
 
-        
         // Init
         els.hex.dispatchEvent(new Event('input'));
         // Expose functions to window for onclick handlers

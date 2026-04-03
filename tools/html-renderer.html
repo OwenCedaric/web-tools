@@ -9,60 +9,51 @@
     <meta name="tool-tags" content="HTML, CSS, JS, 预览, 开发工具">
     <link rel="stylesheet" href="/src/style.css">
     <style>
-        
-        
-        
-        
-        
+
         .editor-container { height: calc(100vh - 64px); }
         .btn-active { background-color: #0f172a; color: white; }
-        .dark .btn-active { background-color: #f8fafc; color: #0f172a; }
 
         /* Grid background for editor area */
         .code-grid {
             background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
             background-size: 20px 20px;
         }
-        .dark .code-grid {
-            background-image: radial-gradient(#334155 1px, transparent 1px);
-        }
+        
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-slate-50  text-slate-900  min-h-screen flex flex-col transition-colors duration-200">
     <!-- Header -->
-    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 shrink-0 z-50">
+    <header class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 shrink-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-code-s-slash-line text-slate-900 dark:text-white"></i>
+                <i class="ri-code-s-slash-line text-slate-900 "></i>
                 <span class="tracking-tight">HTML 实时预览</span>
             </h1>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="copyCurrentHtml()" class="hidden md:flex items-center gap-2 px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-sm font-medium transition-colors">
+            <button onclick="copyCurrentHtml()" class="hidden md:flex items-center gap-2 px-4 py-2 hover:bg-slate-100  rounded-xl text-sm font-medium transition-colors">
                 <i class="ri-file-copy-line"></i> 复制 HTML
             </button>
-            <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
-                <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-            </button>
+            
         </div>
     </header>
 
     <main class="flex-1 flex flex-col md:flex-row editor-container overflow-hidden">
         <!-- Editor Side -->
-        <div class="flex-1 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 min-w-0 font-mono text-sm leading-relaxed p-0">
+        <div class="flex-1 flex flex-col border-r border-slate-200  bg-white  min-w-0 font-mono text-sm leading-relaxed p-0">
             <!-- Toolbar -->
-            <div class="h-12 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-4 shrink-0 bg-slate-50/50 dark:bg-slate-800/30">
+            <div class="h-12 border-b border-slate-100  flex items-center justify-between px-4 shrink-0 bg-slate-50/50 ">
                 <div class="flex items-center gap-1">
-                    <button onclick="formatCode()" class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-500 dark:text-slate-400" title="格式化代码">
+                    <button onclick="formatCode()" class="p-2 hover:bg-slate-200  rounded-lg transition-colors text-slate-500 " title="格式化代码">
                         <i class="ri-magic-line"></i>
                     </button>
-                    <button onclick="clearEditor()" class="p-2 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-500 hover:text-rose-500 rounded-lg transition-colors" title="清空内容">
+                    <button onclick="clearEditor()" class="p-2 hover:bg-rose-50  text-slate-500 hover:text-rose-500 rounded-lg transition-colors" title="清空内容">
                         <i class="ri-delete-bin-line"></i>
                     </button>
-                    <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                    <div class="w-px h-4 bg-slate-200  mx-2"></div>
                     <button id="auto-refresh-btn" onclick="toggleAutoRefresh()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all btn-active">
                         <i class="ri-refresh-line"></i> 自动预览
                     </button>
@@ -74,11 +65,11 @@
             </div>
             
             <div class="flex-1 relative group code-grid">
-                <textarea id="html-editor" class="absolute inset-0 w-full h-full p-6 bg-transparent border-none resize-none focus:ring-0 outline-none custom-scroll text-slate-700 dark:text-slate-300 transition-colors" placeholder="在此输入或粘贴 HTML 代码...&#10;&#10;<!DOCTYPE html>&#10;<html>&#10;<body>&#10;  <h1>Hello World</h1>&#10;</body>&#10;</html>" spellcheck="false"></textarea>
+                <textarea id="html-editor" class="absolute inset-0 w-full h-full p-6 bg-transparent border-none resize-none focus:ring-0 outline-none custom-scroll text-slate-700  transition-colors" placeholder="在此输入或粘贴 HTML 代码...&#10;&#10;<!DOCTYPE html>&#10;<html>&#10;<body>&#10;  <h1>Hello World</h1>&#10;</body>&#10;</html>" spellcheck="false"></textarea>
             </div>
 
             <!-- Status Bar -->
-            <div class="h-10 border-t border-slate-100 dark:border-slate-800 px-4 flex items-center justify-between shrink-0 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+            <div class="h-10 border-t border-slate-100  px-4 flex items-center justify-between shrink-0 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                 <div class="flex items-center gap-3">
                     <span class="flex items-center gap-1"><i class="ri-checkbox-circle-line text-emerald-500"></i> 编辑器就绪</span>
                 </div>
@@ -87,19 +78,19 @@
         </div>
 
         <!-- Preview Side -->
-        <div class="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950 min-w-0">
-            <div class="h-12 border-b border-slate-200 dark:border-slate-800 flex items-center px-6 shrink-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+        <div class="flex-1 flex flex-col bg-slate-50  min-w-0">
+            <div class="h-12 border-b border-slate-200  flex items-center px-6 shrink-0 bg-white/50  backdrop-blur-sm">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">实时预览 (Real-time View)</span>
             </div>
             <div class="flex-1 relative">
                 <iframe id="preview-frame" class="w-full h-full bg-white hidden" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
                 <!-- Empty State -->
                 <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center p-12 text-center">
-                    <div class="w-20 h-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl flex items-center justify-center text-slate-300 dark:text-slate-700 mb-6 shadow-sm">
+                    <div class="w-20 h-20 bg-white  border border-slate-200  rounded-3xl flex items-center justify-center text-slate-300  mb-6 shadow-sm">
                         <i class="ri-code-box-line text-4xl"></i>
                     </div>
-                    <h3 class="text-sm font-bold uppercase tracking-widest text-slate-900 dark:text-white mb-2">等待源码输入</h3>
-                    <p class="text-xs text-slate-400 dark:text-slate-500 leading-relaxed max-w-[240px]">在左侧输入 HTML 代码，预览结果将实时呈现在此。支持原生的 HTML、CSS 和 JavaScript 内容。</p>
+                    <h3 class="text-sm font-bold uppercase tracking-widest text-slate-900  mb-2">等待源码输入</h3>
+                    <p class="text-xs text-slate-400  leading-relaxed max-w-[240px]">在左侧输入 HTML 代码，预览结果将实时呈现在此。支持原生的 HTML、CSS 和 JavaScript 内容。</p>
                 </div>
             </div>
         </div>
@@ -108,8 +99,8 @@
     <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
-        window.toggleTheme = toggleTheme;
+        import { showToast  } from '/src/common.js';
+        
         window.showToast = showToast;
         const state = {
             html: localStorage.getItem('html-preview-content') || '',
@@ -182,7 +173,6 @@
             state.autoRefresh = !state.autoRefresh;
             els.autoBtn.classList.toggle('btn-active', state.autoRefresh);
             els.autoBtn.classList.toggle('bg-slate-200', !state.autoRefresh);
-            els.autoBtn.classList.toggle('dark:bg-slate-800', !state.autoRefresh);
             if (state.autoRefresh) render();
         }
 

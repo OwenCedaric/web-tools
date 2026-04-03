@@ -16,9 +16,7 @@
             overflow: hidden;
             background: white;
         }
-        .dark .editor-container {
-            background: #020617; /* slate-950 */
-        }
+        
         .editor-layer {
             position: absolute;
             inset: 0;
@@ -51,48 +49,40 @@
             color: #064e3b; /* emerald-950 */
             border-bottom: 1px solid rgba(16, 185, 129, 0.4);
         }
-        .dark .diff-added {
-            background-color: rgba(16, 185, 129, 0.25);
-            color: #34d399; /* emerald-400 */
-        }
+        
         .diff-removed {
             background-color: rgba(244, 63, 94, 0.2); /* rose-500/20 */
             color: #4c0519; /* rose-950 */
             text-decoration: line-through;
             border-bottom: 1px solid rgba(244, 63, 94, 0.4);
         }
-        .dark .diff-removed {
-            background-color: rgba(244, 63, 94, 0.25);
-            color: #fb7185; /* rose-400 */
-        }
+        
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-slate-50  text-slate-900  min-h-screen flex flex-col transition-colors duration-200">
     <!-- Header -->
-    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <header class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-file-transfer-line text-slate-900 dark:text-white"></i>
+                <i class="ri-file-transfer-line text-slate-900 "></i>
                 <span class="tracking-tight">文本对比工具</span>
             </h1>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="clearAll()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="清空内容">
+            <button onclick="clearAll()" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="清空内容">
                 <i class="ri-delete-bin-line text-xl opacity-70"></i>
             </button>
-            <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
-                <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-            </button>
+            
         </div>
     </header>
 
-    <main class="flex-1 flex flex-col md:flex-row overflow-hidden border-b border-slate-200 dark:border-slate-800">
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden border-b border-slate-200 ">
         <!-- Left: Original -->
-        <div class="flex-1 flex flex-col border-r border-slate-200 dark:border-slate-800">
-            <div class="h-10 bg-white dark:bg-slate-900 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex-1 flex flex-col border-r border-slate-200 ">
+            <div class="h-10 bg-white  px-6 border-b border-slate-200  flex items-center justify-between">
                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Original Version</span>
                 <span id="origStats" class="text-[9px] font-bold text-slate-400 font-mono">0 Lines</span>
             </div>
@@ -100,13 +90,13 @@
                 <!-- Highlight Layer Original -->
                 <div id="origHighlight" class="editor-layer highlight-layer"></div>
                 <!-- Interactive Layer Original -->
-                <textarea id="origInput" class="editor-layer input-layer text-slate-900 dark:text-slate-300" placeholder="在此粘贴原始文本..."></textarea>
+                <textarea id="origInput" class="editor-layer input-layer text-slate-900 " placeholder="在此粘贴原始文本..."></textarea>
             </div>
         </div>
 
         <!-- Right: Modified -->
         <div class="flex-1 flex flex-col">
-            <div class="h-10 bg-white dark:bg-slate-900 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="h-10 bg-white  px-6 border-b border-slate-200  flex items-center justify-between">
                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Modified Version</span>
                 <span id="modStats" class="text-[9px] font-bold text-slate-400 font-mono">0 Lines</span>
             </div>
@@ -114,13 +104,13 @@
                  <!-- Highlight Layer Modified -->
                 <div id="modHighlight" class="editor-layer highlight-layer"></div>
                 <!-- Interactive Layer Modified -->
-                <textarea id="modInput" class="editor-layer input-layer text-slate-900 dark:text-slate-300" placeholder="在此粘贴修改后的文本进行对比..."></textarea>
+                <textarea id="modInput" class="editor-layer input-layer text-slate-900 " placeholder="在此粘贴修改后的文本进行对比..."></textarea>
             </div>
         </div>
     </main>
 
     <!-- Footer / Toolbar -->
-    <div class="h-14 bg-white dark:bg-slate-900 px-6 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400 shrink-0">
+    <div class="h-14 bg-white  px-6 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400 shrink-0">
         <div class="flex items-center gap-6">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/30"></span> 新增
@@ -132,15 +122,15 @@
         <div class="hidden sm:block">
             文本差异会实时高亮显示 • 滚动已自动同步
         </div>
-        <button onclick="loadSample()" class="px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2">
+        <button onclick="loadSample()" class="px-4 py-2 hover:bg-slate-100  rounded-lg transition-colors flex items-center gap-2">
             <i class="ri-magic-line"></i> 载入示例
         </button>
     </div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        import { showToast  } from '/src/common.js';
         import { diffChars } from 'diff';
-        window.toggleTheme = toggleTheme;
+        
         window.showToast = showToast;
 
         const origInput = document.getElementById('origInput');

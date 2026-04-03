@@ -10,40 +10,36 @@
     <meta name="tool-tags" content="Lorem Ipsum, 占位符, 设计, 文本生成, 开发者工具">
     <link rel="stylesheet" href="/src/style.css">
 
-
 </head>
 
 <body
-    class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+    class="bg-slate-50  text-slate-900  min-h-screen transition-colors duration-200">
     <!-- Header -->
     <header
-        class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors"
                 title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-file-text-line text-slate-900 dark:text-white"></i>
+                <i class="ri-file-text-line text-slate-900 "></i>
                 <span class="tracking-tight">占位文本生成器</span>
             </h1>
         </div>
-        <button onclick="toggleTheme()"
-            class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
-            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-        </button>
+        
     </header>
 
     <main class="max-w-5xl mx-auto px-4 py-8 lg:py-12 space-y-8">
         <!-- Controls Section -->
         <div
-            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[3rem] p-8 lg:p-10 shadow-sm">
+            class="bg-white  border border-slate-200  rounded-[3rem] p-8 lg:p-10 shadow-sm">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-end">
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">生成数量</label>
                     <div class="relative group">
                         <input type="number" id="genCount" value="5" min="1" max="100"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 font-mono text-xl focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none transition-all">
+                            class="w-full bg-slate-50  border-none rounded-2xl px-6 py-4 font-mono text-xl focus:ring-2 focus:ring-slate-900  outline-none transition-all">
                         <span
                             class="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">Qty</span>
                     </div>
@@ -52,7 +48,7 @@
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">生成类型</label>
                     <select id="genType"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-[1.15rem] font-bold text-slate-600 dark:text-slate-300 focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none appearance-none cursor-pointer">
+                        class="w-full bg-slate-50  border-none rounded-2xl px-6 py-[1.15rem] font-bold text-slate-600  focus:ring-2 focus:ring-slate-900  outline-none appearance-none cursor-pointer">
                         <option value="paragraphs">段落 (Paragraphs)</option>
                         <option value="sentences">句子 (Sentences)</option>
                         <option value="words">单词 (Words)</option>
@@ -62,15 +58,15 @@
                 <div class="flex items-center h-[60px] px-6">
                     <label class="flex items-center gap-3 cursor-pointer group">
                         <input type="checkbox" id="startWith" checked
-                            class="w-5 h-5 rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-slate-900 dark:focus:ring-white">
+                            class="w-5 h-5 rounded-lg border-slate-200  bg-slate-50  text-slate-900  focus:ring-slate-900 ">
                         <span
-                            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-900 dark:group-hover:text-white transition-colors">以
+                            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-900  transition-colors">以
                             Lorem Ipsum 开头</span>
                     </label>
                 </div>
 
                 <button onclick="generate()"
-                    class="h-[60px] bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-[1.5rem] shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
+                    class="h-[60px] bg-slate-900  text-white  font-bold rounded-[1.5rem] shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
                     <i class="ri-refresh-line"></i> 立即生成
                 </button>
             </div>
@@ -78,20 +74,20 @@
 
         <!-- Result Area -->
         <div
-            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[3rem] overflow-hidden shadow-sm flex flex-col min-h-[500px]">
+            class="bg-white  border border-slate-200  rounded-[3rem] overflow-hidden shadow-sm flex flex-col min-h-[500px]">
             <div
-                class="h-14 bg-slate-50 dark:bg-slate-800/50 px-8 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+                class="h-14 bg-slate-50  px-8 flex items-center justify-between border-b border-slate-100 ">
                 <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                     <i class="ri-text-wrap"></i> 生成结果
                 </div>
                 <button onclick="copyResult()"
-                    class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all uppercase flex items-center gap-1 group">
+                    class="text-[10px] font-bold text-slate-400 hover:text-slate-900  transition-all uppercase flex items-center gap-1 group">
                     <i class="ri-file-copy-line transition-transform group-hover:scale-110"></i> 复制所有文本
                 </button>
             </div>
 
             <div id="resultBox"
-                class="flex-1 p-10 lg:p-12 font-serif text-lg leading-[2] text-slate-600 dark:text-slate-400 overflow-y-auto selection:bg-slate-900 selection:text-white dark:selection:bg-white dark:selection:text-slate-900">
+                class="flex-1 p-10 lg:p-12 font-serif text-lg leading-[2] text-slate-600  overflow-y-auto selection:bg-slate-900 selection:text-white  ">
                 <!-- Content here -->
             </div>
         </div>
@@ -104,8 +100,8 @@
     </div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
-        window.toggleTheme = toggleTheme;
+        import { showToast  } from '/src/common.js';
+        
         window.showToast = showToast;
         const words = ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'curabitur', 'vel', 'hendrerit', 'libero', 'eleifend', 'blandit', 'nunc', 'ornare', 'odio', 'ut', 'orci', 'gravida', 'imperdiet', 'nullam', 'purus', 'lacinia', 'a', 'pretium', 'quis', 'congue', 'praesent', 'sagittis', 'laoreet', 'auctor', 'mauris', 'non', 'velit', 'eros', 'dictum', 'proin', 'accumsan', 'sapien', 'nec', 'massa', 'volutpat', 'venenatis', 'sed', 'eu', 'molestie', 'lacus', 'quisque', 'porttitor', 'ligula', 'dui', 'mollis', 'tempus', 'at', 'magna', 'vestibulum', 'turpis', 'ac', 'diam', 'tincidunt', 'id', 'condimentum', 'enim', 'sodales', 'in', 'hac', 'habitasse', 'platea', 'dictumst', 'aenean', 'neque', 'fusce', 'augue', 'leo', 'eget', 'semper', 'mattis', 'tortor', 'scelerisque', 'nulla', 'interdum', 'tellus', 'malesuada', 'rhoncus', 'porta', 'sem', 'aliquet', 'et', 'nam', 'suspendisse', 'potenti', 'vivamus', 'luctus', 'fringilla', 'erat', 'donec', 'justo', 'vehicula', 'ultricies', 'varius', 'ante', 'primis', 'faucibus', 'ultrices', 'posuere', 'cubilia', 'curae', 'etiam', 'cursus', 'aliquam', 'quam', 'dapibus', 'nisl', 'feugiat', 'egestas', 'class', 'aptent', 'taciti', 'sociosqu', 'ad', 'litora', 'torquent', 'per', 'conubia', 'nostra', 'inceptos', 'himenaeos', 'phasellus', 'nibh', 'pulvinar', 'vitae', 'urna', 'iaculis', 'lobortis', 'nisi', 'viverra', 'arcu', 'morbi', 'pellentesque', 'metus', 'commodo', 'ut', 'facilisis', 'felis', 'tristique', 'ullamcorper', 'placerat', 'aenean', 'convallis', 'sollicitudin', 'integer', 'rutrum', 'duis', 'est', 'etiam', 'bibendum', 'donec', 'pharetra', 'vulputate', 'maecenas', 'mi', 'fermentum', 'consequat', 'suscipit', 'aliquam', 'habitant', 'senectus', 'netus', 'fames', 'quisque', 'euismod', 'curabitur', 'lectus', 'elementum', 'tempor', 'risus', 'cras'];
 

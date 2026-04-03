@@ -8,29 +8,26 @@
     <meta name="tool-icon" content="ri-time-line">
     <meta name="tool-tags" content="时间戳, Unix, Timestamp, 日期转换, 开发者工具">
     <link rel="stylesheet" href="/src/style.css">
-    
-    
+
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+<body class="bg-slate-50  text-slate-900  min-h-screen transition-colors duration-200">
     <!-- Header -->
-    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <header class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-time-line text-slate-900 dark:text-white"></i>
+                <i class="ri-time-line text-slate-900 "></i>
                 <span class="tracking-tight">时间戳转换</span>
             </h1>
         </div>
-        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
-            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-        </button>
+        
     </header>
 
     <main class="max-w-5xl mx-auto px-4 py-8 lg:py-12 space-y-8">
         <!-- Live Clock Section -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[3rem] p-8 lg:p-12 shadow-sm relative overflow-hidden group">
+        <div class="bg-white  border border-slate-200  rounded-[3rem] p-8 lg:p-12 shadow-sm relative overflow-hidden group">
             <div class="absolute top-0 right-0 p-8">
                 <div class="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
                     <span class="relative flex h-2 w-2">
@@ -43,73 +40,73 @@
             
             <div class="flex flex-col items-center justify-center text-center space-y-4">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em]">Current Unix Timestamp</p>
-                <div id="currentTs" onclick="copyValue(this.innerText)" class="text-6xl sm:text-7xl font-bold font-mono tracking-tighter text-slate-900 dark:text-white cursor-pointer hover:opacity-70 transition-opacity active:scale-95">0000000000</div>
+                <div id="currentTs" onclick="copyValue(this.innerText)" class="text-6xl sm:text-7xl font-bold font-mono tracking-tighter text-slate-900  cursor-pointer hover:opacity-70 transition-opacity active:scale-95">0000000000</div>
                 <p id="currentDateStr" class="text-xs font-bold text-slate-400 uppercase tracking-widest">—</p>
             </div>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-8">
             <!-- Timestamp to Date -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-sm space-y-6">
+            <div class="bg-white  border border-slate-200  rounded-[2.5rem] p-8 shadow-sm space-y-6">
                 <div class="flex items-center justify-between">
                     <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                         <i class="ri-login-circle-line"></i> 时间戳 → 日期
                     </h2>
-                    <button onclick="useCurrentTs()" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase">使用当前时间</button>
+                    <button onclick="useCurrentTs()" class="text-[10px] font-bold text-slate-400 hover:text-slate-900  transition-colors uppercase">使用当前时间</button>
                 </div>
 
                 <div class="space-y-4">
                     <div class="relative group">
-                        <input type="number" id="tsInput" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 font-mono text-xl focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600" placeholder="1700000000" oninput="tsToDate()">
+                        <input type="number" id="tsInput" class="w-full bg-slate-50  border-none rounded-2xl px-6 py-4 font-mono text-xl focus:ring-2 focus:ring-slate-900  outline-none transition-all placeholder:text-slate-300 " placeholder="1700000000" oninput="tsToDate()">
                         <span class="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">Input</span>
                     </div>
 
-                    <div id="tsResult" class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 space-y-4 font-mono text-xs overflow-hidden opacity-50 transition-all duration-300">
+                    <div id="tsResult" class="bg-slate-50  rounded-2xl p-6 space-y-4 font-mono text-xs overflow-hidden opacity-50 transition-all duration-300">
                         <div class="flex flex-col gap-1">
                             <span class="text-[9px] text-slate-400 uppercase font-sans font-bold">Local Time</span>
-                            <span id="res-local" class="text-slate-900 dark:text-white break-all">—</span>
+                            <span id="res-local" class="text-slate-900  break-all">—</span>
                         </div>
                         <div class="flex flex-col gap-1">
                             <span class="text-[9px] text-slate-400 uppercase font-sans font-bold">GMT / UTC</span>
-                            <span id="res-utc" class="text-slate-900 dark:text-white break-all">—</span>
+                            <span id="res-utc" class="text-slate-900  break-all">—</span>
                         </div>
                         <div class="flex flex-col gap-1">
                             <span class="text-[9px] text-slate-400 uppercase font-sans font-bold">ISO 8601</span>
-                            <span id="res-iso" class="text-slate-900 dark:text-white break-all">—</span>
+                            <span id="res-iso" class="text-slate-900  break-all">—</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Date to Timestamp -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-sm space-y-6">
+            <div class="bg-white  border border-slate-200  rounded-[2.5rem] p-8 shadow-sm space-y-6">
                  <div class="flex items-center justify-between">
                     <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                         <i class="ri-logout-circle-line"></i> 日期 → 时间戳
                     </h2>
-                    <button onclick="useNowDate()" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase">此刻</button>
+                    <button onclick="useNowDate()" class="text-[10px] font-bold text-slate-400 hover:text-slate-900  transition-colors uppercase">此刻</button>
                 </div>
 
                 <div class="space-y-4">
                     <div class="relative group">
-                        <input type="datetime-local" id="dateInput" step="1" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 font-mono text-lg focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none transition-all" onchange="dateToTs()">
+                        <input type="datetime-local" id="dateInput" step="1" class="w-full bg-slate-50  border-none rounded-2xl px-6 py-4 font-mono text-lg focus:ring-2 focus:ring-slate-900  outline-none transition-all" onchange="dateToTs()">
                         <span class="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase pointer-events-none">Select</span>
                     </div>
 
-                    <div id="dateResult" class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 space-y-6 font-mono overflow-hidden opacity-50 transition-all duration-300">
+                    <div id="dateResult" class="bg-slate-50  rounded-2xl p-6 space-y-6 font-mono overflow-hidden opacity-50 transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col gap-1">
                                 <span class="text-[9px] text-slate-400 uppercase font-sans font-bold">Seconds</span>
-                                <span id="res-sec" class="text-xl font-bold text-slate-900 dark:text-white">—</span>
+                                <span id="res-sec" class="text-xl font-bold text-slate-900 ">—</span>
                             </div>
-                            <button onclick="copyElement('res-sec')" class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"><i class="ri-file-copy-line text-slate-400"></i></button>
+                            <button onclick="copyElement('res-sec')" class="p-2 hover:bg-slate-200  rounded-lg transition-colors"><i class="ri-file-copy-line text-slate-400"></i></button>
                         </div>
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col gap-1">
                                 <span class="text-[9px] text-slate-400 uppercase font-sans font-bold">Milliseconds</span>
-                                <span id="res-ms" class="text-xl font-bold text-slate-900 dark:text-white">—</span>
+                                <span id="res-ms" class="text-xl font-bold text-slate-900 ">—</span>
                             </div>
-                             <button onclick="copyElement('res-ms')" class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"><i class="ri-file-copy-line text-slate-400"></i></button>
+                             <button onclick="copyElement('res-ms')" class="p-2 hover:bg-slate-200  rounded-lg transition-colors"><i class="ri-file-copy-line text-slate-400"></i></button>
                         </div>
                     </div>
                 </div>
@@ -123,9 +120,8 @@
     <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
-        
-        window.toggleTheme = toggleTheme;
+        import { showToast  } from '/src/common.js';
+
         window.showToast = showToast;
         
         // Expose tool functions to window for inline event handlers

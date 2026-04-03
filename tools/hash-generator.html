@@ -9,24 +9,21 @@
     <meta name="tool-tags" content="Hash, MD5, SHA256, 安全, 加密">
     <link rel="stylesheet" href="/src/style.css">
     <!-- Local packages and native scripts will be imported in the module script below -->
-    
-    
+
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+<body class="bg-slate-50  text-slate-900  min-h-screen transition-colors duration-200">
     <!-- Header -->
-    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <header class="h-16 bg-white/80  backdrop-blur-md border-b border-slate-200  flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+            <a href="../index.html" class="p-2 hover:bg-slate-100  rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
-                <i class="ri-fingerprint-line text-slate-900 dark:text-white"></i>
+                <i class="ri-fingerprint-line text-slate-900 "></i>
                 <span class="tracking-tight">Hash 生成器</span>
             </h1>
         </div>
-        <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="切换主题">
-            <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
-        </button>
+        
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-8 lg:py-12">
@@ -41,7 +38,7 @@
                 </div>
                 <div class="relative group">
                     <textarea id="input" 
-                        class="w-full h-48 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent outline-none transition-all font-mono text-sm leading-relaxed"
+                        class="w-full h-48 p-6 bg-white  border border-slate-200  rounded-3xl shadow-sm focus:ring-2 focus:ring-slate-900  focus:border-transparent outline-none transition-all font-mono text-sm leading-relaxed"
                         placeholder="输入你想要转换的文本..."></textarea>
                 </div>
             </div>
@@ -49,32 +46,32 @@
             <!-- Hash Results -->
             <div class="grid gap-4" id="results">
                 <!-- MD5 -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                <div class="bg-white  border border-slate-200  rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
                     <div class="flex items-center gap-4">
                         <span class="w-20 text-[10px] font-bold text-slate-400 uppercase tracking-widest">MD5</span>
-                        <code id="md5" class="text-sm font-mono break-all text-slate-600 dark:text-slate-300">...</code>
+                        <code id="md5" class="text-sm font-mono break-all text-slate-600 ">...</code>
                     </div>
-                    <button onclick="copy('md5')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white" title="复制结果">
+                    <button onclick="copy('md5')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100  rounded-lg text-slate-400 hover:text-slate-900 " title="复制结果">
                         <i class="ri-file-copy-line text-lg"></i>
                     </button>
                 </div>
                 <!-- SHA-256 -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                <div class="bg-white  border border-slate-200  rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
                     <div class="flex items-center gap-4">
                         <span class="w-20 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-emerald-500">SHA-256</span>
-                        <code id="sha256" class="text-sm font-mono break-all text-slate-600 dark:text-slate-300">...</code>
+                        <code id="sha256" class="text-sm font-mono break-all text-slate-600 ">...</code>
                     </div>
-                    <button onclick="copy('sha256')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white" title="复制结果">
+                    <button onclick="copy('sha256')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100  rounded-lg text-slate-400 hover:text-slate-900 " title="复制结果">
                         <i class="ri-file-copy-line text-lg"></i>
                     </button>
                 </div>
                 <!-- SHA-512 -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                <div class="bg-white  border border-slate-200  rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
                     <div class="flex items-center gap-4">
                         <span class="w-20 text-[10px] font-bold text-slate-400 uppercase tracking-widest">SHA-512</span>
-                        <code id="sha512" class="text-xs font-mono break-all text-slate-600 dark:text-slate-300">...</code>
+                        <code id="sha512" class="text-xs font-mono break-all text-slate-600 ">...</code>
                     </div>
-                    <button onclick="copy('sha512')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white" title="复制结果">
+                    <button onclick="copy('sha512')" class="sm:opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-100  rounded-lg text-slate-400 hover:text-slate-900 " title="复制结果">
                         <i class="ri-file-copy-line text-lg"></i>
                     </button>
                 </div>
@@ -88,9 +85,9 @@
     <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
 
     <script type="module">
-        import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        import { showToast  } from '/src/common.js';
         import CryptoJS from 'crypto-js';
-        window.toggleTheme = toggleTheme;
+        
         window.showToast = showToast;
         const inputEl = document.getElementById('input');
         const hashElements = {
@@ -144,7 +141,6 @@
             }
         }
 
-        
         inputEl.addEventListener('input', generateHashes);
         
         // Initial check if content exists (e.g. from session)

@@ -11,15 +11,6 @@
   body {
     @apply font-sans antialiased bg-slate-50 text-slate-900 transition-colors duration-200;
   }
-  
-  .dark {
-    --color-slate-50: var(--color-slate-950);
-    --color-slate-900: var(--color-slate-100);
-  }
-
-  .dark body {
-    @apply bg-slate-950 text-slate-100;
-  }
 
   /* Global Scrollbar */
   ::-webkit-scrollbar {
@@ -32,17 +23,15 @@
   ::-webkit-scrollbar-thumb {
     @apply bg-slate-300 rounded-full;
   }
-  .dark ::-webkit-scrollbar-thumb {
-    @apply bg-slate-700;
-  }
 
   /* Global Accent Colors */
   input[type="range"],
   input[type="checkbox"],
   input[type="radio"] {
-    @apply accent-slate-900 dark:accent-slate-100 cursor-pointer;
+    @apply accent-slate-900 cursor-pointer;
   }
 }
+
 
 @layer utilities {
   .no-print {
