@@ -138,6 +138,10 @@
         
         editor.addEventListener('input', decodeJwt);
         if (editor.value) decodeJwt();
+        // Expose functions to window for onclick handlers
+        window.clearAll = clearAll;
+        window.copySection = copySection;
+
     </script>
 </body>
 </html>

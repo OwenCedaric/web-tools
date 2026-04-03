@@ -343,6 +343,13 @@
         }
         // Init
         render();
+        // Expose functions to window for onclick handlers
+        window.clearCurrentEditor = clearCurrentEditor;
+        window.copyFullHtml = copyFullHtml;
+        window.downloadHtml = downloadHtml;
+        window.exportPdf = exportPdf;
+        window.switchTab = switchTab;
+
     </script>
 </body>
 </html>

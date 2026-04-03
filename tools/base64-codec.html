@@ -148,6 +148,12 @@
                 
         plainEl.addEventListener('input', updateStats);
         base64El.addEventListener('input', updateStats);
+        // Expose functions to window for onclick handlers
+        window.clearText = clearText;
+        window.copyText = copyText;
+        window.decodeBase64 = decodeBase64;
+        window.encodeBase64 = encodeBase64;
+
     </script>
 </body>
 </html>

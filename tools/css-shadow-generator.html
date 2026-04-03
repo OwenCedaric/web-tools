@@ -190,6 +190,9 @@
         
         Object.values(inputs).forEach(input => input.addEventListener('input', update));
         update();
+        // Expose functions to window for onclick handlers
+        window.copyCode = copyCode;
+
     </script>
 </body>
 </html>

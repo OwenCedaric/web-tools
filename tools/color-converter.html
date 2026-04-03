@@ -256,6 +256,9 @@
         
         // Init
         els.hex.dispatchEvent(new Event('input'));
+        // Expose functions to window for onclick handlers
+        window.copy = copy;
+
     </script>
 </body>
 </html>

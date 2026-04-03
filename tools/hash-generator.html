@@ -149,6 +149,10 @@
         
         // Initial check if content exists (e.g. from session)
         if (inputEl.value) generateHashes();
+        // Expose functions to window for onclick handlers
+        window.clearInput = clearInput;
+        window.copy = copy;
+
     </script>
 </body>
 </html>

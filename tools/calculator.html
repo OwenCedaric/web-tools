@@ -167,6 +167,13 @@
             if (e.key === 'Backspace') del();
             if (e.key === 'Escape') clearAll();
         });
+        // Expose functions to window for onclick handlers
+        window.appendNum = appendNum;
+        window.appendOp = appendOp;
+        window.calculate = calculate;
+        window.clearAll = clearAll;
+        window.del = del;
+
     </script>
 </body>
 </html>

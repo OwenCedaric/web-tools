@@ -120,6 +120,10 @@
         document.addEventListener('webkitfullscreenchange', () => {
             if (!document.webkitFullscreenElement) exitBlackScreen();
         });
+        // Expose functions to window for onclick handlers
+        window.enterBlackScreen = enterBlackScreen;
+        window.exitBlackScreen = exitBlackScreen;
+
     </script>
 </body>
 </html>

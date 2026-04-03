@@ -225,7 +225,10 @@
             link.click();
             showToast('合成图片已导出');
         }
+        // Expose functions to window for onclick handlers
+        window.clearLayer = clearLayer;
+        window.downloadResult = downloadResult;
 
-            </script>
+    </script>
 </body>
 </html>

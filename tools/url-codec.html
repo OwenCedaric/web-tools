@@ -122,7 +122,12 @@
             if (type === 'raw') rawEl.value = '';
             else encodedEl.value = '';
         }
+        // Expose functions to window for onclick handlers
+        window.clearAll = clearAll;
+        window.copyToClipboard = copyToClipboard;
+        window.decode = decode;
+        window.encode = encode;
 
-            </script>
+    </script>
 </body>
 </html>

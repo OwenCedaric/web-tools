@@ -234,7 +234,12 @@
                 showToast("HTML 已复制到剪贴板");
             });
         }
+        // Expose functions to window for onclick handlers
+        window.clearEditor = clearEditor;
+        window.copyCurrentHtml = copyCurrentHtml;
+        window.formatCode = formatCode;
+        window.toggleAutoRefresh = toggleAutoRefresh;
 
-            </script>
+    </script>
 </body>
 </html>

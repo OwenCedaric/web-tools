@@ -173,6 +173,11 @@ Also try invalid@email without domain.</textarea>
 
         // Resize observer
         new ResizeObserver(() => handleScroll()).observe(testString);
+        // Expose functions to window for onclick handlers
+        window.clearText = clearText;
+        window.handleScroll = handleScroll;
+        window.update = update;
+
     </script>
 </body>
 

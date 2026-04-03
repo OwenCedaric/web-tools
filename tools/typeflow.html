@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeFlow 3:4 图文渲染器 - {{siteName}}</title>
+    <meta name="description" content="智能图文渲染工具，将 Markdown 实时转换为优雅的 3:4 比例卡片，支持自动分页与高清图片导出。">
+    <meta name="tool-icon" content="ri-bubble-chart-line">
+    <meta name="tool-tags" content="Markdown, 图文, 渲染, 导出">
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        /* 3:4 Social Media Standard Specification (Base 1200px) */
+        .canvas-wrapper {
+            position: relative;
+            width: 300px; /* UI Preview width */
+            height: 400px; /* UI Preview height (3:4) */
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background: #f1f5f9;
+            flex-shrink: 0;
+        }
+
+        /* 1200x1600 Logical Page (Social Media Base) */
+        .canvas-page {
+            width: 1200px;
+            height: 1600px;
+            background-color: #ffffff !important; /* Force White */
+            box-sizing: border-box;
+            padding: 120px; /* 10% Mandatory Padding */
+            display: flex;
+            flex-direction: column;
+            color: #1A1A1A;
+            
+            /* Visual scaling to fit into 300px wrapper (0.25x) */
+            transform: scale(0.25);
+            transform-origin: top left;
+            position: absolute;
+            top: 0;
+            left: 0;
+            
+            /* Smoothing and standard rendering */
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        .author-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 60px;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin-right: 20px;
+            object-fit: cover;
+            border: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .author-name {
+            font-size: 30px; /* Caption weight */
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #888888;
+        }
+
+        .content-flow {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* H1 - Hook */
+        .content-flow h1 {
+            font-size: 105px;
+            font-weight: 950;
+            margin-bottom: 48px;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            color: #1A1A1A;
+        }
+
+        /* H2 - Guide */
+        .content-flow h2 {
+            font-size: 65px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            line-height: 1.4;
+            color: #1A1A1A;
+            padding-left: 24px;
+            border-left: 12px solid #1A1A1A;
+        }
+
+        /* Body - Readability */
+        .content-flow p,
+        .content-flow li {
+            font-size: 44px;
+            font-weight: 400;
+            line-height: 1.8;
+            color: #4A4A4A;
+            margin-bottom: 36px;
+            text-align: justify;
+            letter-spacing: 0.5px;
+            word-break: break-word;
+            max-width: 22em; /* Enforce 20-24 chars per line */
+        }
+
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 300px);
+            gap: 32px;
+            justify-content: center;
+            padding-bottom: 60px;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="返回首页">
+                <i class="ri-arrow-left-line text-xl opacity-70"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-bubble-chart-line text-slate-900 dark:text-white"></i>
+                <span class="tracking-tight">TypeFlow 3:4</span>
+            </h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="exportCanvases()" class="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold shadow-lg shadow-slate-900/10 active:scale-95 transition-all" id="export-btn">
+                <i class="ri-download-cloud-2-line"></i>
+                <span>导出画板</span>
+            </button>
+            <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors ml-1">
+                <i id="theme-icon" class="ri-moon-line text-xl opacity-70"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="lg:flex h-[calc(100vh-64px)] overflow-hidden">
+        <!-- Sidebar: Controls -->
+        <aside class="lg:w-[380px] flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-[45vh] lg:h-full overflow-hidden shadow-sm">
+            <div class="p-6 space-y-6 flex-none border-b border-slate-100 dark:border-slate-800">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">作者昵称</label>
+                        <input type="text" id="nick-input" value="Lucas" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 ring-slate-200 dark:ring-slate-700 transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">头像链接</label>
+                        <input type="text" id="avatar-input" value="https://api.dicebear.com/9.x/notionists/svg?seed=Anonymous&backgroundColor=ffffff" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 ring-slate-200 dark:ring-slate-700 transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 p-6 overflow-hidden flex flex-col">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1 mb-4">Markdown 内容</label>
+                <textarea id="md-input" class="flex-1 w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm leading-relaxed resize-none focus:ring-2 ring-slate-200 dark:ring-slate-700 transition-all font-mono" placeholder="在此输入 Markdown..."># 结构解耦与渲染一致性
+
+我们通过拆分外围控制层（Wrapper）和核心数据层（Page），在物理层面解决了 UI 预览与节点抓取的冲突。
+
+## 导出机制
+
+现在，无论是点击右上角的“一键导出”，还是直接使用浏览器开发者工具抓取核心 DOM 节点，输出的都将是一张极其纯净、没有任何冗余背景色的 **3:4 直角图片**。
+
+这保证了源文件在不同社交平台分发时，能够被平台的 UI 框架完美接管裁切，绝不产生双重圆角的问题。</textarea>
+            </div>
+        </aside>
+
+        <!-- Preview Stage -->
+        <section class="flex-1 bg-slate-100 dark:bg-slate-950 overflow-y-auto p-4 lg:p-12">
+            <div class="canvas-grid" id="preview-area">
+                <!-- Canvases will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <!-- INJECT_FOOTER -->
+
+    <script type="module">
+        import { initTheme, toggleTheme, showToast } from '/src/common.js';
+        import { marked } from 'marked';
+        import * as htmlToImage from 'html-to-image';
+
+        window.toggleTheme = toggleTheme;
+        window.showToast = showToast;
+        window.exportCanvases = exportCanvases;
+
+        const mdInput = document.getElementById('md-input');
+        const nickInput = document.getElementById('nick-input');
+        const avatarInput = document.getElementById('avatar-input');
+        const previewArea = document.getElementById('preview-area');
+        const exportBtn = document.getElementById('export-btn');
+
+        // 严格盘古之白
+        function addPanguSpacing(text) {
+            // 在中文字符与英文字母、数字之间添加 0.25em 的间隔
+            // 我们通过一个特殊的不可见字符或简单的空格来实现，这里遵循“半角空格”的逻辑
+            let res = text.replace(/([\u4e00-\u9fa5])([a-zA-Z0-9@#%&])/g, '$1 $2');
+            res = res.replace(/([a-zA-Z0-9@#%&])([\u4e00-\u9fa5])/g, '$1 $2');
+            return res;
+        }
+
+        // 创建分离的层级结构节点
+        function createNewPage(name, avatar) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'canvas-wrapper';
+
+            const page = document.createElement('div');
+            page.className = 'canvas-page';
+
+            const imgSrc = avatar || 'https://api.dicebear.com/9.x/notionists/svg?seed=Anonymous&backgroundColor=ffffff';
+            const displayName = name || 'Anonymous';
+
+            page.innerHTML = `
+                <div class="author-header">
+                    <img src="${imgSrc}" class="avatar" alt="avatar" crossorigin="anonymous">
+                    <span class="author-name">${displayName}</span>
+                </div>
+                <div class="content-flow"></div>
+            `;
+
+            wrapper.appendChild(page);
+            return { container: wrapper, targetNode: page, flow: page.querySelector('.content-flow') };
+        }
+
+        // 内容分块与自动分页计算
+        function renderContent() {
+            const currentName = nickInput.value.trim();
+            const currentAvatar = avatarInput.value.trim();
+            const spacedText = addPanguSpacing(mdInput.value);
+            const htmlString = marked.parse(spacedText);
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlString;
+            const elements = Array.from(tempDiv.children);
+
+            previewArea.innerHTML = '';
+
+            if (elements.length === 0) {
+                const emptyPage = createNewPage(currentName, currentAvatar);
+                previewArea.appendChild(emptyPage.container);
+                return;
+            }
+
+            let pageObj = createNewPage(currentName, currentAvatar);
+            previewArea.appendChild(pageObj.container);
+
+            elements.forEach(el => {
+                const isHeading = el.tagName === 'H2' || el.tagName === 'H1';
+                pageObj.flow.appendChild(el);
+
+                // 检测是否溢出
+                let isOverflow = pageObj.flow.scrollHeight > pageObj.flow.clientHeight;
+                
+                // 孤儿标题拦截 (Orphan Control)
+                // 若标题下方剩余空间不足 180px (容纳 2 行正文)，则推入下一页
+                if (!isOverflow && isHeading) {
+                    const remainingSpace = pageObj.flow.clientHeight - pageObj.flow.scrollHeight;
+                    if (remainingSpace < 180) {
+                        isOverflow = true; 
+                    }
+                }
+
+                if (isOverflow) {
+                    pageObj.flow.removeChild(el);
+                    pageObj = createNewPage(currentName, currentAvatar);
+                    previewArea.appendChild(pageObj.container);
+                    pageObj.flow.appendChild(el);
+                }
+            });
+        }
+
+        // 导出核心数据节点
+        async function exportCanvases() {
+            const exportTargets = document.querySelectorAll('.canvas-page');
+            if (exportTargets.length === 0) return;
+
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<i class="ri-loader-4-line animate-spin"></i> <span>导出中...</span>';
+            exportBtn.disabled = true;
+
+            try {
+                for (let i = 0; i < exportTargets.length; i++) {
+                    const target = exportTargets[i];
+                    
+                    // 暂时关闭预览缩放，确保 1:1 捕捉
+                    const originalTransform = target.style.transform;
+                    target.style.transform = 'scale(1.0)';
+                    
+                    const dataUrl = await htmlToImage.toPng(target, {
+                        width: 1200,
+                        height: 1600,
+                        pixelRatio: 2, // 启用 2x 采样 (最后输出 2400x3200)
+                        backgroundColor: '#ffffff'
+                    });
+
+                    // 恢复预览缩放
+                    target.style.transform = originalTransform;
+
+                    const link = document.createElement('a');
+                    link.download = `Slide-${i + 1}.png`;
+                    link.href = dataUrl;
+                    link.click();
+
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+                showToast('全部画板导出成功');
+            } catch (error) {
+                console.error('导出失败:', error);
+                showToast('导出过程中出现错误', 'error');
+            } finally {
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+            }
+        }
+
+        // 防抖监听
+        let timeout;
+        const triggerRender = () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(renderContent, 150);
+        };
+
+        [mdInput, nickInput, avatarInput].forEach(el => el.addEventListener('input', triggerRender));
+
+        // 初始化
+        initTheme();
+        renderContent();
+    </script>
+</body>
+
+</html>

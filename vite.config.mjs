@@ -97,6 +97,7 @@ function toolMetadataPlugin() {
 }
 
 export default defineConfig({
+  base: './',
   plugins: [
     tailwindcss(),
     toolMetadataPlugin(),
@@ -118,7 +119,26 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: inputs,
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Split out particularly large libraries to their own chunks for better caching
+            if (id.includes('marked')) {
+              return 'vendor-marked';
+            }
+            if (id.includes('html2pdf.js') || id.includes('jspdf') || id.includes('html2canvas')) {
+              return 'vendor-pdf';
+            }
+            if (id.includes('html-to-image')) {
+              return 'vendor-image';
+            }
+            // Group other smaller dependencies together
+            return 'vendor';
+          }
+        }
+      }
     },
+    chunkSizeWarningLimit: 1000,
     outDir: 'dist',
     emptyOutDir: true,
   }

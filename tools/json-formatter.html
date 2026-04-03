@@ -139,6 +139,12 @@
         editor.addEventListener('input', () => {
             if (!editor.value.trim()) updateStatus('idle', '待输入');
         });
+        // Expose functions to window for onclick handlers
+        window.beautify = beautify;
+        window.clearAll = clearAll;
+        window.copyResult = copyResult;
+        window.minify = minify;
+
     </script>
 </body>
 </html>

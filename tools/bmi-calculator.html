@@ -206,7 +206,11 @@
             document.getElementById('status-badge').textContent = "等待输入...";
             document.getElementById('advice-text').textContent = "请输入您的身高和体重，我们将为您分析健康状况。";
         }
+        // Expose functions to window for onclick handlers
+        window.calculate = calculate;
+        window.reset = reset;
+        window.setSystem = setSystem;
 
-            </script>
+    </script>
 </body>
 </html>
