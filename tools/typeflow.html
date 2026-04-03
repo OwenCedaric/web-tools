@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TypeFlow 3:4 图文渲染器 - {{siteName}}</title>
+    <title>TypeFlow 3:4 图文渲染器 - Web Tools Collection</title>
     <meta name="description" content="智能图文渲染工具，将 Markdown 实时转换为优雅的 3:4 比例卡片，支持自动分页与高清图片导出。">
     <meta name="tool-icon" content="ri-bubble-chart-line">
     <meta name="tool-tags" content="Markdown, 图文, 渲染, 导出">
@@ -13,40 +13,148 @@
         /* 3:4 Social Media Standard Specification (Base 1200px) */
         .canvas-wrapper {
             position: relative;
-            width: 300px; /* UI Preview width */
-            height: 400px; /* UI Preview height (3:4) */
+            width: 300px;
+            /* UI Preview width */
+            height: 400px;
+            /* UI Preview height (3:4) */
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            background: var(--canvas-bg, #f1f5f9);
+            background: #f1f5f9;
             flex-shrink: 0;
             transition: background-color 0.3s;
+        }
+
+        /* Essential Scaler Wrapper for UI Preview */
+        .canvas-scaler {
+            zoom: 0.25;
+            /* Standard preview scale */
+            width: 1200px;
+            height: 1600px;
+            display: block;
         }
 
         /* 1200x1600 Logical Page (Social Media Base) */
         .canvas-page {
             width: 1200px;
             height: 1600px;
-            background-color: var(--canvas-bg, #ffffff) !important;
+            background-color: #ffffff !important;
             box-sizing: border-box;
-            padding: 120px; /* 10% Mandatory Padding */
+            padding: 120px;
+            /* 10% Mandatory Padding */
             display: flex;
             flex-direction: column;
-            color: var(--canvas-text, #1A1A1A);
-            
-            /* Visual scaling to fit into 300px wrapper (0.25x) */
-            transform: scale(0.25);
-            transform-origin: top left;
-            position: absolute;
-            top: 0;
-            left: 0;
-            
+            color: #1A1A1A;
+
+            /* Clean state for perfect screenshot/export */
+            transform: none;
+            isolation: isolate;
+            /* Isolated stacking context */
+            contain: layout;
+            /* Protect layout during measurement */
+
             /* Smoothing and standard rendering */
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
             transition: background-color 0.3s, color 0.3s;
         }
 
+        /* Snapshot Mode: Pure Fixed Layout for DevTools Capture */
+        .is-snapshot header,
+        .is-snapshot aside,
+        .is-snapshot footer,
+        .is-snapshot .no-snapshot {
+            display: none !important;
+        }
+
+        .is-snapshot main {
+            overflow: visible !important;
+            height: auto !important;
+            background: #ffffff !important;
+        }
+
+        .is-snapshot .canvas-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 120px;
+            padding: 100px 0;
+            background: #f8fafc !important;
+            /* Slightly off-white to see the cards clearly */
+            max-width: none;
+        }
+
+        .is-snapshot .canvas-scaler {
+            zoom: 1 !important;
+            /* Force 1:1 scale for perfect DevTools capture */
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1) !important;
+            position: relative;
+        }
+
+        /* Card Separator in Snapshot Mode */
+        .is-snapshot .canvas-wrapper::after {
+            content: "NEXT SLIDE";
+            position: absolute;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: 700;
+            color: #cbd5e1;
+            letter-spacing: 4px;
+            pointer-events: none;
+        }
+
+        .is-snapshot .canvas-wrapper:last-child::after {
+            display: none;
+        }
+
+        .is-snapshot .canvas-wrapper {
+            width: 1200px !important;
+            height: 1600px !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+
+        .is-snapshot .canvas-page {
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+            /* Minimal frame */
+            pointer-events: none;
+            /* BLOCK DevTools overlays on hover */
+            user-select: none;
+        }
+
+        /* Floating Exit Button */
+        #exit-snapshot-btn {
+            display: none;
+            position: fixed;
+            top: 32px;
+            right: 32px;
+            z-index: 9999;
+            padding: 12px 24px;
+            background: #1e293b;
+            color: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        #exit-snapshot-btn:hover {
+            background: #0f172a;
+            transform: translateY(-2px);
+        }
+
+        .is-snapshot #exit-snapshot-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Typography & Layout inside Canvas */
         .author-header {
             display: flex;
             align-items: center;
@@ -60,14 +168,14 @@
             border-radius: 50%;
             margin-right: 20px;
             object-fit: cover;
-            border: 2px solid var(--canvas-border-color, rgba(0, 0, 0, 0.05));
+            border: 2px solid rgba(0, 0, 0, 0.05);
         }
 
         .author-name {
-            font-size: 30px; /* Caption weight */
+            font-size: 30px;
             font-weight: 500;
             letter-spacing: 0.5px;
-            color: var(--canvas-text-muted, #888888);
+            color: #888888;
         }
 
         .content-flow {
@@ -77,55 +185,57 @@
             flex-direction: column;
         }
 
-        /* H1 - Hook */
         .content-flow h1 {
             font-size: 105px;
             font-weight: 950;
             margin-bottom: 48px;
             line-height: 1.2;
             letter-spacing: -0.01em;
-            color: var(--canvas-text, #1A1A1A);
+            color: #1A1A1A;
         }
 
-        /* H2 - Guide */
         .content-flow h2 {
             font-size: 65px;
             font-weight: 700;
             margin-bottom: 32px;
             line-height: 1.4;
-            color: var(--canvas-text, #1A1A1A);
+            color: #1A1A1A;
             padding-left: 24px;
-            border-left: 12px solid var(--canvas-text, #1A1A1A);
+            border-left: 12px solid #1A1A1A;
         }
 
-        /* Body - Readability */
         .content-flow p,
         .content-flow li {
             font-size: 44px;
             font-weight: 400;
             line-height: 1.8;
-            color: var(--canvas-text-muted, #4A4A4A);
+            color: #4A4A4A;
             margin-bottom: 36px;
             text-align: justify;
             letter-spacing: 0.5px;
             word-break: break-word;
-            max-width: 22em; /* Enforce 20-24 chars per line */
+            max-width: 22em;
         }
 
         .canvas-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, 320px);
+            grid-template-columns: repeat(auto-fit, 300px);
             gap: 32px;
             justify-content: center;
             padding-bottom: 60px;
         }
-
     </style>
 </head>
 
 <body class="bg-slate-50 text-slate-900 min-h-screen transition-colors duration-200">
+    <!-- Floating Exit Button for Snapshot Mode -->
+    <button id="exit-snapshot-btn" onclick="toggleSnapshot()">
+        <i class="ri-close-line"></i>
+    </button>
+
     <!-- Header -->
-    <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <header
+        class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
         <div class="flex items-center gap-3">
             <a href="../index.html" class="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="返回首页">
                 <i class="ri-arrow-left-line text-xl opacity-70"></i>
@@ -136,41 +246,62 @@
             </h1>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="exportCanvases()" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-lg shadow-slate-900/10 active:scale-95 transition-all" id="export-btn">
+            <button onclick="toggleSnapshot()"
+                class="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-semibold transition-all"
+                id="snapshot-toggle">
+                <i class="ri-camera-lens-line"></i>
+                <span>快照模式</span>
+            </button>
+            <button onclick="exportCanvases()"
+                class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-lg shadow-slate-900/10 active:scale-95 transition-all"
+                id="export-btn">
                 <i class="ri-download-cloud-2-line"></i>
                 <span>导出画板</span>
             </button>
-
         </div>
     </header>
 
     <main class="lg:flex h-[calc(100vh-64px)] overflow-hidden">
         <!-- Sidebar: Controls -->
-        <aside class="lg:w-[380px] flex flex-col border-r border-slate-200 bg-white h-[45vh] lg:h-full overflow-hidden shadow-sm">
+        <aside
+            class="lg:w-[380px] flex flex-col border-r border-slate-200 bg-white h-[45vh] lg:h-full overflow-hidden shadow-sm">
             <div class="p-6 space-y-6 flex-none border-b border-slate-100">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="ui-label text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">作者昵称</label>
-                        <input type="text" id="nick-input" value="Lucas" class="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 ring-slate-200 transition-all text-slate-900">
+                        <label
+                            class="ui-label text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">作者昵称</label>
+                        <input type="text" id="nick-input" value="Lucas"
+                            class="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 ring-slate-200 transition-all text-slate-900">
                     </div>
                     <div class="space-y-2">
-                        <label class="ui-label text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">头像链接</label>
-                        <input type="text" id="avatar-input" value="https://api.dicebear.com/9.x/notionists/svg?seed=Anonymous&backgroundColor=ffffff" class="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 ring-slate-200 transition-all text-slate-900">
+                        <label
+                            class="ui-label text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">头像链接</label>
+                        <input type="text" id="avatar-input"
+                            value="https://api.dicebear.com/9.x/notionists/svg?seed=Anonymous&backgroundColor=ffffff"
+                            class="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 ring-slate-200 transition-all text-slate-900">
                     </div>
                 </div>
             </div>
 
             <div class="flex-1 p-6 overflow-hidden flex flex-col">
-                <label class="ui-label text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1 mb-4">Markdown 内容</label>
-                <textarea id="md-input" class="flex-1 w-full p-4 bg-slate-50 border-none rounded-2xl text-sm leading-relaxed resize-none focus:ring-2 ring-slate-200 transition-all font-mono text-slate-900" placeholder="在此输入 Markdown..."># 结构解耦与渲染一致性
+                <label
+                    class="ui-label text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1 mb-4">Markdown
+                    内容</label>
+                <textarea id="md-input"
+                    class="flex-1 w-full p-4 bg-slate-50 border-none rounded-2xl text-sm leading-relaxed resize-none focus:ring-2 ring-slate-200 transition-all font-mono text-slate-900"
+                    placeholder="在此输入 Markdown..."># 结构解耦与渲染一致性
 
 我们通过拆分外围控制层（Wrapper）和核心数据层（Page），在物理层面解决了 UI 预览与节点抓取的冲突。
 
-## 导出机制
+## 快照模式
 
-现在，无论是点击右上角的“一键导出”，还是直接使用浏览器开发者工具抓取核心 DOM 节点，输出的都将是一张极其纯净、没有任何冗余背景色的 **3:4 直角图片**。
+现在，在“快照模式”下，所有非核心 UI 都将消失，卡片以 **1:1 原生高清尺寸 (1200x1600)** 呈现。
 
-这保证了源文件在不同社交平台分发时，能够被平台的 UI 框架完美接管裁切，绝不产生双重圆角的问题。</textarea>
+配合浏览器开发者工具的“节点截图”功能，您可以获得极其纯净、像素级的专业导出效果。按 ESC 键即可随时退出快照预览。</textarea>
+            </div>
+            <div class="p-4 bg-slate-50/50 border-t border-slate-100">
+                <p class="text-[10px] text-slate-400 text-center leading-relaxed font-medium">快照模式下支持 1:1 像素级 DevTools
+                    截图</p>
             </div>
         </aside>
 
@@ -192,6 +323,7 @@
 
         window.showToast = showToast;
         window.exportCanvases = exportCanvases;
+        window.toggleSnapshot = toggleSnapshot;
 
         const mdInput = document.getElementById('md-input');
         const nickInput = document.getElementById('nick-input');
@@ -199,25 +331,28 @@
         const previewArea = document.getElementById('preview-area');
         const exportBtn = document.getElementById('export-btn');
 
-        // 严格盘古之白
-        function addPanguSpacing(text) {
-            // 在中文字符与英文字母、数字之间添加 0.25em 的间隔
-            // 我们通过一个特殊的不可见字符或简单的空格来实现，这里遵循“半角空格”的逻辑
-            let res = text.replace(/([\u4e00-\u9fa5])([a-zA-Z0-9@#%&])/g, '$1 $2');
-            res = res.replace(/([a-zA-Z0-9@#%&])([\u4e00-\u9fa5])/g, '$1 $2');
-            return res;
+        // 安全盘古：仅针对文本节点添加空格，不破坏 HTML/Markdown 语法
+        function applyPangu(root) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+                node.textContent = node.textContent
+                    .replace(/([\u4e00-\u9fa5])([a-zA-Z0-9])/g, '$1 $2')
+                    .replace(/([a-zA-Z0-9])([\u4e00-\u9fa5])/g, '$1 $2');
+            }
         }
 
-        // 创建分离的层级结构节点
+        // 创建卡片结构
         function createNewPage(name, avatar) {
             const wrapper = document.createElement('div');
             wrapper.className = 'canvas-wrapper';
-
+            const scaler = document.createElement('div');
+            scaler.className = 'canvas-scaler';
             const page = document.createElement('div');
             page.className = 'canvas-page';
 
-            const imgSrc = avatar || 'https://api.dicebear.com/9.x/notionists/svg?seed=Anonymous&backgroundColor=ffffff';
-            const displayName = name || 'Anonymous';
+            const imgSrc = (avatar || '').trim() || 'https://api.dicebear.com/9.x/notionists/svg?seed=Anonymous&backgroundColor=ffffff';
+            const displayName = (name || '').trim() || 'Anonymous';
 
             page.innerHTML = `
                 <div class="author-header">
@@ -227,61 +362,94 @@
                 <div class="content-flow"></div>
             `;
 
-            wrapper.appendChild(page);
-            return { container: wrapper, targetNode: page, flow: page.querySelector('.content-flow') };
+            scaler.appendChild(page);
+            wrapper.appendChild(scaler);
+            return { container: wrapper, flow: page.querySelector('.content-flow') };
         }
 
-        // 内容分块与自动分页计算
+        // 离屏渲染计算 Tank
+        let renderTank = null;
+        function getRenderTank() {
+            if (!renderTank) {
+                renderTank = document.createElement('div');
+                renderTank.id = 'render-tank';
+                renderTank.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 1200px; height: 1600px; visibility: hidden; pointer-events: none; overflow: hidden;';
+                document.body.appendChild(renderTank);
+            }
+            return renderTank;
+        }
+
+        // 原子渲染引擎
         function renderContent() {
-            const currentName = nickInput.value.trim();
-            const currentAvatar = avatarInput.value.trim();
-            const spacedText = addPanguSpacing(mdInput.value);
-            const htmlString = marked.parse(spacedText);
+            const currentName = nickInput.value;
+            const currentAvatar = avatarInput.value;
+            const rawHtml = marked.parse(mdInput.value);
 
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = htmlString;
+            tempDiv.innerHTML = rawHtml;
+            applyPangu(tempDiv);
             const elements = Array.from(tempDiv.children);
 
-            previewArea.innerHTML = '';
+            const tank = getRenderTank();
+            tank.innerHTML = '';
+            const finalizedPages = [];
 
             if (elements.length === 0) {
                 const emptyPage = createNewPage(currentName, currentAvatar);
-                previewArea.appendChild(emptyPage.container);
+                finalizedPages.push(emptyPage.container);
+                previewArea.replaceChildren(...finalizedPages);
                 return;
             }
 
             let pageObj = createNewPage(currentName, currentAvatar);
-            previewArea.appendChild(pageObj.container);
+            tank.appendChild(pageObj.container);
 
             elements.forEach(el => {
                 const isHeading = el.tagName === 'H2' || el.tagName === 'H1';
                 pageObj.flow.appendChild(el);
 
-                // 检测是否溢出
                 let isOverflow = pageObj.flow.scrollHeight > pageObj.flow.clientHeight;
-                
-                // 孤儿标题拦截 (Orphan Control)
-                // 若标题下方剩余空间不足 180px (容纳 2 行正文)，则推入下一页
                 if (!isOverflow && isHeading) {
                     const remainingSpace = pageObj.flow.clientHeight - pageObj.flow.scrollHeight;
-                    if (remainingSpace < 180) {
-                        isOverflow = true; 
-                    }
+                    if (remainingSpace < 160) isOverflow = true;
                 }
 
                 if (isOverflow) {
-                    // 若当前页已有其他元素，则将此元素移至新页
                     if (pageObj.flow.children.length > 1) {
                         pageObj.flow.removeChild(el);
+                        finalizedPages.push(pageObj.container);
+                        tank.innerHTML = '';
                         pageObj = createNewPage(currentName, currentAvatar);
-                        previewArea.appendChild(pageObj.container);
+                        tank.appendChild(pageObj.container);
                         pageObj.flow.appendChild(el);
                     }
                 }
             });
+            finalizedPages.push(pageObj.container);
+            previewArea.replaceChildren(...finalizedPages);
         }
 
-        // 导出核心数据节点
+        // 快照模式切换
+        function toggleSnapshot() {
+            const isSnapshot = document.body.classList.toggle('is-snapshot');
+            const btnText = document.querySelector('#snapshot-toggle span');
+            const btnIcon = document.querySelector('#snapshot-toggle i');
+
+            btnText.textContent = isSnapshot ? '退出快照' : '快照模式';
+            btnIcon.className = isSnapshot ? 'ri-close-line' : 'ri-camera-lens-line';
+
+            if (isSnapshot) {
+                showToast('已进入快照模式：UI 已隐藏，卡片重置为 1:1 比例。您可以直接右键某个卡片节点进行“捕捉节点截图”。');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.body.classList.contains('is-snapshot')) {
+                toggleSnapshot();
+            }
+        });
+
+        // 导出 PNG
         async function exportCanvases() {
             const exportTargets = document.querySelectorAll('.canvas-page');
             if (exportTargets.length === 0) return;
@@ -292,43 +460,37 @@
 
             try {
                 for (let i = 0; i < exportTargets.length; i++) {
-                    const target = exportTargets[i];
-
-                    const dataUrl = await htmlToImage.toPng(target, {
+                    const dataUrl = await htmlToImage.toPng(exportTargets[i], {
                         width: 1200,
                         height: 1600,
-                        pixelRatio: 2, // 启用 2x 采样 (最后输出 2400x3200)
+                        style: { transform: 'none', zoom: '1' },
+                        pixelRatio: 2,
                         backgroundColor: '#ffffff'
                     });
 
                     const link = document.createElement('a');
-                    link.download = `Slide-${i + 1}.png`;
+                    link.download = `TypeFlow-Slide-${i + 1}.png`;
                     link.href = dataUrl;
                     link.click();
-
-                    await new Promise(resolve => setTimeout(resolve, 300));
+                    await new Promise(r => setTimeout(r, 400));
                 }
                 showToast('全部画板导出成功');
-            } catch (error) {
-                console.error('导出失败:', error);
-                showToast('导出过程中出现错误', 'error');
+            } catch (err) {
+                showToast('导出出错', 'error');
             } finally {
                 exportBtn.innerHTML = originalText;
                 exportBtn.disabled = false;
             }
         }
 
-        // 防抖监听
+        // 生命周期监听
         let timeout;
         const triggerRender = () => {
             clearTimeout(timeout);
-            timeout = setTimeout(renderContent, 150);
+            timeout = setTimeout(renderContent, 100);
         };
 
         [mdInput, nickInput, avatarInput].forEach(el => el.addEventListener('input', triggerRender));
-
-        // 初始化
-
         renderContent();
     </script>
 </body>
