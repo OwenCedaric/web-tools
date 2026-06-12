@@ -97,7 +97,7 @@ function toolMetadataPlugin() {
 }
 
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [
     tailwindcss(),
     toolMetadataPlugin(),
