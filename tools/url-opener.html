@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批量 URL 连续打开 - {{siteName}}</title>
+    <meta name="description" content="粘贴 URL 列表，连续点击打开下一个链接，适合批量处理和审查网址。">
+    <meta name="tool-icon" content="ri-links-line">
+    <meta name="tool-tags" content="URL, 批量, 链接, 开发者工具">
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="返回首页">
+                <i class="ri-arrow-left-line text-xl opacity-70"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-links-line text-slate-900"></i>
+                <span class="tracking-tight">批量 URL 连续打开</span>
+            </h1>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 lg:py-12">
+        <div class="grid lg:grid-cols-2 gap-6 lg:gap-8">
+            <!-- Left Panel: Input -->
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between px-2">
+                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <i class="ri-article-line text-slate-400"></i> URL 列表
+                    </h2>
+                    <div class="flex gap-4">
+                        <button onclick="clearAll()" class="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase">清空</button>
+                    </div>
+                </div>
+                <div class="relative group">
+                    <textarea id="url-input" 
+                        class="w-full h-64 lg:h-[400px] p-8 bg-white border border-slate-200 rounded-3xl shadow-sm focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none transition-all font-mono text-sm leading-relaxed whitespace-pre"
+                        placeholder="在此粘贴你的 URL 列表...&#10;https://example.com/1&#10;https://example.com/2"
+                        oninput="parseUrls()"></textarea>
+                </div>
+            </div>
+
+            <!-- Right Panel: Status & Controls -->
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between px-2">
+                    <h1 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <i class="ri-dashboard-line text-slate-400"></i> 处理进度 <span id="progress-text" class="text-slate-500 font-normal ml-2">0/0</span>
+                    </h1>
+                    <div class="flex gap-4">
+                        <button onclick="resetProgress()" class="text-[10px] font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase">重置进度</button>
+                    </div>
+                </div>
+                
+                <div class="flex-1 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center gap-6">
+                    
+                    <div class="w-full max-w-sm flex flex-col gap-2">
+                        <div class="flex items-center justify-between bg-slate-50 p-2 rounded-xl border border-slate-100">
+                            <span class="text-sm text-slate-500 font-medium pl-2">每次打开数量</span>
+                            <input type="number" id="batch-count-input" value="1" min="1" max="50" oninput="updateUI()" class="w-20 h-10 bg-white border border-slate-200 rounded-lg text-center font-bold text-slate-900 focus:ring-2 focus:ring-slate-900 outline-none">
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col gap-3">
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-sm text-slate-500 font-medium group-hover:text-slate-900 transition-colors">开启自动连播</span>
+                                <div class="relative inline-flex items-center">
+                                    <input type="checkbox" id="setting-auto-next" onchange="toggleAutoMode()" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
+                                </div>
+                            </label>
+                            
+                            <div id="auto-mode-options" class="flex flex-col gap-2 pt-2 border-t border-slate-200 hidden">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="radio" name="auto_mode" value="batch" checked class="text-slate-900 focus:ring-slate-900">
+                                    <span class="text-xs text-slate-500 group-hover:text-slate-900 transition-colors">批次模式 (全部关闭后再弹下一批，适合人类阅读)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="radio" name="auto_mode" value="replenish" class="text-slate-900 focus:ring-slate-900">
+                                    <span class="text-xs text-slate-500 group-hover:text-slate-900 transition-colors">补给模式 (关闭一个立刻补开一个，适合程序处理)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="open-next-btn" onclick="openNext()" class="w-full max-w-sm py-5 bg-slate-900 text-white font-bold rounded-2xl shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100">
+                        <i class="ri-external-link-line text-xl"></i> 
+                        <span id="btn-text">打开下一个</span>
+                    </button>
+
+                    <div id="current-url-display" class="w-full max-w-sm text-center text-sm font-mono text-slate-500 break-all h-auto min-h-[2.5rem] py-2 flex items-center justify-center px-4 bg-slate-50 rounded-lg line-clamp-3">
+                        等待输入...
+                    </div>
+                    
+                    <p class="text-[10px] text-slate-400 max-w-sm text-center leading-relaxed">
+                        <i class="ri-information-line"></i> 如果一次无法打开多个，或者无法实现“自动打开下一批”，请在浏览器地址栏右侧<b>允许弹出窗口</b>，或临时为本站暂停去广告插件。
+                    </p>
+                    
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- INJECT_FOOTER -->
+
+    <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
+
+    <script type="module">
+        import { showToast } from '/src/common.js';
+        
+        window.showToast = showToast;
+        
+        const urlInput = document.getElementById('url-input');
+        const openNextBtn = document.getElementById('open-next-btn');
+        const btnText = document.getElementById('btn-text');
+        const progressText = document.getElementById('progress-text');
+        const currentUrlDisplay = document.getElementById('current-url-display');
+        const batchCountInput = document.getElementById('batch-count-input');
+
+        let urls = [];
+        let openedWindows = [];
+
+        function isValidUrl(string) {
+            try {
+                let urlString = string;
+                if (!urlString.startsWith('http://') && !urlString.startsWith('https://') && !urlString.startsWith('chrome://') && !urlString.startsWith('about:')) {
+                    urlString = 'http://' + urlString;
+                }
+                new URL(urlString);
+                // Basic heuristic for typical web URLs vs random words
+                if (urlString.startsWith('chrome://') || urlString.startsWith('about:') || urlString.includes('localhost') || urlString.includes('127.0.0.1')) {
+                    return true;
+                }
+                return string.includes('.'); 
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function cleanUrls() {
+            const lines = urlInput.value.split('\n');
+            const validUrls = lines.map(line => line.trim()).filter(line => line.length > 0 && isValidUrl(line));
+            
+            // Only update if there are changes to avoid resetting cursor when typing
+            const newText = validUrls.join('\n');
+            if (urlInput.value !== newText) {
+                urlInput.value = newText;
+            }
+            parseUrls();
+        }
+
+        urlInput.addEventListener('paste', () => {
+            // Wait for paste to complete then clean
+            setTimeout(cleanUrls, 10);
+        });
+
+        urlInput.addEventListener('change', () => {
+            cleanUrls();
+        });
+
+        function parseUrls() {
+            const lines = urlInput.value.split('\n');
+            // When parsing for the UI, we only count valid URLs
+            urls = lines.map(line => line.trim()).filter(line => line.length > 0 && isValidUrl(line));
+            updateUI();
+        }
+
+        function updateUI() {
+            progressText.textContent = `剩余: ${urls.length}`;
+            
+            if (urls.length === 0) {
+                openNextBtn.disabled = true;
+                btnText.textContent = "打开下一个";
+                currentUrlDisplay.textContent = "等待输入...";
+                currentUrlDisplay.classList.remove("text-slate-900", "font-medium");
+                currentUrlDisplay.classList.add("text-slate-500");
+                return;
+            }
+
+            openNextBtn.disabled = false;
+            
+            const batchCount = parseInt(batchCountInput.value) || 1;
+            const countToOpen = Math.min(batchCount, urls.length);
+            
+            btnText.textContent = `打开下 ${countToOpen} 个`;
+            if (countToOpen === 1) {
+                currentUrlDisplay.textContent = "准备打开: " + urls[0];
+            } else {
+                currentUrlDisplay.textContent = `准备打开: ${urls[0]} 等 ${countToOpen} 个链接`;
+            }
+            currentUrlDisplay.classList.remove("text-slate-900", "font-medium");
+            currentUrlDisplay.classList.add("text-slate-500");
+        }
+
+        let hasStartedFlow = false;
+
+        function openWindows(count) {
+            if (count <= 0 || urls.length === 0) return;
+
+            let successCount = 0;
+            let blocked = false;
+            let actualCount = Math.min(count, urls.length);
+
+            for (let i = 0; i < actualCount; i++) {
+                if (urls.length === 0) break;
+
+                let targetUrl = urls[0];
+                
+                if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://') && !targetUrl.startsWith('chrome://') && !targetUrl.startsWith('about:')) {
+                    targetUrl = 'http://' + targetUrl;
+                }
+
+                let newWin = window.open(targetUrl, '_blank');
+                
+                let isMockWindow = false;
+                try {
+                    if (newWin && newWin.closed) {
+                        isMockWindow = true;
+                    }
+                } catch (e) {}
+
+                if (newWin && !isMockWindow) {
+                    openedWindows.push(newWin);
+                    urls.shift();
+                    successCount++;
+                } else {
+                    blocked = true;
+                    break;
+                }
+            }
+
+            if (blocked) {
+                // Turn off auto-next to prevent infinite error spam
+                document.getElementById('setting-auto-next').checked = false;
+                showToast("⚠️ 弹窗被拦截", "自动连播已暂停。请临时关闭去广告插件，或允许本站弹出窗口", "error");
+            }
+
+            urlInput.value = urls.join('\n');
+            updateUI();
+        }
+
+        function openNext() {
+            if (urls.length === 0) {
+                showToast("提示", "所有链接已处理完毕");
+                return;
+            }
+
+            hasStartedFlow = true;
+
+            const batchCount = parseInt(batchCountInput.value) || 1;
+            const countToOpen = Math.min(batchCount, urls.length);
+
+            // Close previously opened windows
+            openedWindows.forEach(win => {
+                try {
+                    if (win && !win.closed) {
+                        win.close();
+                    }
+                } catch (e) {}
+            });
+            openedWindows = [];
+
+            openWindows(countToOpen);
+        }
+
+        function resetProgress() {
+            clearAll();
+            showToast("已清空");
+        }
+
+        function clearAll() {
+            hasStartedFlow = false;
+            urlInput.value = '';
+            urls = [];
+            openedWindows.forEach(win => {
+                try {
+                    if (win && !win.closed) {
+                        win.close();
+                    }
+                } catch(e){}
+            });
+            openedWindows = [];
+            document.getElementById('setting-auto-next').checked = false;
+            toggleAutoMode();
+            updateUI();
+        }
+
+        function toggleAutoMode() {
+            const autoNext = document.getElementById('setting-auto-next').checked;
+            const optionsDiv = document.getElementById('auto-mode-options');
+            if (autoNext) {
+                optionsDiv.classList.remove('hidden');
+            } else {
+                optionsDiv.classList.add('hidden');
+            }
+        }
+
+        // Monitoring mechanism for Auto Next
+        setInterval(() => {
+            const autoNext = document.getElementById('setting-auto-next').checked;
+            if (!autoNext || !hasStartedFlow || urls.length === 0) return;
+            
+            // Clean up closed windows from the tracked array
+            openedWindows = openedWindows.filter(win => {
+                try {
+                    return !win.closed;
+                } catch (e) {
+                    // If cross-origin blocks access, assume open to prevent spamming
+                    return true; 
+                }
+            });
+
+            const mode = document.querySelector('input[name="auto_mode"]:checked').value;
+            const batchCount = parseInt(batchCountInput.value) || 1;
+
+            if (mode === 'replenish') {
+                const countToReplenish = batchCount - openedWindows.length;
+                if (countToReplenish > 0) {
+                    openWindows(countToReplenish);
+                }
+            } else {
+                // Batch mode: only open next batch when ALL are closed
+                if (openedWindows.length === 0) {
+                    openWindows(Math.min(batchCount, urls.length));
+                }
+            }
+        }, 500);
+
+        window.parseUrls = parseUrls;
+        window.openNext = openNext;
+        window.resetProgress = resetProgress;
+        window.clearAll = clearAll;
+        window.toggleAutoMode = toggleAutoMode;
+
+        // Initial UI update
+        updateUI();
+
+    </script>
+</body>
+</html>
