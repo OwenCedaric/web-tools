@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG 路径精度压缩 - {{siteName}}</title>
+    <meta name="description" content="上传 SVG 文件，调整滑块精度以压缩 d 属性中的浮点数精度，减小文件体积并实时预览效果。">
+    <meta name="tool-icon" content="ri-compasses-2-line">
+    <meta name="tool-tags" content="SVG, 压缩, 路径, 地图, 设计工具">
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        /* Dark theme override since global body is light */
+        body {
+            background-color: #020617 !important; /* bg-slate-950 */
+            color: #f1f5f9 !important; /* text-slate-100 */
+        }
+        /* Custom scrollbars for dark theme */
+        ::-webkit-scrollbar-thumb {
+            background-color: #334155 !important; /* bg-slate-700 */
+        }
+        /* Transparent checkerboard background for SVG preview */
+        .preview-grid {
+            background-color: #0b0f19;
+            background-image: 
+                linear-gradient(45deg, #111827 25%, transparent 25%), 
+                linear-gradient(-45deg, #111827 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #111827 75%), 
+                linear-gradient(-45deg, transparent 75%, #111827 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-slate-100" title="返回首页">
+                <i class="ri-arrow-left-line text-xl"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-compasses-2-line text-sky-400"></i>
+                <span class="tracking-tight text-slate-100">SVG 路径精度压缩</span>
+            </h1>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 lg:py-10 flex flex-col lg:flex-row gap-6 lg:gap-8 overflow-hidden">
+        <!-- Left: Upload, Controls & Stats -->
+        <div class="w-full lg:w-[380px] flex flex-col gap-6 shrink-0">
+            <!-- Upload Area -->
+            <div id="drop-zone" class="border-2 border-dashed border-slate-800 rounded-[2rem] p-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-sky-500 hover:bg-slate-900/50 transition-all select-none group bg-slate-900/30">
+                <div class="w-14 h-14 bg-slate-800 group-hover:bg-sky-500 group-hover:text-white rounded-2xl flex items-center justify-center text-slate-400 transition-all duration-300">
+                    <i class="ri-upload-cloud-2-line text-2xl"></i>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-200">选择或拖拽 SVG 文件</p>
+                    <p class="text-[10px] text-slate-500 mt-1 uppercase tracking-widest">Supports .svg only</p>
+                </div>
+                <input type="file" id="file-input" class="hidden" accept=".svg">
+            </div>
+
+            <!-- Panel Controls -->
+            <div class="bg-slate-900/50 border border-slate-800 rounded-[2rem] p-6 space-y-6">
+                <div>
+                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+                        <i class="ri-equalizer-line text-sky-400"></i> 精度设置
+                    </h2>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-400 font-medium">保留小数位数</span>
+                            <span id="precision-value" class="text-sm font-bold text-sky-400 bg-sky-950/50 px-2.5 py-0.5 rounded-md border border-sky-900/50">2</span>
+                        </div>
+                        <input type="range" id="precision-slider" min="0" max="6" value="2" step="1" 
+                               class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500 focus:outline-none">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                            <span>0 (整数)</span>
+                            <span>3</span>
+                            <span>6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-800 pt-6">
+                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+                        <i class="ri-pie-chart-line text-sky-400"></i> 压缩数据对比
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">原始大小</span>
+                            <span id="original-size" class="font-mono text-slate-200 font-semibold">- KB</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">当前大小</span>
+                            <span id="current-size" class="font-mono text-slate-200 font-semibold">- KB</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">压缩率</span>
+                            <span id="compression-ratio" class="font-mono text-emerald-400 font-bold bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-900/30 hidden">- 0.0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-800 pt-6">
+                    <button id="download-btn" disabled 
+                            class="w-full py-3.5 bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed rounded-xl text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg shadow-sky-950/20 flex items-center justify-center gap-2">
+                        <i class="ri-download-2-line"></i> 下载 SVG 文件
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Interactive Live Preview -->
+        <div class="flex-1 min-h-[400px] lg:min-h-0 bg-slate-900/30 border border-slate-800 rounded-[2.5rem] flex flex-col overflow-hidden relative">
+            <div class="h-12 bg-slate-900/80 px-6 border-b border-slate-800 flex items-center justify-between z-10 shrink-0">
+                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> SVG 实时预览区
+                </span>
+                <span id="file-name" class="text-[10px] font-mono text-slate-400 truncate max-w-xs">未加载文件</span>
+            </div>
+            
+            <div id="preview-container" class="flex-1 flex items-center justify-center p-8 preview-grid overflow-hidden relative select-none">
+                <!-- Placeholder -->
+                <div id="preview-placeholder" class="text-center text-slate-600 flex flex-col items-center gap-3">
+                    <i class="ri-file-code-line text-5xl opacity-40"></i>
+                    <p class="text-xs uppercase tracking-widest">请先在左侧上传 SVG 进行预览与处理</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { showToast } from '/src/common.js';
+
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const precisionSlider = document.getElementById('precision-slider');
+        const precisionValue = document.getElementById('precision-value');
+        const originalSizeEl = document.getElementById('original-size');
+        const currentSizeEl = document.getElementById('current-size');
+        const compressionRatioEl = document.getElementById('compression-ratio');
+        const downloadBtn = document.getElementById('download-btn');
+        const fileNameEl = document.getElementById('file-name');
+        const previewContainer = document.getElementById('preview-container');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+
+        let rawSvgText = '';
+        let processedSvgText = '';
+        let originalSizeBytes = 0;
+        let loadedFileName = '';
+
+        // Drag & Drop event listeners
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-sky-500', 'bg-slate-900/50');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-sky-500', 'bg-slate-900/50');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-sky-500', 'bg-slate-900/50');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        precisionSlider.addEventListener('input', (e) => {
+            const precision = parseInt(e.target.value);
+            precisionValue.textContent = precision;
+            if (rawSvgText) {
+                processSvg(precision);
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!processedSvgText) return;
+            const blob = new Blob([processedSvgText], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const nameWithoutExt = loadedFileName.substring(0, loadedFileName.lastIndexOf('.')) || loadedFileName;
+            a.href = url;
+            a.download = `${nameWithoutExt}-compressed.svg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('下载成功', '已保存压缩后的 SVG 到本地');
+        });
+
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.svg')) {
+                showToast('文件类型错误', '仅支持上传 .svg 文件', 'error');
+                return;
+            }
+
+            loadedFileName = file.name;
+            originalSizeBytes = file.size;
+            originalSizeEl.textContent = formatBytes(originalSizeBytes);
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                rawSvgText = event.target.result;
+                fileNameEl.textContent = loadedFileName;
+                previewPlaceholder.style.display = 'none';
+                
+                // Reset slider
+                precisionSlider.value = 2;
+                precisionValue.textContent = '2';
+                
+                processSvg(2);
+                showToast('导入成功', 'SVG 文件加载完成');
+            };
+            reader.readAsText(file);
+        }
+
+        function processSvg(precision) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(rawSvgText, 'image/svg+xml');
+                
+                const parserError = doc.querySelector('parsererror');
+                if (parserError) {
+                    throw new Error('SVG 解析失败');
+                }
+
+                const paths = doc.querySelectorAll('path');
+                // Regex matches floats, optionally negative, and supports scientific notations (e.g. 1e-4)
+                const numRegex = /-?\d*\.?\d+(?:[eE][-+]?\d+)?/g;
+
+                paths.forEach(path => {
+                    const d = path.getAttribute('d');
+                    if (d) {
+                        const newD = d.replace(numRegex, (match) => {
+                            const num = parseFloat(match);
+                            if (isNaN(num)) return match;
+                            const factor = Math.pow(10, precision);
+                            const rounded = Math.round(num * factor) / factor;
+                            return rounded.toString();
+                        });
+                        path.setAttribute('d', newD);
+                    }
+                });
+
+                const serializer = new XMLSerializer();
+                processedSvgText = serializer.serializeToString(doc);
+
+                // Update size stats
+                const processedBytes = new Blob([processedSvgText]).size;
+                currentSizeEl.textContent = formatBytes(processedBytes);
+
+                if (originalSizeBytes > 0) {
+                    const saved = originalSizeBytes - processedBytes;
+                    const ratio = (saved / originalSizeBytes) * 100;
+                    if (ratio > 0) {
+                        compressionRatioEl.textContent = `减少了 ${ratio.toFixed(1)}%`;
+                        compressionRatioEl.classList.remove('hidden');
+                    } else if (ratio < 0) {
+                        compressionRatioEl.textContent = `增加了 ${Math.abs(ratio).toFixed(1)}%`;
+                        compressionRatioEl.classList.remove('hidden');
+                    } else {
+                        compressionRatioEl.textContent = '无变化';
+                        compressionRatioEl.classList.remove('hidden');
+                    }
+                }
+
+                // Render in preview
+                // To display the SVG properly inside previewContainer, we can clean old children and inject SVG node
+                // But we want it centered and responsive.
+                const svgNode = doc.documentElement;
+                
+                // Setup styling for responsive previewing
+                svgNode.style.maxWidth = '100%';
+                svgNode.style.maxHeight = '100%';
+                svgNode.style.width = 'auto';
+                svgNode.style.height = 'auto';
+                
+                // Clear previous SVGs
+                const existingSvgs = previewContainer.querySelectorAll('svg');
+                existingSvgs.forEach(s => s.remove());
+                
+                previewContainer.appendChild(svgNode);
+
+                downloadBtn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                showToast('处理失败', err.message || 'SVG 数据异常，请确认文件完整', 'error');
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

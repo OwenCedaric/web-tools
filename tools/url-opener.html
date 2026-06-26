@@ -61,6 +61,27 @@
                             <span class="text-sm text-slate-500 font-medium pl-2">每次打开数量</span>
                             <input type="number" id="batch-count-input" value="1" min="1" max="50" oninput="updateUI()" class="w-20 h-10 bg-white border border-slate-200 rounded-lg text-center font-bold text-slate-900 focus:ring-2 focus:ring-slate-900 outline-none">
                         </div>
+
+                        <!-- 新增：打开行为设置 -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col gap-3">
+                            <div class="text-sm text-slate-500 font-medium pl-1">打开行为</div>
+                            <div class="flex flex-col gap-2">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="radio" name="window_mode" value="blank" checked class="text-slate-900 focus:ring-slate-900" onchange="toggleApiTip()">
+                                    <span class="text-xs text-slate-600">新标签页 (默认，看完即关)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="radio" name="window_mode" value="reuse" class="text-slate-900 focus:ring-slate-900" onchange="toggleApiTip()">
+                                    <span class="text-xs text-slate-600">复用标签页 (省内存 / 脚本协同)</span>
+                                </label>
+                            </div>
+                            
+                            <div id="reuse-api-tip" class="hidden text-[10px] text-slate-500 bg-white p-2.5 rounded-lg border border-blue-100 mt-1 leading-relaxed">
+                                <div class="font-bold text-blue-600 mb-1 flex items-center gap-1"><i class="ri-code-s-slash-line"></i> 油猴 API 协同</div>
+                                网页处理完成后，在油猴中执行以下代码，即可通知本工具在<b>当前标签页</b>无缝加载下一个链接，实现极速全自动流转：
+                                <code class="text-pink-600 select-all font-mono block mt-2 bg-slate-50 p-1.5 border border-slate-100 rounded">window.opener.postMessage('NEXT_URL', '*');</code>
+                            </div>
+                        </div>
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col gap-3">
                             <label class="flex items-center justify-between cursor-pointer group">
                                 <span class="text-sm text-slate-500 font-medium group-hover:text-slate-900 transition-colors">开启自动连播</span>
@@ -200,6 +221,7 @@
             let successCount = 0;
             let blocked = false;
             let actualCount = Math.min(count, urls.length);
+            const mode = document.querySelector('input[name="window_mode"]:checked').value;
 
             for (let i = 0; i < actualCount; i++) {
                 if (urls.length === 0) break;
@@ -210,7 +232,8 @@
                     targetUrl = 'http://' + targetUrl;
                 }
 
-                let newWin = window.open(targetUrl, '_blank');
+                let targetName = mode === 'reuse' ? `batch_win_${i}` : '_blank';
+                let newWin = window.open(targetUrl, targetName);
                 
                 let isMockWindow = false;
                 try {
@@ -220,7 +243,12 @@
                 } catch (e) {}
 
                 if (newWin && !isMockWindow) {
-                    openedWindows.push(newWin);
+                    if (mode === 'reuse') {
+                        // Keep track of the window at specific index for reuse
+                        openedWindows[i] = newWin;
+                    } else {
+                        openedWindows.push(newWin);
+                    }
                     urls.shift();
                     successCount++;
                 } else {
@@ -247,18 +275,22 @@
 
             hasStartedFlow = true;
 
+            const mode = document.querySelector('input[name="window_mode"]:checked').value;
             const batchCount = parseInt(batchCountInput.value) || 1;
             const countToOpen = Math.min(batchCount, urls.length);
 
-            // Close previously opened windows
-            openedWindows.forEach(win => {
-                try {
-                    if (win && !win.closed) {
-                        win.close();
-                    }
-                } catch (e) {}
-            });
-            openedWindows = [];
+            if (mode === 'blank') {
+                // Close previously opened windows ONLY in blank mode
+                openedWindows.forEach(win => {
+                    try {
+                        if (win && !win.closed) {
+                            win.close();
+                        }
+                    } catch (e) {}
+                });
+                openedWindows = [];
+            }
+            // In 'reuse' mode, we leave openedWindows intact to navigate them directly.
 
             openWindows(countToOpen);
         }
@@ -294,6 +326,48 @@
                 optionsDiv.classList.add('hidden');
             }
         }
+
+        function toggleApiTip() {
+            const mode = document.querySelector('input[name="window_mode"]:checked').value;
+            const tip = document.getElementById('reuse-api-tip');
+            if (mode === 'reuse') {
+                tip.classList.remove('hidden');
+            } else {
+                tip.classList.add('hidden');
+            }
+        }
+
+        // postMessage API listener for seamless tab reuse
+        window.addEventListener('message', (e) => {
+            let isNext = false;
+            if (e.data === 'NEXT_URL') isNext = true;
+            if (e.data && e.data.action === 'NEXT_URL') isNext = true;
+            
+            if (isNext) {
+                if (urls.length > 0) {
+                    // Try to match which window sent the message
+                    let winIndex = openedWindows.findIndex(w => w === e.source);
+                    if (winIndex === -1) winIndex = 0; // Fallback to 0
+                    
+                    let targetUrl = urls[0];
+                    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://') && !targetUrl.startsWith('chrome://') && !targetUrl.startsWith('about:')) {
+                        targetUrl = 'http://' + targetUrl;
+                    }
+                    
+                    let targetName = 'batch_win_' + winIndex;
+                    openedWindows[winIndex] = window.open(targetUrl, targetName);
+                    
+                    urls.shift();
+                    urlInput.value = urls.join('\n');
+                    updateUI();
+                } else {
+                    showToast("✅ 任务完成", "所有链接已处理完毕");
+                    if (e.source) {
+                        try { e.source.postMessage('ALL_DONE', '*'); } catch (err) {}
+                    }
+                }
+            }
+        });
 
         // Monitoring mechanism for Auto Next
         setInterval(() => {
@@ -331,6 +405,7 @@
         window.resetProgress = resetProgress;
         window.clearAll = clearAll;
         window.toggleAutoMode = toggleAutoMode;
+        window.toggleApiTip = toggleApiTip;
 
         // Initial UI update
         updateUI();
