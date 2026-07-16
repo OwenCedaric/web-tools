@@ -148,7 +148,7 @@
                 if (!canvasRef.current) return;
                 html2canvas(canvasRef.current, { scale: 2, useCORS: true }).then(canvas => {
                     const link = document.createElement('a');
-                    link.download = \`ru_ecomm_asset_\${Date.now()}.png\`;
+                    link.download = `ru_ecomm_asset_${Date.now()}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     if (window.showToast) {
@@ -218,10 +218,10 @@
 
                                 {/* CALLOUTS (左右双向) */}
                                 {data.callouts && data.callouts.map((c, i) => (
-                                    <DraggableItem key={i} id={\`callout-\${i}\`} pos={c.pos} onDrag={handleDrag}>
-                                        <div className={\`flex items-center \${c.dir === 'right' ? 'flex-row-reverse' : 'flex-row'}\`}>
+                                    <DraggableItem key={i} id={`callout-${i}`} pos={c.pos} onDrag={handleDrag}>
+                                        <div className={`flex items-center ${c.dir === 'right' ? 'flex-row-reverse' : 'flex-row'}`}>
                                             {/* LABEL BOX */}
-                                            <div className={\`bg-white border-2 border-black p-2 shadow-[4px_4px_0_rgba(0,0,0,1)] min-w-[120px] \${c.dir === 'right' ? 'text-right' : 'text-left'}\`}>
+                                            <div className={`bg-white border-2 border-black p-2 shadow-[4px_4px_0_rgba(0,0,0,1)] min-w-[120px] ${c.dir === 'right' ? 'text-right' : 'text-left'}`}>
                                                 <div className="text-[10px] font-bold text-slate-500">{c.label}</div>
                                                 <div className="text-lg font-black text-black leading-none mt-1">{c.content}</div>
                                             </div>
@@ -290,8 +290,8 @@
             };
 
             const style = {
-                left: \`\${pos.x}px\`,
-                top: \`\${pos.y}px\`,
+                left: `${pos.x}px`,
+                top: `${pos.y}px`,
                 transform: centered ? 'translateX(-50%)' : 'none'
             };
 
