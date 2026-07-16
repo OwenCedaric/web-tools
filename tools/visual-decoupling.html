@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>视觉解耦排版 - {{siteName}}</title>
-    <meta name="description" content="视觉解耦排版引擎，支持高对比度电商图文渲染与导出。">
+    <title>视觉排版引擎 v4.0 - {{siteName}}</title>
+    <meta name="description" content="图文完全解耦版引擎，支持双向标签、自由拖拽布局、与AI纯净底图合成。">
     <meta name="tool-icon" content="ri-layout-masonry-line">
-    <meta name="tool-tags" content="Design, Typography, Tool">
+    <meta name="tool-tags" content="Design, Typography, E-commerce, Tool">
     <link rel="stylesheet" href="/src/style.css">
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -20,6 +20,31 @@
             font-family: "Arial Black", "Impact", sans-serif;
             text-transform: uppercase;
         }
+
+        .draggable-element {
+            cursor: move;
+            pointer-events: auto;
+            z-index: 50;
+        }
+
+        .draggable-element:hover {
+            outline: 2px dashed #ff6b00;
+            outline-offset: 4px;
+            border-radius: 4px;
+        }
+
+        .canvas-container {
+            width: 600px;
+            height: 800px;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .canvas-container {
+                transform: scale(0.6);
+                transform-origin: top center;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen transition-colors duration-200">
@@ -31,7 +56,7 @@
             </a>
             <h1 class="text-lg font-semibold flex items-center gap-2">
                 <i class="ri-layout-masonry-line text-slate-900"></i>
-                <span class="tracking-tight">视觉解耦排版引擎</span>
+                <span class="tracking-tight">视觉排版引擎 v4.0</span>
             </h1>
         </div>
     </header>
@@ -51,53 +76,79 @@
     </script>
     
     <script type="text/babel">
-        const { useState, useRef } = React;
+        const { useState, useRef, useEffect, useCallback } = React;
 
-        const defaultJSON = `{
-  "product_name": "ЧАЙНО-ЯГОДНЫЙ ЭНЕРГЕТИК",
-  "callouts": [
-    {"label": "НАТУРАЛЬНЫЙ", "content": "ЛИСТ ТЕА"},
-    {"label": "СУПЕР", "content": "ОХЛАЖДЕНИЕ"}
-  ],
-  "sidebar": {
-    "title": "ХАРАКТЕРИСТИКИ",
-    "parameters": [
-      {"name": "ОБЪЕМ", "value": "500 МЛ"},
-      {"name": "КЭШБЭК", "value": "10%"}
-    ]
-  }
-}`;
+        const initialData = {
+            product_name: { text: "СИБИРСКИЙ ВСПЛЕСК", pos: { x: 300, y: 60 } },
+            callouts: [
+                { label: "НАТУРАЛЬНЫЙ", content: "ЛИСТ ТЕА", dir: "left", pos: { x: 150, y: 250 } },
+                { label: "СУПЕР", content: "ОХЛАЖДЕНИЕ", dir: "right", pos: { x: 450, y: 480 } },
+                { label: "ВИТАМИН C +", content: "ВИТАМИН C", dir: "right", pos: { x: 450, y: 650 } }
+            ],
+            sidebar: {
+                title: "ХАРАКТЕРИСТИКИ",
+                pos: { x: 480, y: 280 },
+                parameters: [
+                    { name: "ОБЪЕМ", value: "500 МЛ" },
+                    { name: "КЭШБЭК", value: "10%" }
+                ]
+            },
+            reviews: { stars: 5, text: "ОЧЕНЬ ВКУСНО, БОДРИТ!", pos: { x: 400, y: 730 } }
+        };
 
         function App() {
             const [imageSrc, setImageSrc] = useState(null);
-            const [jsonText, setJsonText] = useState(defaultJSON);
-            const [data, setData] = useState(JSON.parse(defaultJSON));
+            const [data, setData] = useState(initialData);
+            const [jsonText, setJsonText] = useState(JSON.stringify(initialData, null, 2));
             const canvasRef = useRef(null);
+
+            // 同步数据到 JSON 文本框
+            useEffect(() => {
+                setJsonText(JSON.stringify(data, null, 2));
+            }, [data]);
+
+            const handleJsonChange = (e) => {
+                setJsonText(e.target.value);
+                try {
+                    const parsed = JSON.parse(e.target.value);
+                    setData(parsed);
+                } catch (err) { }
+            };
+
+            const handleDrag = (id, clientX, clientY, type, offset) => {
+                if (type !== 'move') return;
+                const rect = canvasRef.current.getBoundingClientRect();
+                const scale = 600 / rect.width;
+                let newX = (clientX - rect.left) * scale - offset.x;
+                let newY = (clientY - rect.top) * scale - offset.y;
+
+                setData(prev => {
+                    const next = { ...prev };
+                    if (id === 'p-name') next.product_name.pos = { x: newX, y: newY };
+                    else if (id === 'sidebar') next.sidebar.pos = { x: newX, y: newY };
+                    else if (id === 'reviews') next.reviews.pos = { x: newX, y: newY };
+                    else if (id.startsWith('callout-')) {
+                        const index = parseInt(id.split('-')[1]);
+                        next.callouts[index].pos = { x: newX, y: newY };
+                    }
+                    return next;
+                });
+            };
 
             const handleImageUpload = (e) => {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = (event) => setImageSrc(event.target.result);
+                    reader.onload = (ev) => setImageSrc(ev.target.result);
                     reader.readAsDataURL(file);
                 }
             };
 
-            const handleJsonUpdate = (e) => {
-                setJsonText(e.target.value);
-                try {
-                    const parsed = JSON.parse(e.target.value);
-                    setData(parsed);
-                } catch (err) {
-                    // 保持原有数据直至 JSON 格式合法
-                }
-            };
-
-            const handleExport = () => {
+            const exportImage = () => {
                 if (!canvasRef.current) return;
                 html2canvas(canvasRef.current, { scale: 2, useCORS: true }).then(canvas => {
                     const link = document.createElement('a');
-                    link.download = 'export-ru-ecommerce.png';
+                    link.download = \`ru_ecomm_asset_\${Date.now()}.png\`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     if (window.showToast) {
@@ -107,11 +158,11 @@
             };
 
             return (
-                <div className="bg-white border border-slate-200 rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[70vh]">
+                <div className="bg-white border border-slate-200 rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[75vh]">
                     {/* 左侧：控制台 */}
                     <div className="w-full md:w-1/3 bg-slate-50 border-r border-slate-200 p-8 flex flex-col gap-6">
                         <div className="flex flex-col gap-3">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">1. 底图输入 (Base Image)</label>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">1. 上传 AI 底图</label>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -121,19 +172,19 @@
                         </div>
 
                         <div className="flex flex-col gap-3 flex-grow">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">2. 结构化数据 (JSON Payload)</label>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">2. JSON 配置 (支持 dir 左右切换与拖动同步)</label>
                             <textarea
                                 value={jsonText}
-                                onChange={handleJsonUpdate}
+                                onChange={handleJsonChange}
                                 className="w-full flex-grow p-5 bg-white border border-slate-200 rounded-2xl text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none shadow-sm custom-scroll leading-relaxed"
                             ></textarea>
                         </div>
 
                         <button
-                            onClick={handleExport}
+                            onClick={exportImage}
                             className="w-full py-4 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-lg shadow-slate-900/10 active:scale-95 transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
                         >
-                            <i className="ri-download-2-line text-sm"></i> 导出复合图像
+                            <i className="ri-download-2-line text-sm"></i> 导出 3:4 高转化率资产
                         </button>
                     </div>
 
@@ -141,68 +192,112 @@
                     <div className="w-full md:w-2/3 bg-slate-100/50 flex items-center justify-center p-8 overflow-auto">
                         <div
                             ref={canvasRef}
-                            className="relative bg-white shadow-xl overflow-hidden ru-typography"
-                            style={{ width: '600px', height: '800px', flexShrink: 0 }}
+                            className="canvas-container relative bg-white shadow-xl overflow-hidden ru-typography pointer-events-none select-none"
+                            style={{ flexShrink: 0 }}
                         >
                             {/* 底图层 */}
                             {imageSrc ? (
-                                <img src={imageSrc} alt="Base" className="absolute inset-0 w-full h-full object-cover z-0" />
+                                <img src={imageSrc} className="absolute inset-0 w-full h-full object-cover z-0" />
                             ) : (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 bg-slate-50 z-0 m-6">
-                                    <i className="ri-image-add-line text-4xl text-slate-300 mb-2"></i>
-                                    <span className="text-slate-400 text-sm font-sans tracking-widest">等待底图渲染</span>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 bg-slate-50 z-0 m-6 text-slate-400">
+                                    <i className="ri-image-add-line text-4xl mb-2"></i>
+                                    <p className="font-bold text-sm tracking-widest">等待底图加载</p>
                                 </div>
                             )}
 
-                            {/* 信息图表覆盖层 (Overlay UI) - 俄式高对比度逻辑 */}
-                            <div className="absolute inset-0 z-10 pointer-events-none p-6 flex flex-col justify-between">
-                                {/* 顶部主标题 */}
+                            {/* 信息图表覆盖层 (Overlay UI) */}
+                            <div className="absolute inset-0 z-10 p-8">
+                                {/* PRODUCT NAME */}
                                 {data.product_name && (
-                                    <div className="w-full flex justify-center">
-                                        <div className="bg-[#FF6B00] text-white px-6 py-3 text-3xl font-black shadow-lg">
-                                            {data.product_name}
+                                    <DraggableItem id="p-name" pos={data.product_name.pos} onDrag={handleDrag} centered>
+                                        <div className="bg-[#FF6B00] text-white px-6 py-2 text-3xl font-black shadow-[4px_4px_0_rgba(0,0,0,1)] whitespace-nowrap">
+                                            {data.product_name.text}
                                         </div>
-                                    </div>
+                                    </DraggableItem>
                                 )}
 
-                                {/* 主体与侧边栏容器 */}
-                                <div className="flex justify-between items-end w-full h-full pb-8 pt-12">
-                                    {/* 左侧：悬浮标签 (Callouts) */}
-                                    <div className="flex flex-col gap-12 w-1/2">
-                                        {data.callouts && data.callouts.map((callout, index) => (
-                                            <div key={index} className="flex items-center">
-                                                <div className="bg-white border-2 border-black px-3 py-1 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-                                                    <div className="text-black text-xs font-bold">{callout.label}</div>
-                                                    <div className="text-black text-lg font-black leading-none mt-1">{callout.content}</div>
-                                                </div>
-                                                {/* 指示线模拟 */}
-                                                <div className="w-8 h-[2px] bg-black"></div>
-                                                <div className="w-2 h-2 rounded-full border-2 border-black bg-white"></div>
+                                {/* CALLOUTS (左右双向) */}
+                                {data.callouts && data.callouts.map((c, i) => (
+                                    <DraggableItem key={i} id={\`callout-\${i}\`} pos={c.pos} onDrag={handleDrag}>
+                                        <div className={\`flex items-center \${c.dir === 'right' ? 'flex-row-reverse' : 'flex-row'}\`}>
+                                            {/* LABEL BOX */}
+                                            <div className={\`bg-white border-2 border-black p-2 shadow-[4px_4px_0_rgba(0,0,0,1)] min-w-[120px] \${c.dir === 'right' ? 'text-right' : 'text-left'}\`}>
+                                                <div className="text-[10px] font-bold text-slate-500">{c.label}</div>
+                                                <div className="text-lg font-black text-black leading-none mt-1">{c.content}</div>
                                             </div>
-                                        ))}
-                                    </div>
+                                            {/* DYNAMIC POINTER LINE */}
+                                            <div className="flex items-center">
+                                                <div className="w-10 h-[2px] bg-black"></div>
+                                                <div className="w-3 h-3 rounded-full border-2 border-black bg-white"></div>
+                                            </div>
+                                        </div>
+                                    </DraggableItem>
+                                ))}
 
-                                    {/* 右侧：结构化参数侧边栏 (Sidebar) */}
-                                    {data.sidebar && (
-                                        <div className="w-[45%] flex flex-col gap-4">
-                                            {/* 参数面板 */}
-                                            <div className="bg-[#0066FF] text-white px-4 py-2 text-xl font-black text-center shadow-md">
+                                {/* SIDEBAR */}
+                                {data.sidebar && (
+                                    <DraggableItem id="sidebar" pos={data.sidebar.pos} onDrag={handleDrag} centered>
+                                        <div className="w-[280px]">
+                                            <div className="bg-[#0066FF] text-white p-2 text-xl font-black text-center shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase">
                                                 {data.sidebar.title}
                                             </div>
-                                            <div className="bg-white border-4 border-[#0066FF] p-4 flex justify-between shadow-lg">
-                                                {data.sidebar.parameters && data.sidebar.parameters.map((param, index) => (
-                                                    <div key={index} className="flex flex-col items-center">
-                                                        <div className="text-4xl font-black text-black">{param.value.split(' ')[0]}</div>
-                                                        <div className="text-sm font-bold text-gray-600">{param.value.split(' ')[1] || param.name}</div>
+                                            <div className="bg-white border-2 border-[#0066FF] p-4 flex justify-between shadow-[4px_4px_0_rgba(0,0,0,0.2)]">
+                                                {data.sidebar.parameters && data.sidebar.parameters.map((p, idx) => (
+                                                    <div key={idx} className="flex flex-col items-center">
+                                                        <span className="text-4xl font-black text-black">{p.value.split(' ')[0]}</span>
+                                                        <span className="text-[10px] font-bold text-slate-500 mt-1">{p.value.split(' ')[1] || p.name}</span>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
-                                    )}
-                                </div>
+                                    </DraggableItem>
+                                )}
+
+                                {/* REVIEWS */}
+                                {data.reviews && (
+                                    <DraggableItem id="reviews" pos={data.reviews.pos} onDrag={handleDrag} centered>
+                                        <div className="bg-white p-3 border-2 border-dashed border-slate-300 text-center shadow-md">
+                                            <div className="text-orange-400 text-xl tracking-[0.2em]">{"★".repeat(data.reviews.stars)}</div>
+                                            <p className="text-[10px] font-black leading-tight mt-1">{data.reviews.text}</p>
+                                        </div>
+                                    </DraggableItem>
+                                )}
                             </div>
                         </div>
                     </div>
+                </div>
+            );
+        }
+
+        // 拖拽辅助组件
+        function DraggableItem({ id, pos, onDrag, children, centered }) {
+            const ref = useRef(null);
+            const [startOffset, setStartOffset] = useState({ x: 0, y: 0 });
+
+            const onMouseDown = (e) => {
+                const rect = ref.current.getBoundingClientRect();
+                const offsetX = centered ? (e.clientX - (rect.left + rect.width / 2)) : (e.clientX - rect.left);
+                const offsetY = e.clientY - rect.top;
+                setStartOffset({ x: offsetX, y: offsetY });
+
+                const onMouseMove = (moveE) => onDrag(id, moveE.clientX, moveE.clientY, 'move', { x: offsetX, y: offsetY });
+                const onMouseUp = () => {
+                    window.removeEventListener('mousemove', onMouseMove);
+                    window.removeEventListener('mouseup', onMouseUp);
+                };
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+            };
+
+            const style = {
+                left: \`\${pos.x}px\`,
+                top: \`\${pos.y}px\`,
+                transform: centered ? 'translateX(-50%)' : 'none'
+            };
+
+            return (
+                <div ref={ref} onMouseDown={onMouseDown} className="absolute draggable-element" style={style}>
+                    {children}
                 </div>
             );
         }
