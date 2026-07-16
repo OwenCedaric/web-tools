@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视觉解耦排版 - {{siteName}}</title>
+    <meta name="description" content="视觉解耦排版引擎，支持高对比度电商图文渲染与导出。">
+    <meta name="tool-icon" content="ri-layout-masonry-line">
+    <meta name="tool-tags" content="Design, Typography, Tool">
+    <link rel="stylesheet" href="/src/style.css">
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        /* 强制渲染区西里尔字母使用无衬线粗体 */
+        .ru-typography {
+            font-family: "Arial Black", "Impact", sans-serif;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="返回首页">
+                <i class="ri-arrow-left-line text-xl opacity-70"></i>
+            </a>
+            <h1 class="text-lg font-semibold flex items-center gap-2">
+                <i class="ri-layout-masonry-line text-slate-900"></i>
+                <span class="tracking-tight">视觉解耦排版引擎</span>
+            </h1>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 lg:py-12">
+        <div id="root"></div>
+    </main>
+
+    <!-- Footer -->
+    <!-- INJECT_FOOTER -->
+
+    <div id="toastContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] pointer-events-none space-y-2"></div>
+
+    <script type="module">
+        import { showToast } from '/src/common.js';
+        window.showToast = showToast;
+    </script>
+    
+    <script type="text/babel">
+        const { useState, useRef } = React;
+
+        const defaultJSON = `{
+  "product_name": "ЧАЙНО-ЯГОДНЫЙ ЭНЕРГЕТИК",
+  "callouts": [
+    {"label": "НАТУРАЛЬНЫЙ", "content": "ЛИСТ ТЕА"},
+    {"label": "СУПЕР", "content": "ОХЛАЖДЕНИЕ"}
+  ],
+  "sidebar": {
+    "title": "ХАРАКТЕРИСТИКИ",
+    "parameters": [
+      {"name": "ОБЪЕМ", "value": "500 МЛ"},
+      {"name": "КЭШБЭК", "value": "10%"}
+    ]
+  }
+}`;
+
+        function App() {
+            const [imageSrc, setImageSrc] = useState(null);
+            const [jsonText, setJsonText] = useState(defaultJSON);
+            const [data, setData] = useState(JSON.parse(defaultJSON));
+            const canvasRef = useRef(null);
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => setImageSrc(event.target.result);
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const handleJsonUpdate = (e) => {
+                setJsonText(e.target.value);
+                try {
+                    const parsed = JSON.parse(e.target.value);
+                    setData(parsed);
+                } catch (err) {
+                    // 保持原有数据直至 JSON 格式合法
+                }
+            };
+
+            const handleExport = () => {
+                if (!canvasRef.current) return;
+                html2canvas(canvasRef.current, { scale: 2, useCORS: true }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'export-ru-ecommerce.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    if (window.showToast) {
+                        window.showToast('导出成功');
+                    }
+                });
+            };
+
+            return (
+                <div className="bg-white border border-slate-200 rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[70vh]">
+                    {/* 左侧：控制台 */}
+                    <div className="w-full md:w-1/3 bg-slate-50 border-r border-slate-200 p-8 flex flex-col gap-6">
+                        <div className="flex flex-col gap-3">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">1. 底图输入 (Base Image)</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="text-sm file:mr-4 file:py-2.5 file:px-5 file:border-0 file:rounded-xl file:text-xs file:font-bold file:bg-slate-900 file:text-white hover:file:bg-slate-800 transition-colors file:shadow-lg file:shadow-slate-900/10 cursor-pointer block w-full border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-3 flex-grow">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">2. 结构化数据 (JSON Payload)</label>
+                            <textarea
+                                value={jsonText}
+                                onChange={handleJsonUpdate}
+                                className="w-full flex-grow p-5 bg-white border border-slate-200 rounded-2xl text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none shadow-sm custom-scroll leading-relaxed"
+                            ></textarea>
+                        </div>
+
+                        <button
+                            onClick={handleExport}
+                            className="w-full py-4 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-lg shadow-slate-900/10 active:scale-95 transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
+                        >
+                            <i className="ri-download-2-line text-sm"></i> 导出复合图像
+                        </button>
+                    </div>
+
+                    {/* 右侧：3:4 渲染画布 */}
+                    <div className="w-full md:w-2/3 bg-slate-100/50 flex items-center justify-center p-8 overflow-auto">
+                        <div
+                            ref={canvasRef}
+                            className="relative bg-white shadow-xl overflow-hidden ru-typography"
+                            style={{ width: '600px', height: '800px', flexShrink: 0 }}
+                        >
+                            {/* 底图层 */}
+                            {imageSrc ? (
+                                <img src={imageSrc} alt="Base" className="absolute inset-0 w-full h-full object-cover z-0" />
+                            ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 bg-slate-50 z-0 m-6">
+                                    <i className="ri-image-add-line text-4xl text-slate-300 mb-2"></i>
+                                    <span className="text-slate-400 text-sm font-sans tracking-widest">等待底图渲染</span>
+                                </div>
+                            )}
+
+                            {/* 信息图表覆盖层 (Overlay UI) - 俄式高对比度逻辑 */}
+                            <div className="absolute inset-0 z-10 pointer-events-none p-6 flex flex-col justify-between">
+                                {/* 顶部主标题 */}
+                                {data.product_name && (
+                                    <div className="w-full flex justify-center">
+                                        <div className="bg-[#FF6B00] text-white px-6 py-3 text-3xl font-black shadow-lg">
+                                            {data.product_name}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 主体与侧边栏容器 */}
+                                <div className="flex justify-between items-end w-full h-full pb-8 pt-12">
+                                    {/* 左侧：悬浮标签 (Callouts) */}
+                                    <div className="flex flex-col gap-12 w-1/2">
+                                        {data.callouts && data.callouts.map((callout, index) => (
+                                            <div key={index} className="flex items-center">
+                                                <div className="bg-white border-2 border-black px-3 py-1 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                                                    <div className="text-black text-xs font-bold">{callout.label}</div>
+                                                    <div className="text-black text-lg font-black leading-none mt-1">{callout.content}</div>
+                                                </div>
+                                                {/* 指示线模拟 */}
+                                                <div className="w-8 h-[2px] bg-black"></div>
+                                                <div className="w-2 h-2 rounded-full border-2 border-black bg-white"></div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* 右侧：结构化参数侧边栏 (Sidebar) */}
+                                    {data.sidebar && (
+                                        <div className="w-[45%] flex flex-col gap-4">
+                                            {/* 参数面板 */}
+                                            <div className="bg-[#0066FF] text-white px-4 py-2 text-xl font-black text-center shadow-md">
+                                                {data.sidebar.title}
+                                            </div>
+                                            <div className="bg-white border-4 border-[#0066FF] p-4 flex justify-between shadow-lg">
+                                                {data.sidebar.parameters && data.sidebar.parameters.map((param, index) => (
+                                                    <div key={index} className="flex flex-col items-center">
+                                                        <div className="text-4xl font-black text-black">{param.value.split(' ')[0]}</div>
+                                                        <div className="text-sm font-bold text-gray-600">{param.value.split(' ')[1] || param.name}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
