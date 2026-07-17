@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     
     <style>
         /* 强制渲染区西里尔字母使用无衬线粗体 */
@@ -116,46 +116,27 @@
             };
 
             const handleDrag = (id, clientX, clientY, type, extra) => {
-                if (type === 'move') {
-                    const offset = extra;
-                    const rect = canvasRef.current.getBoundingClientRect();
-                    const scale = 600 / rect.width;
-                    let newX = (clientX - rect.left) * scale - offset.x;
-                    let newY = (clientY - rect.top) * scale - offset.y;
+                setData(prev => {
+                    const next = JSON.parse(JSON.stringify(prev));
+                    let target;
+                    if (id === 'p-name') target = next.product_name;
+                    else if (id === 'sidebar') target = next.sidebar;
+                    else if (id === 'reviews') target = next.reviews;
+                    else if (id.startsWith('callout-')) {
+                        const index = parseInt(id.split('-')[1]);
+                        target = next.callouts[index];
+                    }
+                    if (!target) return next;
 
-                    setData(prev => {
-                        const next = JSON.parse(JSON.stringify(prev));
-                        let target;
-                        if (id === 'p-name') target = next.product_name;
-                        else if (id === 'sidebar') target = next.sidebar;
-                        else if (id === 'reviews') target = next.reviews;
-                        else if (id.startsWith('callout-')) {
-                            const index = parseInt(id.split('-')[1]);
-                            target = next.callouts[index];
-                        }
-                        if (target) {
-                            target.pos = { x: newX, y: newY };
-                        }
-                        return next;
-                    });
-                } else if (type === 'resize') {
-                    const newScale = extra;
-                    setData(prev => {
-                        const next = JSON.parse(JSON.stringify(prev));
-                        let target;
-                        if (id === 'p-name') target = next.product_name;
-                        else if (id === 'sidebar') target = next.sidebar;
-                        else if (id === 'reviews') target = next.reviews;
-                        else if (id.startsWith('callout-')) {
-                            const index = parseInt(id.split('-')[1]);
-                            target = next.callouts[index];
-                        }
-                        if (target) {
-                            target.scale = newScale;
-                        }
-                        return next;
-                    });
-                }
+                    if (type === 'move') {
+                        target.pos = { x: extra.x, y: extra.y };
+                    } else if (type === 'resize') {
+                        target.scale = extra;
+                    } else if (type === 'width') {
+                        target.width = extra;
+                    }
+                    return next;
+                });
             };
 
             const handleImageUpload = (e) => {
@@ -170,24 +151,27 @@
             const exportImage = () => {
                 if (!canvasRef.current) return;
                 
-                if (typeof html2canvas === 'undefined') {
+                if (typeof htmlToImage === 'undefined') {
                     if (window.showToast) window.showToast('截图库加载失败，请检查网络');
                     else alert('截图库加载失败，请检查网络');
                     return;
                 }
                 
-                html2canvas(canvasRef.current, { scale: 2, useCORS: true }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `ru_ecomm_asset_${Date.now()}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    if (window.showToast) {
-                        window.showToast('导出成功');
-                    }
-                }).catch(err => {
-                    console.error('Export failed:', err);
-                    if (window.showToast) window.showToast('导出失败: ' + err.message);
-                });
+                htmlToImage.toPng(canvasRef.current, { pixelRatio: 2 })
+                    .then(dataUrl => {
+                        const link = document.createElement('a');
+                        link.download = `ru_ecomm_asset_${Date.now()}.png`;
+                        link.href = dataUrl;
+                        link.click();
+                        if (window.showToast) window.showToast('导出成功');
+                        else alert('导出成功');
+                    })
+                    .catch(err => {
+                        console.error('Export failed:', err);
+                        const msg = err ? (err.message || err.toString()) : '未知错误';
+                        if (window.showToast) window.showToast('导出失败: ' + msg);
+                        else alert('导出失败: ' + msg);
+                    });
             };
 
             return (
@@ -243,8 +227,15 @@
                                 {/* PRODUCT NAME */}
                                 {data.product_name && (
                                     <DraggableItem id="p-name" pos={data.product_name.pos} scale={data.product_name.scale || 1} onDrag={handleDrag} centered>
-                                        <div className="bg-[#FF6B00] text-white px-6 py-2 text-3xl font-black shadow-[4px_4px_0_rgba(0,0,0,1)] whitespace-nowrap">
-                                            {data.product_name.text}
+                                        <div className="relative">
+                                            <div 
+                                                className="bg-[#FF6B00] text-white px-6 py-2 text-3xl font-black shadow-[4px_4px_0_rgba(0,0,0,1)] whitespace-pre-wrap break-words text-center"
+                                                style={{ width: data.product_name.width ? `${data.product_name.width}px` : 'auto', minWidth: '150px' }}
+                                            >
+                                                {data.product_name.text}
+                                            </div>
+                                            <WidthHandle id="p-name" width={data.product_name.width} scale={data.product_name.scale || 1} startWidthDefault={200} onDrag={handleDrag} dir="right" />
+                                            <WidthHandle id="p-name" width={data.product_name.width} scale={data.product_name.scale || 1} startWidthDefault={200} onDrag={handleDrag} dir="left" />
                                         </div>
                                     </DraggableItem>
                                 )}
@@ -254,9 +245,22 @@
                                     <DraggableItem key={i} id={`callout-${i}`} pos={c.pos} scale={c.scale || 1} onDrag={handleDrag}>
                                         <div className={`flex items-center ${c.dir === 'right' ? 'flex-row-reverse' : 'flex-row'}`}>
                                             {/* LABEL BOX */}
-                                            <div className={`bg-white border-2 border-black p-2 shadow-[4px_4px_0_rgba(0,0,0,1)] min-w-[120px] ${c.dir === 'right' ? 'text-right' : 'text-left'}`}>
-                                                <div className="text-[10px] font-bold text-slate-500">{c.label}</div>
-                                                <div className="text-lg font-black text-black leading-none mt-1">{c.content}</div>
+                                            <div className="relative">
+                                                <div 
+                                                    className={`bg-white border-2 border-black p-2 shadow-[4px_4px_0_rgba(0,0,0,1)] whitespace-pre-wrap break-words ${c.dir === 'right' ? 'text-right' : 'text-left'}`}
+                                                    style={{ width: c.width ? `${c.width}px` : 'auto', minWidth: '120px' }}
+                                                >
+                                                    <div className="text-[10px] font-bold text-slate-500">{c.label}</div>
+                                                    <div className="text-lg font-black text-black leading-none mt-1">{c.content}</div>
+                                                </div>
+                                                <WidthHandle 
+                                                    id={`callout-${i}`} 
+                                                    width={c.width} 
+                                                    scale={c.scale || 1}
+                                                    startWidthDefault={120} 
+                                                    onDrag={handleDrag} 
+                                                    dir={c.dir === 'right' ? 'left' : 'right'} 
+                                                />
                                             </div>
                                             {/* DYNAMIC POINTER LINE */}
                                             <div className="flex items-center">
@@ -270,18 +274,22 @@
                                 {/* SIDEBAR */}
                                 {data.sidebar && (
                                     <DraggableItem id="sidebar" pos={data.sidebar.pos} scale={data.sidebar.scale || 1} onDrag={handleDrag} centered>
-                                        <div className="w-[280px]">
-                                            <div className="bg-[#0066FF] text-white p-2 text-xl font-black text-center shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase">
-                                                {data.sidebar.title}
+                                        <div className="relative">
+                                            <div style={{ width: data.sidebar.width ? `${data.sidebar.width}px` : '280px', minWidth: '180px' }}>
+                                                <div className="bg-[#0066FF] text-white p-2 text-xl font-black text-center shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase whitespace-pre-wrap break-words">
+                                                    {data.sidebar.title}
+                                                </div>
+                                                <div className="bg-white border-2 border-[#0066FF] p-4 flex justify-between shadow-[4px_4px_0_rgba(0,0,0,0.2)]">
+                                                    {data.sidebar.parameters && data.sidebar.parameters.map((p, idx) => (
+                                                        <div key={idx} className="flex flex-col items-center">
+                                                            <span className="text-4xl font-black text-black">{p.value.split(' ')[0]}</span>
+                                                            <span className="text-[10px] font-bold text-slate-500 mt-1">{p.value.split(' ')[1] || p.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className="bg-white border-2 border-[#0066FF] p-4 flex justify-between shadow-[4px_4px_0_rgba(0,0,0,0.2)]">
-                                                {data.sidebar.parameters && data.sidebar.parameters.map((p, idx) => (
-                                                    <div key={idx} className="flex flex-col items-center">
-                                                        <span className="text-4xl font-black text-black">{p.value.split(' ')[0]}</span>
-                                                        <span className="text-[10px] font-bold text-slate-500 mt-1">{p.value.split(' ')[1] || p.name}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
+                                            <WidthHandle id="sidebar" width={data.sidebar.width} scale={data.sidebar.scale || 1} startWidthDefault={280} onDrag={handleDrag} dir="right" />
+                                            <WidthHandle id="sidebar" width={data.sidebar.width} scale={data.sidebar.scale || 1} startWidthDefault={280} onDrag={handleDrag} dir="left" />
                                         </div>
                                     </DraggableItem>
                                 )}
@@ -289,9 +297,16 @@
                                 {/* REVIEWS */}
                                 {data.reviews && (
                                     <DraggableItem id="reviews" pos={data.reviews.pos} scale={data.reviews.scale || 1} onDrag={handleDrag} centered>
-                                        <div className="bg-white p-3 border-2 border-dashed border-slate-300 text-center shadow-md">
-                                            <div className="text-orange-400 text-xl tracking-[0.2em]">{"★".repeat(data.reviews.stars)}</div>
-                                            <p className="text-[10px] font-black leading-tight mt-1">{data.reviews.text}</p>
+                                        <div className="relative">
+                                            <div 
+                                                className="bg-white p-3 border-2 border-dashed border-slate-300 text-center shadow-md whitespace-pre-wrap break-words"
+                                                style={{ width: data.reviews.width ? `${data.reviews.width}px` : 'auto', minWidth: '150px' }}
+                                            >
+                                                <div className="text-orange-400 text-xl tracking-[0.2em]">{"★".repeat(data.reviews.stars)}</div>
+                                                <p className="text-[10px] font-black leading-tight mt-1">{data.reviews.text}</p>
+                                            </div>
+                                            <WidthHandle id="reviews" width={data.reviews.width} scale={data.reviews.scale || 1} startWidthDefault={150} onDrag={handleDrag} dir="right" />
+                                            <WidthHandle id="reviews" width={data.reviews.width} scale={data.reviews.scale || 1} startWidthDefault={150} onDrag={handleDrag} dir="left" />
                                         </div>
                                     </DraggableItem>
                                 )}
@@ -308,10 +323,9 @@
 
             const onMouseDown = (e) => {
                 e.stopPropagation();
-                const rect = ref.current.getBoundingClientRect();
                 
-                // 处理调整大小
-                if (e.target.classList.contains('resize-handle')) {
+                // 处理整体缩放
+                if (e.target.classList.contains('scale-handle') || e.target.closest('.scale-handle')) {
                     const startX = e.clientX;
                     const startScale = scale;
                     const onMouseMove = (moveE) => {
@@ -328,11 +342,24 @@
                     return;
                 }
 
-                // 处理移动
-                const offsetX = centered ? (e.clientX - (rect.left + rect.width / 2)) : (e.clientX - rect.left);
-                const offsetY = e.clientY - rect.top;
+                // 处理平滑移动 (使用Delta规避scale偏移)
+                const startClientX = e.clientX;
+                const startClientY = e.clientY;
+                const startPos = { ...pos };
 
-                const onMouseMove = (moveE) => onDrag(id, moveE.clientX, moveE.clientY, 'move', { x: offsetX, y: offsetY });
+                const onMouseMove = (moveE) => {
+                    const canvasRect = document.querySelector('.canvas-container').getBoundingClientRect();
+                    const viewScale = 600 / canvasRect.width;
+                    
+                    const deltaX = (moveE.clientX - startClientX) * viewScale;
+                    const deltaY = (moveE.clientY - startClientY) * viewScale;
+                    
+                    onDrag(id, 0, 0, 'move', { 
+                        x: Math.round(startPos.x + deltaX), 
+                        y: Math.round(startPos.y + deltaY) 
+                    });
+                };
+                
                 const onMouseUp = () => {
                     window.removeEventListener('mousemove', onMouseMove);
                     window.removeEventListener('mouseup', onMouseUp);
@@ -351,8 +378,47 @@
             return (
                 <div ref={ref} onMouseDown={onMouseDown} className="absolute draggable-element group" style={style}>
                     {children}
-                    <div className="resize-handle absolute -right-3 -bottom-3 w-6 h-6 bg-slate-800 border-2 border-white rounded-full shadow-md opacity-0 group-hover:opacity-100 cursor-ew-resize flex items-center justify-center transition-opacity z-50"></div>
+                    <div className="scale-handle absolute -right-3 -bottom-3 w-6 h-6 bg-slate-800 border-2 border-white rounded-full shadow-md opacity-0 group-hover:opacity-100 cursor-nwse-resize flex items-center justify-center transition-opacity z-50" title="拖拽缩放(文字大小)">
+                        <svg className="w-3 h-3 text-white pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                    </div>
                 </div>
+            );
+        }
+
+        // 宽度调整手柄 (用于控制文字换行)
+        function WidthHandle({ id, width, scale = 1, onDrag, startWidthDefault, dir = 'right' }) {
+            const onMouseDown = (e) => {
+                e.stopPropagation();
+                const startX = e.clientX;
+                const startWidth = width || startWidthDefault;
+                
+                const onMouseMove = (moveE) => {
+                    const canvasRect = document.querySelector('.canvas-container').getBoundingClientRect();
+                    const viewScale = 600 / canvasRect.width;
+                    
+                    // 修正因为缩放导致的拖拽速度差异
+                    const deltaX = (moveE.clientX - startX) * viewScale / scale;
+                    const delta = dir === 'left' ? -deltaX : deltaX;
+                    const newWidth = Math.max(50, startWidth + delta);
+                    
+                    onDrag(id, 0, 0, 'width', Math.round(newWidth));
+                };
+                const onMouseUp = () => {
+                    window.removeEventListener('mousemove', onMouseMove);
+                    window.removeEventListener('mouseup', onMouseUp);
+                };
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+            };
+
+            const posClass = dir === 'left' ? '-left-2 cursor-w-resize' : '-right-2 cursor-e-resize';
+
+            return (
+                <div 
+                    onMouseDown={onMouseDown}
+                    className={`absolute top-0 bottom-0 w-4 ${posClass} bg-blue-500/0 hover:bg-blue-500/50 transition-colors z-40 rounded`}
+                    title="拖拽调整宽度(控制换行)"
+                ></div>
             );
         }
 
