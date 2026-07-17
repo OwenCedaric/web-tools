@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         /* 强制渲染区西里尔字母使用无衬线粗体 */
@@ -115,24 +115,47 @@
                 } catch (err) { }
             };
 
-            const handleDrag = (id, clientX, clientY, type, offset) => {
-                if (type !== 'move') return;
-                const rect = canvasRef.current.getBoundingClientRect();
-                const scale = 600 / rect.width;
-                let newX = (clientX - rect.left) * scale - offset.x;
-                let newY = (clientY - rect.top) * scale - offset.y;
+            const handleDrag = (id, clientX, clientY, type, extra) => {
+                if (type === 'move') {
+                    const offset = extra;
+                    const rect = canvasRef.current.getBoundingClientRect();
+                    const scale = 600 / rect.width;
+                    let newX = (clientX - rect.left) * scale - offset.x;
+                    let newY = (clientY - rect.top) * scale - offset.y;
 
-                setData(prev => {
-                    const next = { ...prev };
-                    if (id === 'p-name') next.product_name.pos = { x: newX, y: newY };
-                    else if (id === 'sidebar') next.sidebar.pos = { x: newX, y: newY };
-                    else if (id === 'reviews') next.reviews.pos = { x: newX, y: newY };
-                    else if (id.startsWith('callout-')) {
-                        const index = parseInt(id.split('-')[1]);
-                        next.callouts[index].pos = { x: newX, y: newY };
-                    }
-                    return next;
-                });
+                    setData(prev => {
+                        const next = JSON.parse(JSON.stringify(prev));
+                        let target;
+                        if (id === 'p-name') target = next.product_name;
+                        else if (id === 'sidebar') target = next.sidebar;
+                        else if (id === 'reviews') target = next.reviews;
+                        else if (id.startsWith('callout-')) {
+                            const index = parseInt(id.split('-')[1]);
+                            target = next.callouts[index];
+                        }
+                        if (target) {
+                            target.pos = { x: newX, y: newY };
+                        }
+                        return next;
+                    });
+                } else if (type === 'resize') {
+                    const newScale = extra;
+                    setData(prev => {
+                        const next = JSON.parse(JSON.stringify(prev));
+                        let target;
+                        if (id === 'p-name') target = next.product_name;
+                        else if (id === 'sidebar') target = next.sidebar;
+                        else if (id === 'reviews') target = next.reviews;
+                        else if (id.startsWith('callout-')) {
+                            const index = parseInt(id.split('-')[1]);
+                            target = next.callouts[index];
+                        }
+                        if (target) {
+                            target.scale = newScale;
+                        }
+                        return next;
+                    });
+                }
             };
 
             const handleImageUpload = (e) => {
@@ -146,6 +169,13 @@
 
             const exportImage = () => {
                 if (!canvasRef.current) return;
+                
+                if (typeof html2canvas === 'undefined') {
+                    if (window.showToast) window.showToast('截图库加载失败，请检查网络');
+                    else alert('截图库加载失败，请检查网络');
+                    return;
+                }
+                
                 html2canvas(canvasRef.current, { scale: 2, useCORS: true }).then(canvas => {
                     const link = document.createElement('a');
                     link.download = `ru_ecomm_asset_${Date.now()}.png`;
@@ -154,6 +184,9 @@
                     if (window.showToast) {
                         window.showToast('导出成功');
                     }
+                }).catch(err => {
+                    console.error('Export failed:', err);
+                    if (window.showToast) window.showToast('导出失败: ' + err.message);
                 });
             };
 
@@ -176,7 +209,7 @@
                             <textarea
                                 value={jsonText}
                                 onChange={handleJsonChange}
-                                className="w-full flex-grow p-5 bg-white border border-slate-200 rounded-2xl text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none shadow-sm custom-scroll leading-relaxed"
+                                className="w-full flex-grow p-5 bg-white border border-slate-200 rounded-2xl text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-y shadow-sm custom-scroll leading-relaxed"
                             ></textarea>
                         </div>
 
@@ -209,7 +242,7 @@
                             <div className="absolute inset-0 z-10 p-8">
                                 {/* PRODUCT NAME */}
                                 {data.product_name && (
-                                    <DraggableItem id="p-name" pos={data.product_name.pos} onDrag={handleDrag} centered>
+                                    <DraggableItem id="p-name" pos={data.product_name.pos} scale={data.product_name.scale || 1} onDrag={handleDrag} centered>
                                         <div className="bg-[#FF6B00] text-white px-6 py-2 text-3xl font-black shadow-[4px_4px_0_rgba(0,0,0,1)] whitespace-nowrap">
                                             {data.product_name.text}
                                         </div>
@@ -218,7 +251,7 @@
 
                                 {/* CALLOUTS (左右双向) */}
                                 {data.callouts && data.callouts.map((c, i) => (
-                                    <DraggableItem key={i} id={`callout-${i}`} pos={c.pos} onDrag={handleDrag}>
+                                    <DraggableItem key={i} id={`callout-${i}`} pos={c.pos} scale={c.scale || 1} onDrag={handleDrag}>
                                         <div className={`flex items-center ${c.dir === 'right' ? 'flex-row-reverse' : 'flex-row'}`}>
                                             {/* LABEL BOX */}
                                             <div className={`bg-white border-2 border-black p-2 shadow-[4px_4px_0_rgba(0,0,0,1)] min-w-[120px] ${c.dir === 'right' ? 'text-right' : 'text-left'}`}>
@@ -236,7 +269,7 @@
 
                                 {/* SIDEBAR */}
                                 {data.sidebar && (
-                                    <DraggableItem id="sidebar" pos={data.sidebar.pos} onDrag={handleDrag} centered>
+                                    <DraggableItem id="sidebar" pos={data.sidebar.pos} scale={data.sidebar.scale || 1} onDrag={handleDrag} centered>
                                         <div className="w-[280px]">
                                             <div className="bg-[#0066FF] text-white p-2 text-xl font-black text-center shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase">
                                                 {data.sidebar.title}
@@ -255,7 +288,7 @@
 
                                 {/* REVIEWS */}
                                 {data.reviews && (
-                                    <DraggableItem id="reviews" pos={data.reviews.pos} onDrag={handleDrag} centered>
+                                    <DraggableItem id="reviews" pos={data.reviews.pos} scale={data.reviews.scale || 1} onDrag={handleDrag} centered>
                                         <div className="bg-white p-3 border-2 border-dashed border-slate-300 text-center shadow-md">
                                             <div className="text-orange-400 text-xl tracking-[0.2em]">{"★".repeat(data.reviews.stars)}</div>
                                             <p className="text-[10px] font-black leading-tight mt-1">{data.reviews.text}</p>
@@ -270,15 +303,34 @@
         }
 
         // 拖拽辅助组件
-        function DraggableItem({ id, pos, onDrag, children, centered }) {
+        function DraggableItem({ id, pos, scale = 1, onDrag, children, centered }) {
             const ref = useRef(null);
-            const [startOffset, setStartOffset] = useState({ x: 0, y: 0 });
 
             const onMouseDown = (e) => {
+                e.stopPropagation();
                 const rect = ref.current.getBoundingClientRect();
+                
+                // 处理调整大小
+                if (e.target.classList.contains('resize-handle')) {
+                    const startX = e.clientX;
+                    const startScale = scale;
+                    const onMouseMove = (moveE) => {
+                        const deltaX = moveE.clientX - startX;
+                        const newScale = Math.max(0.3, Math.min(5, startScale + deltaX * 0.01));
+                        onDrag(id, 0, 0, 'resize', Number(newScale.toFixed(2)));
+                    };
+                    const onMouseUp = () => {
+                        window.removeEventListener('mousemove', onMouseMove);
+                        window.removeEventListener('mouseup', onMouseUp);
+                    };
+                    window.addEventListener('mousemove', onMouseMove);
+                    window.addEventListener('mouseup', onMouseUp);
+                    return;
+                }
+
+                // 处理移动
                 const offsetX = centered ? (e.clientX - (rect.left + rect.width / 2)) : (e.clientX - rect.left);
                 const offsetY = e.clientY - rect.top;
-                setStartOffset({ x: offsetX, y: offsetY });
 
                 const onMouseMove = (moveE) => onDrag(id, moveE.clientX, moveE.clientY, 'move', { x: offsetX, y: offsetY });
                 const onMouseUp = () => {
@@ -292,12 +344,14 @@
             const style = {
                 left: `${pos.x}px`,
                 top: `${pos.y}px`,
-                transform: centered ? 'translateX(-50%)' : 'none'
+                transform: centered ? `translateX(-50%) scale(${scale})` : `scale(${scale})`,
+                transformOrigin: centered ? 'top center' : 'top left',
             };
 
             return (
-                <div ref={ref} onMouseDown={onMouseDown} className="absolute draggable-element" style={style}>
+                <div ref={ref} onMouseDown={onMouseDown} className="absolute draggable-element group" style={style}>
                     {children}
+                    <div className="resize-handle absolute -right-3 -bottom-3 w-6 h-6 bg-slate-800 border-2 border-white rounded-full shadow-md opacity-0 group-hover:opacity-100 cursor-ew-resize flex items-center justify-center transition-opacity z-50"></div>
                 </div>
             );
         }
